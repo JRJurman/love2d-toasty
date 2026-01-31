@@ -1,5 +1,13 @@
+require('dump')
+require('shuffle')
+
 require('animation')
 local ease = require('ease')
+
+local cardSize = {
+	width = 125,
+	height = 125
+}
 
 -- UI elements
 local ui = {
@@ -87,15 +95,15 @@ local ui = {
 		-- position and size
 		x = 500,
 		y = 30,
-		width = 125,
-		height = 125,
+		width = cardSize.width,
+		height = cardSize.height,
 	},
 	discardPile = {
 		-- position and size
 		x = 645,
 		y = 30,
-		width = 125,
-		height = 125,
+		width = cardSize.width,
+		height = cardSize.height,
 	},
 	card1 = {
 		label = 'First Card',
@@ -110,8 +118,8 @@ local ui = {
 		-- position and size
 		x = 40,
 		y = 30,
-		width = 125,
-		height = 125,
+		width = cardSize.width,
+		height = cardSize.height,
 	},
 	card2 = {
 		label = 'Second Card',
@@ -126,8 +134,8 @@ local ui = {
 		-- position and size
 		x = 175,
 		y = 30,
-		width = 125,
-		height = 125,
+		width = cardSize.width,
+		height = cardSize.height,
 	},
 	card3 = {
 		label = 'Third Card',
@@ -142,56 +150,65 @@ local ui = {
 		-- position and size
 		x = 310,
 		y = 30,
-		width = 125,
-		height = 125,
+		width = cardSize.width,
+		height = cardSize.height,
 	},
 }
 
 local cardDetails = {
-	A = {
-		name = 'Bread',
+	[1] = {
+		label = 'Bread',
 		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.'
 	},
 	[2] = {
-		name = 'Strawberries',
+		label = 'Strawberries',
 		effect = 'when played, previews the next three cards in the deck'
 	},
 	[3] = {
-		name = 'Blueberries',
+		label = 'Blueberries',
 		effect = 'when played, preview the next card, you may shuffle'
 	},
 	[4] = {
-		name = 'Oranges',
+		label = 'Oranges',
 		effect = 'preview the next card, you may draw'
 	},
 	[5] = {
-		name = 'Avocado',
+		label = 'Avocado',
 		effect = 'preview the next 3 cards, you may draw one, if you do, shuffle the rest'
 	},
 	[6] = {
-		name = 'Jam',
+		label = 'Jam',
 		effect = '+1 point'
 	},
 	[7] = {
-		name = 'Tomatoes',
+		label = 'Tomatoes',
 		effect = '+1 point'
 	},
 	[8] = {
-		name = 'Hummus',
+		label = 'Hummus',
 		effect = '+1 point'
 	},
 	[9] = {
-		name = 'Bananas',
+		label = 'Bananas',
 		effect = '+1 point'
 	},
 }
 
 local deck = {
-	'A', 'A', 'A', 'A',
-	'2', '2', '3', '3', '4', '4',
-	'5', '5', '6', '6', '7', '7',
-	'8', '8', '9', '9', '9', '9',
+	1, 1, 1, 1,
+	2, 2, 3, 3, 4, 4,
+	5, 5, 6, 6, 7, 7,
+	8, 8, 9, 9, 9, 9,
 }
+
+local drawPile = shuffle(deck)
+local discardPile = {}
+local hand = {}
+
+-- draw three cards from drawPile to hand
+table.insert(hand, table.remove(drawPile, 1))
+table.insert(hand, table.remove(drawPile, 1))
+table.insert(hand, table.remove(drawPile, 1))
 
 local selection = 'hand'
 local cursor = {
@@ -228,12 +245,22 @@ function love.draw()
 	love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
 	love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
 	love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
+	if hand[1] then
+		love.graphics.printf(cardDetails[hand[1]].label, ui.card1.x, ui.card1.y + ui.card1.height, ui.card1.width, 'center')
+	end
+	if hand[2] then
+		love.graphics.printf(cardDetails[hand[2]].label, ui.card2.x, ui.card2.y + ui.card2.height, ui.card2.width, 'center')
+	end
+	if hand[3] then
+		love.graphics.printf(cardDetails[hand[3]].label, ui.card3.x, ui.card3.y + ui.card3.height, ui.card3.width, 'center')
+	end
 
 	-- draw drawPile and discardPile
 	love.graphics.setColor(0.43, 0.43, 0.47)
 	love.graphics.rectangle("line", ui.drawPile.x, ui.drawPile.y, ui.drawPile.width, ui.drawPile.height)
 	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
-
+	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/2, ui.drawPile.width, 'center')
+	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/2, ui.discardPile.width, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -266,6 +293,9 @@ end
 function love.keypressed(key)
 	key = remap(key)
 
+	local isCardSelected = selection == 'card1' or selection == 'card2' or selection == 'card3'
+
+	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' or key == 'select' then
 		local nextSelection = ui[selection][key]
 		if nextSelection == 'none' then
@@ -274,10 +304,9 @@ function love.keypressed(key)
 
 		-- if they press up or down, make sure they can get back to the previous option
 		-- don't do this if they are in a hand selection
-		local isCardSelection = selection == 'card1' or selection == 'card2' or selection == 'card3'
-		if key == 'up' and not isCardSelection then
+		if key == 'up' and not isCardSelected then
 			ui[nextSelection].down = selection
-		elseif key == 'down' and not isCardSelection then
+		elseif key == 'down' and not isCardSelected then
 			ui[nextSelection].up = selection
 		end
 
@@ -323,6 +352,11 @@ function love.keypressed(key)
 		dirLabel = ui[selection].label
 		ttsText = dirLabel..' selected. '..navDirections
 		print('tts: '..ttsText)
+	end
+
+	-- card selection
+	if key == 'select' and isCardSelected then
+
 	end
 
 	-- repeat text if r was pressed

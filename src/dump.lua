@@ -1,5 +1,7 @@
--- from https://stackoverflow.com/a/27028488/864715
--- simple function for printing the details of a table
+-- Source - https://stackoverflow.com/a/27028488
+-- Posted by hookenz, modified by community. See post 'Timeline' for change history
+-- Retrieved 2026-01-31, License - CC BY-SA 4.0
+
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
