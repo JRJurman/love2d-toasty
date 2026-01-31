@@ -1,19 +1,6 @@
 require('animation')
 local ease = require('ease')
 
-function dump(o)
-   if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-         if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-   else
-      return tostring(o)
-   end
-end
-
 -- UI elements
 local ui = {
 	hand = {
@@ -132,7 +119,6 @@ function love.keypressed(key)
 
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
 		local nextSelection = ui[selection][key]
-		print('nextSelection '..nextSelection)
 		if nextSelection == 'none' then
 			return
 		end
@@ -145,7 +131,6 @@ function love.keypressed(key)
 		end
 
 		selection = ui[selection][key]
-		print('selection: '..dump(ui[selection]))
 		local posEaseFunction = ease.inovershoot
 		local sizeEaseFunction = ease.inovershoot
 		local animationSpeed = 0.35
@@ -161,10 +146,22 @@ function love.keypressed(key)
 		async(routines, function()
 			animate(cursor, "height", ui[selection].height, animationSpeed, sizeEaseFunction)
 		end)
-	end
 
-	-- if any key is pressed, stop any animations already running
-	-- stopAnimations(routines)
+		local navDirections = 'Use arrow keys to change selection: '
+		if ui[selection].up ~= 'none' then
+			navDirections = navDirections..' up, '..ui[selection].up..'; '
+		end
+		if ui[selection].down ~= 'none' then
+			navDirections = navDirections..' down, '..ui[selection].down..'; '
+		end
+		if ui[selection].left ~= 'none' then
+			navDirections = navDirections..' left, '..ui[selection].left..'; '
+		end
+		if ui[selection].right ~= 'none' then
+			navDirections = navDirections..' right, '..ui[selection].right..'. '
+		end
+		print('tts: '..navDirections)
+	end
 
 	-- repeat text if r was pressed
 	if key == "r" then
