@@ -4,7 +4,7 @@ local ease = require('ease')
 -- "Coroutines and Animation in PICO-8" - https://youtu.be/tfGmjB72t0o
 
 -- helper function to add routines to our global table
-function async(func)
+function async(routines, func)
 	table.insert(routines, coroutine.create(func))
 end
 
