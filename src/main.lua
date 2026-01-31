@@ -4,6 +4,8 @@ local ease = require('ease')
 -- UI elements
 local ui = {
 	hand = {
+		label = 'Hand',
+
 		-- going in a direction goes to what?
 		up = 'none',
 		left = 'none',
@@ -18,6 +20,8 @@ local ui = {
 		height = 200,
 	},
 	served = {
+		label = 'Completed Plates',
+
 		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'none',
@@ -32,6 +36,8 @@ local ui = {
 		height = 370,
 	},
 	plate = {
+		label = 'Current Plate',
+
 		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'served',
@@ -46,6 +52,8 @@ local ui = {
 		height = 370,
 	},
 	score = {
+		label = 'Round Score',
+
 		-- going in a direction goes to what?
 		up = 'deck',
 		left = 'plate',
@@ -60,6 +68,8 @@ local ui = {
 		height = 140,
 	},
 	deck = {
+		label = 'Draw and Discard Piles',
+
 		-- going in a direction goes to what?
 		up = 'none',
 		left = 'hand',
@@ -73,7 +83,23 @@ local ui = {
 		width = 310,
 		height = 200,
 	},
+	drawPile = {
+		-- position and size
+		x = 500,
+		y = 30,
+		width = 125,
+		height = 125,
+	},
+	discardPile = {
+		-- position and size
+		x = 645,
+		y = 30,
+		width = 125,
+		height = 125,
+	},
 	card1 = {
+		label = 'First Card',
+
 		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'none',
@@ -88,6 +114,8 @@ local ui = {
 		height = 125,
 	},
 	card2 = {
+		label = 'Second Card',
+
 		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'card1',
@@ -102,6 +130,8 @@ local ui = {
 		height = 125,
 	},
 	card3 = {
+		label = 'Third Card',
+
 		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'card2',
@@ -117,13 +147,50 @@ local ui = {
 	},
 }
 
+local cardDetails = {
+	A = {
+		name = 'Bread',
+		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.'
+	},
+	[2] = {
+		name = 'Strawberries',
+		effect = 'when played, previews the next three cards in the deck'
+	},
+	[3] = {
+		name = 'Blueberries',
+		effect = 'when played, preview the next card, you may shuffle'
+	},
+	[4] = {
+		name = 'Oranges',
+		effect = 'preview the next card, you may draw'
+	},
+	[5] = {
+		name = 'Avocado',
+		effect = 'preview the next 3 cards, you may draw one, if you do, shuffle the rest'
+	},
+	[6] = {
+		name = 'Jam',
+		effect = '+1 point'
+	},
+	[7] = {
+		name = 'Tomatoes',
+		effect = '+1 point'
+	},
+	[8] = {
+		name = 'Hummus',
+		effect = '+1 point'
+	},
+	[9] = {
+		name = 'Bananas',
+		effect = '+1 point'
+	},
+}
+
 local deck = {
 	'A', 'A', 'A', 'A',
-	'1', '1', '2', '2',
-	'3', '3', '4', '4',
-	'5', '5', '6', '6',
-	'7', '7', '8', '8',
-	'9', '9', '9', '9',
+	'2', '2', '3', '3', '4', '4',
+	'5', '5', '6', '6', '7', '7',
+	'8', '8', '9', '9', '9', '9',
 }
 
 local selection = 'hand'
@@ -161,6 +228,12 @@ function love.draw()
 	love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
 	love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
 	love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
+
+	-- draw drawPile and discardPile
+	love.graphics.setColor(0.43, 0.43, 0.47)
+	love.graphics.rectangle("line", ui.drawPile.x, ui.drawPile.y, ui.drawPile.width, ui.drawPile.height)
+	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
+
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -226,22 +299,29 @@ function love.keypressed(key)
 		end)
 
 		local navDirections = 'Use the following keys to change selection: '
+		local dirLabel = ''
 		if ui[selection].select ~= 'none' then
-			navDirections = navDirections..' select, '..ui[selection].select..'. '
+			dirLabel = ui[ui[selection].select].label
+			navDirections = navDirections..' select, '..dirLabel..'. '
 		end
 		if ui[selection].up ~= 'none' then
-			navDirections = navDirections..' up, '..ui[selection].up..'; '
+			dirLabel = ui[ui[selection].up].label
+			navDirections = navDirections..' up, '..dirLabel..'; '
 		end
 		if ui[selection].down ~= 'none' then
-			navDirections = navDirections..' down, '..ui[selection].down..'; '
+			dirLabel = ui[ui[selection].down].label
+			navDirections = navDirections..' down, '..dirLabel..'; '
 		end
 		if ui[selection].left ~= 'none' then
-			navDirections = navDirections..' left, '..ui[selection].left..'; '
+			dirLabel = ui[ui[selection].left].label
+			navDirections = navDirections..' left, '..dirLabel..'; '
 		end
 		if ui[selection].right ~= 'none' then
-			navDirections = navDirections..' right, '..ui[selection].right..'. '
+			dirLabel = ui[ui[selection].right].label
+			navDirections = navDirections..' right, '..dirLabel..'. '
 		end
-		ttsText = selection..' selected. '..navDirections
+		dirLabel = ui[selection].label
+		ttsText = dirLabel..' selected. '..navDirections
 		print('tts: '..ttsText)
 	end
 
