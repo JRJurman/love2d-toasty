@@ -201,9 +201,33 @@ local deck = {
 	8, 8, 9, 9, 9, 9,
 }
 
-local drawPile = shuffle(deck)
+local drawPile = {}
+function countValueInTopOfPile(pile, count, value)
+	local totalCount = 0
+	for pileIndex=1, count do
+		if pile[pileIndex] == value then
+			totalCount = totalCount + 1
+		end
+	end
+	return totalCount
+end
+function shuffleDrawPile()
+	-- keep shuffling until the first six contain exactly 1 bread
+	-- or until we hit like, 200 shuffles (give up at that point)
+	local totalShuffles = 0
+	repeat
+		print('shuffling.. '..totalShuffles)
+		totalShuffles = totalShuffles + 1
+		drawPile = shuffle(deck)
+	until countValueInTopOfPile(drawPile, 6, 1) == 1 or totalShuffles > 200
+end
+
+shuffleDrawPile()
+
 local discardPile = {}
 local hand = {}
+local currentPlate = {}
+local completedPlates = {}
 
 local selection = 'hand'
 local cursor = {
@@ -217,31 +241,45 @@ local	routines = {}
 local ttsText = ''
 
 local navAnimationSpeed = 0.35
-local drawAnimationSpeed = 1
+local drawAnimationSpeed = 0.8
 
 local cardFromDeck = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+
+function drawFromDeck()
+	cardFromDeck.enabled = true
+	cardFromDeck.x = ui.drawPile.x
+	cardFromDeck.y = ui.drawPile.y
+	local target = ui.card1
+	if hand[1] == nil then
+
+		target = ui.card1
+	elseif hand[2] == nil then
+		target = ui.card2
+	elseif hand[3] == nil then
+		target = ui.card3
+	end
+	animate(cardFromDeck, "x", target.x, drawAnimationSpeed, ease.inovershoot)
+	table.insert(hand, table.remove(drawPile, 1))
+	cardFromDeck.enabled = false
+end
+
+function drawThree()
+	-- draw three cards from drawPile to hand
+	async(routines, function()
+		drawFromDeck()
+		drawFromDeck()
+		drawFromDeck()
+
+		-- check if any are bread (these automatically are played)
+
+	end)
+end
 
 function love.load()
 	print('tts: Created by Jesse Jurman.')
 
-	-- draw three cards from drawPile to hand
-	local posEaseFunction = ease.inovershoot
-	async(routines, function()
-		cardFromDeck.enabled = true
-		cardFromDeck.x = ui.drawPile.x
-		cardFromDeck.y = ui.drawPile.y
-		animate(cardFromDeck, "x", ui.card1.x, drawAnimationSpeed, posEaseFunction)
-		table.insert(hand, table.remove(drawPile, 1))
-		cardFromDeck.x = ui.drawPile.x
-		cardFromDeck.y = ui.drawPile.y
-		animate(cardFromDeck, "x", ui.card2.x, drawAnimationSpeed, posEaseFunction)
-		table.insert(hand, table.remove(drawPile, 1))
-		cardFromDeck.x = ui.drawPile.x
-		cardFromDeck.y = ui.drawPile.y
-		animate(cardFromDeck, "x", ui.card3.x, drawAnimationSpeed, posEaseFunction)
-		table.insert(hand, table.remove(drawPile, 1))
-		cardFromDeck.enabled = false
-	end)
+	-- draw three at the start of the game
+	drawThree()
 end
 
 function love.update(dt)
