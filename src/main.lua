@@ -16,8 +16,6 @@ local ui = {
 		label = 'Hand',
 
 		-- going in a direction goes to what?
-		up = 'none',
-		left = 'none',
 		down = 'plate',
 		right = 'deck',
 		select = 'card1',
@@ -28,17 +26,24 @@ local ui = {
 		width = 460,
 		height = 200,
 	},
+	actions = {
+		label = 'Actions',
+
+		down = 'plate',
+		right = 'deck',
+		select = 'actionDraw',
+
+		x = 10,
+		y = 10,
+		width = 460,
+		height = 200,
+	},
 	served = {
 		label = 'Completed Plates',
 
-		-- going in a direction goes to what?
 		up = 'hand',
-		left = 'none',
-		down = 'none',
 		right = 'plate',
-		select = 'none',
 
-		-- position and size
 		x = 10,
 		y = 220,
 		width = 200,
@@ -47,14 +52,10 @@ local ui = {
 	plate = {
 		label = 'Current Plate',
 
-		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'served',
-		down = 'none',
 		right = 'score',
-		select = 'none',
 
-		-- position and size
 		x = 220,
 		y = 220,
 		width = 300,
@@ -63,14 +64,9 @@ local ui = {
 	score = {
 		label = 'Round Score',
 
-		-- going in a direction goes to what?
 		up = 'deck',
 		left = 'plate',
-		down = 'none',
-		right = 'none',
-		select = 'none',
 
-		-- position and size
 		x = 530,
 		y = 450,
 		width = 260,
@@ -79,28 +75,21 @@ local ui = {
 	deck = {
 		label = 'Draw and Discard Piles',
 
-		-- going in a direction goes to what?
-		up = 'none',
 		left = 'hand',
 		down = 'score',
-		right = 'none',
-		select = 'none',
 
-		-- position and size
 		x = 480,
 		y = 10,
 		width = 310,
 		height = 200,
 	},
 	drawPile = {
-		-- position and size
 		x = 500,
 		y = 30,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
 	discardPile = {
-		-- position and size
 		x = 645,
 		y = 30,
 		width = cardSize.width,
@@ -109,14 +98,9 @@ local ui = {
 	card1 = {
 		label = 'First Card',
 
-		-- going in a direction goes to what?
 		up = 'hand',
-		left = 'none',
-		down = 'none',
 		right = 'card2',
-		select = 'none',
 
-		-- position and size
 		x = 40,
 		y = 30,
 		width = cardSize.width,
@@ -125,14 +109,10 @@ local ui = {
 	card2 = {
 		label = 'Second Card',
 
-		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'card1',
-		down = 'none',
 		right = 'card3',
-		select = 'none',
 
-		-- position and size
 		x = 175,
 		y = 30,
 		width = cardSize.width,
@@ -141,25 +121,41 @@ local ui = {
 	card3 = {
 		label = 'Third Card',
 
-		-- going in a direction goes to what?
 		up = 'hand',
 		left = 'card2',
-		down = 'none',
-		right = 'none',
-		select = 'none',
 
-		-- position and size
 		x = 310,
 		y = 30,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
 	plateCards = {
-		-- position and size
 		x = 240,
 		y = 240,
 		width = cardSize.width,
 		height = cardSize.height,
+	},
+	actionDraw = {
+			label = 'Draw 3 New Cards',
+
+			up = 'actions',
+			right = 'actionNewPlate',
+
+			x = 40,
+			y = 30,
+			width = 125,
+			height = 125,
+	},
+	actionNewPlate = {
+		label = 'First Card',
+
+		up = 'hand',
+		left = 'actionDraw',
+
+		x = 175,
+		y = 30,
+		width = 125,
+		height = 125,
 	}
 }
 
@@ -294,19 +290,32 @@ function love.draw()
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
 
-	-- draw cards
-	love.graphics.setColor(0.43, 0.98, 0.47)
-	if hand[1] then
-		love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
-		love.graphics.printf(cardDetails[hand[1]].label, ui.card1.x, ui.card1.y + ui.card1.height, ui.card1.width, 'center')
+	-- draw cards in hand
+	local hasCardsInHand = hand[1] or hand[2] or hand[3]
+	if hasCardsInHand then
+		love.graphics.setColor(0.43, 0.98, 0.47)
+		if hand[1] then
+			love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
+			love.graphics.printf(cardDetails[hand[1]].label, ui.card1.x, ui.card1.y + ui.card1.height, ui.card1.width, 'center')
+		end
+		if hand[2] then
+			love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
+			love.graphics.printf(cardDetails[hand[2]].label, ui.card2.x, ui.card2.y + ui.card2.height, ui.card2.width, 'center')
+		end
+		if hand[3] then
+			love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
+			love.graphics.printf(cardDetails[hand[3]].label, ui.card3.x, ui.card3.y + ui.card3.height, ui.card3.width, 'center')
+		end
 	end
-	if hand[2] then
-		love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
-		love.graphics.printf(cardDetails[hand[2]].label, ui.card2.x, ui.card2.y + ui.card2.height, ui.card2.width, 'center')
-	end
-	if hand[3] then
-		love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
-		love.graphics.printf(cardDetails[hand[3]].label, ui.card3.x, ui.card3.y + ui.card3.height, ui.card3.width, 'center')
+
+	-- draw actions if not
+	if not hasCardsInHand then
+		love.graphics.setColor(0.98, 0.98, 0.47)
+		love.graphics.rectangle("line", ui.actionDraw.x, ui.actionDraw.y, ui.actionDraw.width, ui.actionDraw.height)
+		love.graphics.printf(ui.actionDraw.label, ui.actionDraw.x, ui.actionDraw.y + ui.actionDraw.height, ui.actionDraw.width, 'center')
+
+		love.graphics.rectangle("line", ui.actionNewPlate.x, ui.actionNewPlate.y, ui.actionNewPlate.width, ui.actionNewPlate.height)
+		love.graphics.printf(ui.actionNewPlate.label, ui.actionNewPlate.x, ui.actionNewPlate.y + ui.actionNewPlate.height, ui.actionNewPlate.width, 'center')
 	end
 
 	-- draw drawPile and discardPile
@@ -347,7 +356,9 @@ local hardware_remap = {
 }
 
 local game_remap = {
-	x = "select"
+	x = "select",
+	space = "select",
+	["return"] = "select",
 }
 
 local player_remap = {}
@@ -360,15 +371,53 @@ function remap(key)
 	return key
 end
 
-function love.keypressed(key)
-	key = remap(key)
+function updateSelection(target)
+	selection = target
+	async(routines, function()
+		animateMany(cursor,
+			{"x", "y", "width", "height"},
+			{ui[selection].x, ui[selection].y, ui[selection].width, ui[selection].height},
+			navAnimationSpeed, ease.inovershoot
+		)
+	end)
+
+	local navDirections = 'Use the following keys to change selection: '
+	local dirLabel = ''
+	if ui[selection].select then
+		dirLabel = ui[ui[selection].select].label
+		navDirections = navDirections..' select, '..dirLabel..'. '
+	end
+	if ui[selection].up then
+		dirLabel = ui[ui[selection].up].label
+		navDirections = navDirections..' up, '..dirLabel..'; '
+	end
+	if ui[selection].down then
+		dirLabel = ui[ui[selection].down].label
+		navDirections = navDirections..' down, '..dirLabel..'; '
+	end
+	if ui[selection].left then
+		dirLabel = ui[ui[selection].left].label
+		navDirections = navDirections..' left, '..dirLabel..'; '
+	end
+	if ui[selection].right then
+		dirLabel = ui[ui[selection].right].label
+		navDirections = navDirections..' right, '..dirLabel..'. '
+	end
+	dirLabel = ui[selection].label
+	ttsText = dirLabel..' selected. '..navDirections
+	print('tts: '..ttsText)
+end
+
+function love.keypressed(rawKey)
+	key = remap(rawKey)
+	print('raw, '..rawKey..' remapped, '..key)
 
 	local isCardSelected = selection == 'card1' or selection == 'card2' or selection == 'card3'
 
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' or key == 'select' then
 		local nextSelection = ui[selection][key]
-		if nextSelection ~= 'none' then
+		if nextSelection then
 			-- if they press up or down, make sure they can get back to the previous option
 			-- don't do this if they are in a hand selection
 			if key == 'up' and not isCardSelected then
@@ -377,48 +426,11 @@ function love.keypressed(key)
 				ui[nextSelection].up = selection
 			end
 
-			selection = ui[selection][key]
-			local posEaseFunction = ease.inovershoot
-			local sizeEaseFunction = ease.inovershoot
-			async(routines, function()
-				animateMany(cursor,
-					{"x", "y", "width", "height"},
-					{ui[selection].x, ui[selection].y, ui[selection].width, ui[selection].height},
-					navAnimationSpeed, posEaseFunction
-				)
-				animate(cursor, "x", ui[selection].x, navAnimationSpeed, posEaseFunction)
-			end)
-
-			local navDirections = 'Use the following keys to change selection: '
-			local dirLabel = ''
-			if ui[selection].select ~= 'none' then
-				dirLabel = ui[ui[selection].select].label
-				navDirections = navDirections..' select, '..dirLabel..'. '
-			end
-			if ui[selection].up ~= 'none' then
-				dirLabel = ui[ui[selection].up].label
-				navDirections = navDirections..' up, '..dirLabel..'; '
-			end
-			if ui[selection].down ~= 'none' then
-				dirLabel = ui[ui[selection].down].label
-				navDirections = navDirections..' down, '..dirLabel..'; '
-			end
-			if ui[selection].left ~= 'none' then
-				dirLabel = ui[ui[selection].left].label
-				navDirections = navDirections..' left, '..dirLabel..'; '
-			end
-			if ui[selection].right ~= 'none' then
-				dirLabel = ui[ui[selection].right].label
-				navDirections = navDirections..' right, '..dirLabel..'. '
-			end
-			dirLabel = ui[selection].label
-			ttsText = dirLabel..' selected. '..navDirections
-			print('tts: '..ttsText)
+			updateSelection(nextSelection)
 		end
 	end
 
 	-- card selection
-	print(key)
 	if key == 'select' and isCardSelected then
 		async(routines, function()
 			print('selecting card')
@@ -430,6 +442,12 @@ function love.keypressed(key)
 			end
 			if selection == 'card3' then
 				plateCardFromHand(3)
+			end
+
+			-- if hand is empty, update selection
+			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+			if handIsEmpty then
+				updateSelection('actions')
 			end
 		end)
 	end
