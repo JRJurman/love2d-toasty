@@ -41,7 +41,7 @@ local hand = {}
 local currentPlate = {}
 local completedPlates = {}
 
-local showModal = false
+local modalActive = true
 
 local selection = 'deck'
 local cursor = {
@@ -67,7 +67,7 @@ local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
 function getNavKey()
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 
-	if showModal then
+	if modalActive then
 		return 'withModal'
 	elseif hasCardsInHand then
 		return 'withHand'
@@ -198,6 +198,13 @@ function love.draw()
 	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
 	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
 
+	-- if we have an active modal, draw the modal action
+	if modalActive then
+		love.graphics.setColor(0.98, 0.98, 0.47)
+		love.graphics.rectangle("line", ui.actionModal.x, ui.actionModal.y, ui.actionModal.width, ui.actionModal.height)
+		love.graphics.printf(ui.actionModal.label, ui.actionModal.x, ui.actionModal.y, ui.actionModal.width, 'center')
+	end
+
 	-- draw cards in hand
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 	if hasCardsInHand then
@@ -216,8 +223,8 @@ function love.draw()
 		end
 	end
 
-	-- draw actions if not
-	if not hasCardsInHand then
+	-- draw actions if we don't have cards or an active modal
+	if not hasCardsInHand and not modalActive then
 		love.graphics.setColor(0.98, 0.98, 0.47)
 		love.graphics.rectangle("line", ui.actionDraw.x, ui.actionDraw.y, ui.actionDraw.width, ui.actionDraw.height)
 		love.graphics.printf(ui.actionDraw.label, ui.actionDraw.x, ui.actionDraw.y + ui.actionDraw.height, ui.actionDraw.width, 'center')
@@ -274,6 +281,12 @@ function love.draw()
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + ui.score.height/2, ui.score.width - 20, 'center')
 
+	-- always draw the modal (it is sometimes offscreen)
+	love.graphics.setColor( 0, 0, 0)
+	love.graphics.rectangle("fill", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
+	love.graphics.setColor(0.98, 0.47, 0.98)
+	love.graphics.rectangle("line", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
+
 	-- draw any cards that are moving
 	if movingCard.enabled then
 		love.graphics.setColor(0.43, 0.98, 0.47)
@@ -308,6 +321,22 @@ function remap(key)
 	key = player_remap[key] or key
 
 	return key
+end
+
+function expandModal()
+	-- flatten cursor to the top
+	cursor = { x = 0, y = 0, width = 800, height = 0}
+
+	ui.modal.y = ui.offScreenModal.y
+	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed, ease.outovershoot)
+end
+
+function minimizeModal()
+	-- flatten cursor to the top
+	cursor = { x = 0, y = 0, width = 800, height = 0}
+
+	ui.modal.y = ui.onScreenModal.y
+	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed, ease.inovershoot)
 end
 
 function updateSelection(target)
@@ -357,18 +386,31 @@ function love.keypressed(rawKey)
 
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
-		local nextSelection = ui[selection].nav[navKey][key]
-		if nextSelection then
-			-- if they press up or down, make sure they can get back to the previous option
-			-- don't do this if they are in a hand selection
-			if key == 'up' then
-				ui[nextSelection].nav[navKey].down = selection
-			elseif key == 'down' then
-				ui[nextSelection].nav[navKey].up = selection
+		async(routines, function()
+			local nextSelection = ui[selection].nav[navKey][key]
+
+			-- if we were on the modal, and now we are not, hide the modal
+			if selection == 'modal' and nextSelection then
+				minimizeModal()
 			end
 
-			updateSelection(nextSelection)
-		end
+			-- if we were not on the modal, and now we are, show the modal
+			if nextSelection == 'modal' and selection ~= 'modal' then
+				expandModal()
+			end
+
+			if nextSelection then
+				-- if they press up or down, make sure they can get back to the previous option
+				-- don't do this if they are in a hand selection
+				if key == 'up' then
+					ui[nextSelection].nav[navKey].down = selection
+				elseif key == 'down' then
+					ui[nextSelection].nav[navKey].up = selection
+				end
+
+				updateSelection(nextSelection)
+			end
+		end)
 	end
 
 	-- card selection

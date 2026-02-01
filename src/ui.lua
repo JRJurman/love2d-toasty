@@ -30,7 +30,7 @@ ui = {
 				right = 'plate',
 			},
 			withModal = {
-				up = 'actionModal',
+				up = 'card1',
 				right = 'plate',
 			},
 		},
@@ -55,7 +55,7 @@ ui = {
 				left = 'served',
 			},
 			withModal = {
-				up = 'actionModal',
+				up = 'card2',
 				right = 'score',
 				left = 'served',
 			},
@@ -108,8 +108,9 @@ ui = {
 				down = 'score',
 			},
 			withModal = {
-				left = 'actionModal',
+				left = 'card3',
 				down = 'score',
+				up = 'modal',
 			},
 		},
 
@@ -140,11 +141,15 @@ ui = {
 				down = 'served',
 			},
 			withActions = {},
-			withModal = {},
+			withModal = {
+				right = 'card2',
+				down = 'served',
+				up = 'modal',
+			},
 		},
 
 		x = 40,
-		y = 30,
+		y = 50,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -159,11 +164,16 @@ ui = {
 				right = 'card3',
 			},
 			withActions = {},
-			withModal = {},
+			withModal = {
+				down = 'plate',
+				left = 'card1',
+				right = 'card3',
+				up = 'modal',
+			},
 		},
 
 		x = 175,
-		y = 30,
+		y = 50,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -178,11 +188,16 @@ ui = {
 				right = 'deck'
 			},
 			withActions = {},
-			withModal = {},
+			withModal = {
+					down = 'plate',
+				left = 'card2',
+				right = 'deck',
+				up = 'modal',
+			},
 		},
 
 		x = 310,
-		y = 30,
+		y = 50,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -205,7 +220,7 @@ ui = {
 			},
 
 			x = 40,
-			y = 30,
+			y = 50,
 			width = 125,
 			height = 125,
 	},
@@ -223,7 +238,7 @@ ui = {
 		},
 
 		x = 175,
-		y = 30,
+		y = 50,
 		width = 125,
 		height = 125,
 	},
@@ -233,27 +248,40 @@ ui = {
 		width = cardSize.width,
 		height = cardSize.height,
 	},
-	modal = {
+	offScreenModal = {
+		x = 40,
+		y = -600,
+		width = 720,
+		height = 520,
+	},
+	onScreenModal = {
 		x = 40,
 		y = 40,
-		width = 400,
-		height = 300,
+		width = 720,
+		height = 520,
 	},
-	actionModal = {
-		label = 'Go to Card Preview',
+	modal = {
+		label = 'Next cards Preview',
 
 		nav = {
 			withHand = {},
 			withActions = {},
 			withModal = {
-				down = 'served',
-				right = 'deck',
+				down = 'deck',
 			},
 		},
 
 		x = 40,
-		y = 30,
-		width = 125,
-		height = 125,
+		y = -600,
+		width = 720,
+		height = 520,
+	},
+	actionModal = {
+		label = '^ Go to Card Preview ^',
+
+		x = 20,
+		y = 15,
+		width = 440,
+		height = 20,
 	}
 }
