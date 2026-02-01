@@ -152,6 +152,9 @@
         if (text.startsWith('tts:')) {
           loveReadout.textContent = text.split('tts:').at(1);
         }
+        if (text.startsWith('coroutine failed:')) {
+          console.error(text, ...args)
+        }
         if (text.startsWith('Error: ')) {
           loveReadout.textContent = 'Apologies, the game has crashed with an unhandled error.';
         }

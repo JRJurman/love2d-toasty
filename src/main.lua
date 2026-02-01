@@ -1,203 +1,11 @@
 require('dump')
 require('shuffle')
-require('cardDetails')
 
 require('animation')
 local ease = require('ease')
 
-local cardSize = {
-	width = 125,
-	height = 125
-}
-
--- UI elements
-local ui = {
-	hand = {
-		x = 10,
-		y = 10,
-		width = 460,
-		height = 200,
-	},
-	actions = {
-		x = 10,
-		y = 10,
-		width = 460,
-		height = 200,
-	},
-	served = {
-		label = 'Completed Plates',
-
-		nav = {
-			withHand = {
-				up = 'card1',
-				right = 'plate',
-			},
-			withActions = {
-				up = 'actionDraw',
-				right = 'plate',
-			}
-		},
-
-		x = 10,
-		y = 220,
-		width = 200,
-		height = 370,
-	},
-	plate = {
-		label = 'Current Plate',
-
-		nav = {
-			withHand = {
-				up = 'card2',
-				right = 'score',
-			},
-			withActions = {
-				up = 'actionNewPlate',
-				right = 'score',
-			}
-		},
-
-		x = 220,
-		y = 220,
-		width = 300,
-		height = 370,
-	},
-	score = {
-		label = 'Round Score',
-
-		nav = {
-			withHand = {
-				up = 'deck',
-				left = 'plate'
-			},
-			withActions = {
-				up = 'deck',
-				left = 'plate'
-			}
-		},
-
-		x = 530,
-		y = 450,
-		width = 260,
-		height = 140,
-	},
-	deck = {
-		label = 'Draw and Discard Piles',
-
-		nav = {
-			withHand = {
-				left = 'card3',
-				down = 'score',
-			},
-			withActions = {
-				left = 'actionNewPlate',
-				down = 'score',
-			}
-		},
-
-		x = 480,
-		y = 10,
-		width = 310,
-		height = 200,
-	},
-	drawPile = {
-		x = 500,
-		y = 30,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	discardPile = {
-		x = 645,
-		y = 30,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	card1 = {
-		label = 'First Card',
-
-		nav = {
-			withHand = {
-				right = 'card2',
-				down = 'served',
-			},
-		},
-
-		x = 40,
-		y = 30,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	card2 = {
-		label = 'Second Card',
-
-		nav = {
-			withHand = {
-				down = 'plate',
-				left = 'card1',
-				right = 'card3',
-			},
-		},
-
-
-		x = 175,
-		y = 30,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	card3 = {
-		label = 'Third Card',
-
-		nav = {
-			withHand = {
-				down = 'plate',
-				left = 'card2',
-			},
-		},
-
-
-		x = 310,
-		y = 30,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	plateCards = {
-		x = 240,
-		y = 240,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	actionDraw = {
-			label = 'Draw 3 New Cards',
-
-			nav = {
-				withActions = {
-					down = 'served',
-					right = 'actionNewPlate',
-				},
-			},
-
-			x = 40,
-			y = 30,
-			width = 125,
-			height = 125,
-	},
-	actionNewPlate = {
-		label = 'Start a new Plate',
-
-		nav = {
-			withActions = {
-				down = 'plate',
-				left = 'actionDraw',
-				right = 'deck'
-			},
-		},
-
-		x = 175,
-		y = 30,
-		width = 125,
-		height = 125,
-	}
-}
+require('cardDetails')
+require('ui')
 
 local deck = {
 	1, 1, 1, 1,
@@ -250,6 +58,19 @@ local drawAnimationSpeed = 0.8
 
 local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
 
+function getScoreForPlate(plate)
+	local plateScore = 0
+	-- need 3 ingredients to start scoring (after bread)
+	if #plate < 4 then
+		return 0
+	end
+
+	for ingredientIndex, ingredient in ipairs(plate) do
+		plateScore = plateScore + cardDetails[ingredient].points
+	end
+	return plateScore
+end
+
 function drawFromDeck()
 	movingCard.enabled = true
 	movingCard.x = ui.drawPile.x
@@ -267,14 +88,13 @@ function drawFromDeck()
 	movingCard.enabled = false
 end
 
-function plateCardFromHand(handIndex)
+function plateCardFromHand(handIndex, startX, startY)
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
-	print(dump(hand))
 	local startingCard = 'card'..handIndex
-	movingCard.x = ui[startingCard].x
-	movingCard.y = ui[startingCard].y
+	movingCard.x = startX
+	movingCard.y = startY
 
 	animateMany(
 		movingCard,
@@ -283,6 +103,24 @@ function plateCardFromHand(handIndex)
 		drawAnimationSpeed, ease.inovershoot
 	)
 	table.insert(currentPlate, movedCard)
+	movingCard.enabled = false
+end
+
+function discardCardFromHand(handIndex, startX, startY)
+	movingCard.enabled = true
+	local movedCard = hand[handIndex]
+	hand[handIndex] = nil
+	local startingCard = 'card'..handIndex
+	movingCard.x = startX
+	movingCard.y = startY
+
+	animateMany(
+		movingCard,
+		{'x', 'y'},
+		{ui.discardPile.x, ui.discardPile.y},
+		drawAnimationSpeed, ease.inovershoot
+	)
+	table.insert(discardPile, movedCard)
 	movingCard.enabled = false
 end
 
@@ -297,13 +135,13 @@ function drawThree()
 
 		-- check if any are bread (these automatically are played)
 		if hand[1] == 1 then
-			plateCardFromHand(1)
+			plateCardFromHand(1, ui.card1.x, ui.card1.y)
 		end
 		if hand[2] == 1 then
-			plateCardFromHand(2)
+			plateCardFromHand(2, ui.card2.x, ui.card2.y)
 		end
 		if hand[3] == 1 then
-			plateCardFromHand(3)
+			plateCardFromHand(3, ui.card3.x, ui.card3.y)
 		end
 	end)
 end
@@ -368,10 +206,6 @@ function love.draw()
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/2, ui.discardPile.width, 'center')
 	love.graphics.printf(countValueInTopOfPile(discardPile, #discardPile, 1)..' Bread Slices', ui.discardPile.x, ui.discardPile.y + ui.discardPile.height, ui.discardPile.width, 'center')
 
-	-- draw the cursor
-	love.graphics.setColor(0.43, 0.47, 0.98)
-	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
-
 	-- draw plated cards
 	for cardIndex, plateCard in ipairs(currentPlate) do
 		love.graphics.setColor(0.43, 0.98, 0.47)
@@ -379,11 +213,21 @@ function love.draw()
 		love.graphics.printf(cardDetails[plateCard].label, ui.plateCards.x, ui.plateCards.y + ui.plateCards.height + (cardIndex * 12), ui.plateCards.width, 'center')
 	end
 
+	-- draw the current plate score
+	local currentPlateScore = getScoreForPlate(currentPlate)
+	love.graphics.setColor(0.98, 0.98, 0.98)
+	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
+	love.graphics.printf('+'..currentPlateScore, ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, 'center')
+
 	-- draw any cards that are moving
 	if movingCard.enabled then
 		love.graphics.setColor(0.43, 0.98, 0.47)
 		love.graphics.rectangle("line", movingCard.x, movingCard.y, cardSize.width, cardSize.height)
 	end
+
+	-- draw the cursor
+	love.graphics.setColor(0.43, 0.47, 0.98)
+	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
 end
 
 -- for unknown reasons, love.js can sometimes read the arrow keys in safari as the following
@@ -426,6 +270,7 @@ function updateSelection(target)
 
 	local navDirections = 'Use the following keys to change selection: '
 	local dirLabel = ''
+
 	if ui[selection].nav[navKey].up then
 		dirLabel = ui[ui[selection].nav[navKey].up].label
 		navDirections = navDirections..' up, '..dirLabel..'; '
@@ -476,14 +321,15 @@ function love.keypressed(rawKey)
 	-- card selection
 	if key == 'select' and isCardSelected then
 		async(routines, function()
-			if selection == 'card1' then
-				plateCardFromHand(1)
-			end
-			if selection == 'card2' then
-				plateCardFromHand(2)
-			end
-			if selection == 'card3' then
-				plateCardFromHand(3)
+			-- get handIndex based on selection
+			local handIndex = ui[selection].handIndex
+
+			-- if there is bread on the plate, plate this card
+			-- (otherwise, discard it)
+			if currentPlate[1] == 1 then
+				plateCardFromHand(handIndex, ui[selection].x, ui[selection].y)
+			else
+				discardCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			end
 
 			-- if hand is empty, update selection
