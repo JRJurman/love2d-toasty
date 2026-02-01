@@ -13,26 +13,12 @@ local cardSize = {
 -- UI elements
 local ui = {
 	hand = {
-		label = 'Hand',
-
-		-- going in a direction goes to what?
-		down = 'plate',
-		right = 'deck',
-		select = 'card1',
-
-		-- position and size
 		x = 10,
 		y = 10,
 		width = 460,
 		height = 200,
 	},
 	actions = {
-		label = 'Actions',
-
-		down = 'plate',
-		right = 'deck',
-		select = 'actionDraw',
-
 		x = 10,
 		y = 10,
 		width = 460,
@@ -41,8 +27,16 @@ local ui = {
 	served = {
 		label = 'Completed Plates',
 
-		up = 'hand',
-		right = 'plate',
+		nav = {
+			withHand = {
+				up = 'card1',
+				right = 'plate',
+			},
+			withActions = {
+				up = 'actionDraw',
+				right = 'plate',
+			}
+		},
 
 		x = 10,
 		y = 220,
@@ -52,9 +46,16 @@ local ui = {
 	plate = {
 		label = 'Current Plate',
 
-		up = 'hand',
-		left = 'served',
-		right = 'score',
+		nav = {
+			withHand = {
+				up = 'card2',
+				right = 'score',
+			},
+			withActions = {
+				up = 'actionNewPlate',
+				right = 'score',
+			}
+		},
 
 		x = 220,
 		y = 220,
@@ -64,8 +65,16 @@ local ui = {
 	score = {
 		label = 'Round Score',
 
-		up = 'deck',
-		left = 'plate',
+		nav = {
+			withHand = {
+				up = 'deck',
+				left = 'plate'
+			},
+			withActions = {
+				up = 'deck',
+				left = 'plate'
+			}
+		},
 
 		x = 530,
 		y = 450,
@@ -75,8 +84,16 @@ local ui = {
 	deck = {
 		label = 'Draw and Discard Piles',
 
-		left = 'hand',
-		down = 'score',
+		nav = {
+			withHand = {
+				left = 'card3',
+				down = 'score',
+			},
+			withActions = {
+				left = 'actionNewPlate',
+				down = 'score',
+			}
+		},
 
 		x = 480,
 		y = 10,
@@ -98,8 +115,12 @@ local ui = {
 	card1 = {
 		label = 'First Card',
 
-		up = 'hand',
-		right = 'card2',
+		nav = {
+			withHand = {
+				right = 'card2',
+				down = 'served',
+			},
+		},
 
 		x = 40,
 		y = 30,
@@ -109,9 +130,14 @@ local ui = {
 	card2 = {
 		label = 'Second Card',
 
-		up = 'hand',
-		left = 'card1',
-		right = 'card3',
+		nav = {
+			withHand = {
+				down = 'plate',
+				left = 'card1',
+				right = 'card3',
+			},
+		},
+
 
 		x = 175,
 		y = 30,
@@ -121,8 +147,13 @@ local ui = {
 	card3 = {
 		label = 'Third Card',
 
-		up = 'hand',
-		left = 'card2',
+		nav = {
+			withHand = {
+				down = 'plate',
+				left = 'card2',
+			},
+		},
+
 
 		x = 310,
 		y = 30,
@@ -138,8 +169,12 @@ local ui = {
 	actionDraw = {
 			label = 'Draw 3 New Cards',
 
-			up = 'actions',
-			right = 'actionNewPlate',
+			nav = {
+				withActions = {
+					down = 'served',
+					right = 'actionNewPlate',
+				},
+			},
 
 			x = 40,
 			y = 30,
@@ -147,10 +182,15 @@ local ui = {
 			height = 125,
 	},
 	actionNewPlate = {
-		label = 'First Card',
+		label = 'Start a new Plate',
 
-		up = 'hand',
-		left = 'actionDraw',
+		nav = {
+			withActions = {
+				down = 'plate',
+				left = 'actionDraw',
+				right = 'deck'
+			},
+		},
 
 		x = 175,
 		y = 30,
@@ -194,7 +234,7 @@ local hand = {}
 local currentPlate = {}
 local completedPlates = {}
 
-local selection = 'hand'
+local selection = 'deck'
 local cursor = {
 	x = ui[selection].x,
 	y = ui[selection].y,
@@ -381,26 +421,25 @@ function updateSelection(target)
 		)
 	end)
 
+	local hasCardsInHand = hand[1] or hand[2] or hand[3]
+	local navKey = hasCardsInHand and 'withHand' or 'withActions'
+
 	local navDirections = 'Use the following keys to change selection: '
 	local dirLabel = ''
-	if ui[selection].select then
-		dirLabel = ui[ui[selection].select].label
-		navDirections = navDirections..' select, '..dirLabel..'. '
-	end
-	if ui[selection].up then
-		dirLabel = ui[ui[selection].up].label
+	if ui[selection].nav[navKey].up then
+		dirLabel = ui[ui[selection].nav[navKey].up].label
 		navDirections = navDirections..' up, '..dirLabel..'; '
 	end
-	if ui[selection].down then
-		dirLabel = ui[ui[selection].down].label
+	if ui[selection].nav[navKey].down then
+		dirLabel = ui[ui[selection].nav[navKey].down].label
 		navDirections = navDirections..' down, '..dirLabel..'; '
 	end
-	if ui[selection].left then
-		dirLabel = ui[ui[selection].left].label
+	if ui[selection].nav[navKey].left then
+		dirLabel = ui[ui[selection].nav[navKey].left].label
 		navDirections = navDirections..' left, '..dirLabel..'; '
 	end
-	if ui[selection].right then
-		dirLabel = ui[ui[selection].right].label
+	if ui[selection].nav[navKey].right then
+		dirLabel = ui[ui[selection].nav[navKey].right].label
 		navDirections = navDirections..' right, '..dirLabel..'. '
 	end
 	dirLabel = ui[selection].label
@@ -412,18 +451,22 @@ function love.keypressed(rawKey)
 	key = remap(rawKey)
 	print('raw, '..rawKey..' remapped, '..key)
 
+	local hasCardsInHand = hand[1] or hand[2] or hand[3]
+	local navKey = hasCardsInHand and 'withHand' or 'withActions'
+
 	local isCardSelected = selection == 'card1' or selection == 'card2' or selection == 'card3'
+	local isActionSelected = selection == 'actionDraw' or selection == 'actionNewPlate'
 
 	-- navigation
-	if key == 'down' or key == 'up' or key == 'left' or key == 'right' or key == 'select' then
-		local nextSelection = ui[selection][key]
+	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
+		local nextSelection = ui[selection].nav[navKey][key]
 		if nextSelection then
 			-- if they press up or down, make sure they can get back to the previous option
 			-- don't do this if they are in a hand selection
-			if key == 'up' and not isCardSelected then
-				ui[nextSelection].down = selection
-			elseif key == 'down' and not isCardSelected then
-				ui[nextSelection].up = selection
+			if key == 'up' then
+				ui[nextSelection].nav[navKey].down = selection
+			elseif key == 'down' then
+				ui[nextSelection].nav[navKey].up = selection
 			end
 
 			updateSelection(nextSelection)
@@ -433,7 +476,6 @@ function love.keypressed(rawKey)
 	-- card selection
 	if key == 'select' and isCardSelected then
 		async(routines, function()
-			print('selecting card')
 			if selection == 'card1' then
 				plateCardFromHand(1)
 			end
@@ -447,8 +489,29 @@ function love.keypressed(rawKey)
 			-- if hand is empty, update selection
 			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
 			if handIsEmpty then
-				updateSelection('actions')
+				updateSelection('actionDraw')
 			end
+		end)
+	end
+
+	-- action selection
+	if key == 'select' and isActionSelected then
+		async(routines, function()
+			if selection == 'actionDraw' then
+				-- we don't actually have to do anything here, we'll draw at the end anyways
+			end
+			if selection == 'actionNewPlate' then
+				local completedPlate = currentPlate
+				currentPlate = {}
+				-- TODO animate plate to completed plates
+				table.insert(completedPlates, completedPlate)
+			end
+
+			-- draw three now (we always do this)
+			drawThree()
+
+			-- reset the selection to hand
+			updateSelection('card1')
 		end)
 	end
 
