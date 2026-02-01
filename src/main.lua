@@ -1,6 +1,7 @@
 require('dump')
 require('shuffle')
 
+require('save')
 require('animation')
 local ease = require('ease')
 
@@ -40,6 +41,8 @@ local hand = {}
 local currentPlate = {}
 local completedPlates = {}
 
+local showModal = false
+
 local selection = 'deck'
 local cursor = {
 	x = ui[selection].x,
@@ -58,6 +61,18 @@ local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 0.8
 
 local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+
+function getNavKey()
+	local hasCardsInHand = hand[1] or hand[2] or hand[3]
+
+	if showModal then
+		return 'withModal'
+	elseif hasCardsInHand then
+		return 'withHand'
+	else
+		return 'withActions'
+	end
+end
 
 function getScoreForPlate(plate)
 	local plateScore = 0
@@ -84,6 +99,12 @@ function drawFromDeck(handIndex, targetX, targetY)
 	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed, ease.inovershoot)
 	hand[handIndex] = table.remove(drawPile, 1)
 	movingCard.enabled = false
+
+	-- if this is bread, play it immediately
+	if hand[handIndex] == 1 then
+		wait(0.5)
+		plateCardFromHand(handIndex, targetX, targetY)
+	end
 end
 
 function plateCardFromHand(handIndex, startX, startY)
@@ -130,17 +151,6 @@ function drawThree()
 		drawFromDeck(3, ui.card3.x, ui.card3.y)
 
 		wait(0.5)
-
-		-- if any have onDraw, trigger those now
-		if hand[1] == 1 then
-			plateCardFromHand(1, ui.card1.x, ui.card1.y)
-		end
-		if hand[2] == 1 then
-			plateCardFromHand(2, ui.card2.x, ui.card2.y)
-		end
-		if hand[3] == 1 then
-			plateCardFromHand(3, ui.card3.x, ui.card3.y)
-		end
 
 		-- if we now have an empty hand, change the selection to actions
 		-- (this can happen if the last hand has all bread)
@@ -301,8 +311,7 @@ function updateSelection(target)
 		)
 	end)
 
-	local hasCardsInHand = hand[1] or hand[2] or hand[3]
-	local navKey = hasCardsInHand and 'withHand' or 'withActions'
+	local navKey = getNavKey()
 
 	local navDirections = 'Use the following keys to change selection: '
 	local dirLabel = ''
@@ -332,8 +341,7 @@ function love.keypressed(rawKey)
 	key = remap(rawKey)
 	print('raw, '..rawKey..' remapped, '..key)
 
-	local hasCardsInHand = hand[1] or hand[2] or hand[3]
-	local navKey = hasCardsInHand and 'withHand' or 'withActions'
+	local navKey = getNavKey()
 
 	local isCardSelected = selection == 'card1' or selection == 'card2' or selection == 'card3'
 	local isActionSelected = selection == 'actionDraw' or selection == 'actionNewPlate'
@@ -404,5 +412,19 @@ function love.keypressed(rawKey)
 			wait(0.5)
 			print('tts: '..ttsText)
 		end)
+	end
+
+	-- testing saving / loading
+	if key == 'w' then
+		saveGameData('testing.json', { name = 'Jesse' })
+	end
+
+	if key == 'l' then
+		local savedData = loadGameData('testing.json')
+		print(dump(savedData))
+	end
+
+	if key == 'c' then
+		clearGameData('testing.json')
 	end
 end

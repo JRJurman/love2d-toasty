@@ -28,7 +28,11 @@ ui = {
 			withActions = {
 				up = 'actionDraw',
 				right = 'plate',
-			}
+			},
+			withModal = {
+				up = 'actionModal',
+				right = 'plate',
+			},
 		},
 
 		x = 10,
@@ -49,7 +53,12 @@ ui = {
 				up = 'actionNewPlate',
 				right = 'score',
 				left = 'served',
-			}
+			},
+			withModal = {
+				up = 'actionModal',
+				right = 'score',
+				left = 'served',
+			},
 		},
 
 		x = 220,
@@ -74,7 +83,11 @@ ui = {
 			withActions = {
 				up = 'deck',
 				left = 'plate'
-			}
+			},
+			withModal = {
+				up = 'deck',
+				left = 'plate'
+			},
 		},
 
 		x = 530,
@@ -93,7 +106,11 @@ ui = {
 			withActions = {
 				left = 'actionNewPlate',
 				down = 'score',
-			}
+			},
+			withModal = {
+				left = 'actionModal',
+				down = 'score',
+			},
 		},
 
 		x = 480,
@@ -122,7 +139,8 @@ ui = {
 				right = 'card2',
 				down = 'served',
 			},
-			withActions = {}
+			withActions = {},
+			withModal = {},
 		},
 
 		x = 40,
@@ -140,7 +158,8 @@ ui = {
 				left = 'card1',
 				right = 'card3',
 			},
-			withActions = {}
+			withActions = {},
+			withModal = {},
 		},
 
 		x = 175,
@@ -158,7 +177,8 @@ ui = {
 				left = 'card2',
 				right = 'deck'
 			},
-			withActions = {}
+			withActions = {},
+			withModal = {},
 		},
 
 		x = 310,
@@ -181,6 +201,7 @@ ui = {
 					down = 'served',
 					right = 'actionNewPlate',
 				},
+				withModal = {},
 			},
 
 			x = 40,
@@ -198,6 +219,7 @@ ui = {
 				left = 'actionDraw',
 				right = 'deck'
 			},
+			withModal = {},
 		},
 
 		x = 175,
@@ -210,5 +232,28 @@ ui = {
 		y = 450,
 		width = cardSize.width,
 		height = cardSize.height,
+	},
+	modal = {
+		x = 40,
+		y = 40,
+		width = 400,
+		height = 300,
+	},
+	actionModal = {
+		label = 'Go to Card Preview',
+
+		nav = {
+			withHand = {},
+			withActions = {},
+			withModal = {
+				down = 'served',
+				right = 'deck',
+			},
+		},
+
+		x = 40,
+		y = 30,
+		width = 125,
+		height = 125,
 	}
 }
