@@ -37,6 +37,33 @@ function animate(obj, key, value, duration, easing)
 	obj[key] = value
 end
 
+-- helper function to change multiple properties on an object over time
+function animateMany(obj, keys, values, duration, easing)
+	duration = duration or 0.5
+
+	local starts = {}
+	for keyIndex=1, #keys do
+		starts[keyIndex] = obj[keys[keyIndex]]
+	end
+	local elapsed = 0
+
+	easing = easing or ease.linear
+
+	while elapsed < duration do
+		local dt = coroutine.yield()
+		elapsed = elapsed + (dt or 0)
+		local time = math.min(elapsed / duration, 1)
+		local appliedEasing = easing(time)
+		for keyIndex=1, #keys do
+			obj[keys[keyIndex]] = lerp(starts[keyIndex], values[keyIndex], appliedEasing)
+		end
+	end
+
+	for keyIndex=1, #keys do
+		obj[keys[keyIndex]] = values[keyIndex]
+	end
+end
+
 --(linear interpolation between a/b)
 function lerp(a,b,t)
 	return a+(b-a)*t

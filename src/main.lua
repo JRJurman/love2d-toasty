@@ -1,5 +1,6 @@
 require('dump')
 require('shuffle')
+require('cardDetails')
 
 require('animation')
 local ease = require('ease')
@@ -153,45 +154,13 @@ local ui = {
 		width = cardSize.width,
 		height = cardSize.height,
 	},
-}
-
-local cardDetails = {
-	[1] = {
-		label = 'Bread',
-		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.'
-	},
-	[2] = {
-		label = 'Strawberries',
-		effect = 'when played, previews the next three cards in the deck'
-	},
-	[3] = {
-		label = 'Blueberries',
-		effect = 'when played, preview the next card, you may shuffle'
-	},
-	[4] = {
-		label = 'Oranges',
-		effect = 'preview the next card, you may draw'
-	},
-	[5] = {
-		label = 'Avocado',
-		effect = 'preview the next 3 cards, you may draw one, if you do, shuffle the rest'
-	},
-	[6] = {
-		label = 'Jam',
-		effect = '+1 point'
-	},
-	[7] = {
-		label = 'Tomatoes',
-		effect = '+1 point'
-	},
-	[8] = {
-		label = 'Hummus',
-		effect = '+1 point'
-	},
-	[9] = {
-		label = 'Bananas',
-		effect = '+1 point'
-	},
+	plateCards = {
+		-- position and size
+		x = 240,
+		y = 240,
+		width = cardSize.width,
+		height = cardSize.height,
+	}
 }
 
 local deck = {
@@ -243,24 +212,42 @@ local ttsText = ''
 local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 0.8
 
-local cardFromDeck = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
 
 function drawFromDeck()
-	cardFromDeck.enabled = true
-	cardFromDeck.x = ui.drawPile.x
-	cardFromDeck.y = ui.drawPile.y
+	movingCard.enabled = true
+	movingCard.x = ui.drawPile.x
+	movingCard.y = ui.drawPile.y
 	local target = ui.card1
 	if hand[1] == nil then
-
 		target = ui.card1
 	elseif hand[2] == nil then
 		target = ui.card2
 	elseif hand[3] == nil then
 		target = ui.card3
 	end
-	animate(cardFromDeck, "x", target.x, drawAnimationSpeed, ease.inovershoot)
+	animate(movingCard, "x", target.x, drawAnimationSpeed, ease.inovershoot)
 	table.insert(hand, table.remove(drawPile, 1))
-	cardFromDeck.enabled = false
+	movingCard.enabled = false
+end
+
+function plateCardFromHand(handIndex)
+	movingCard.enabled = true
+	local movedCard = hand[handIndex]
+	hand[handIndex] = nil
+	print(dump(hand))
+	local startingCard = 'card'..handIndex
+	movingCard.x = ui[startingCard].x
+	movingCard.y = ui[startingCard].y
+
+	animateMany(
+		movingCard,
+		{'x', 'y'},
+		{ui.plateCards.x, ui.plateCards.y},
+		drawAnimationSpeed, ease.inovershoot
+	)
+	table.insert(currentPlate, movedCard)
+	movingCard.enabled = false
 end
 
 function drawThree()
@@ -270,8 +257,18 @@ function drawThree()
 		drawFromDeck()
 		drawFromDeck()
 
-		-- check if any are bread (these automatically are played)
+		wait(0.5)
 
+		-- check if any are bread (these automatically are played)
+		if hand[1] == 1 then
+			plateCardFromHand(1)
+		end
+		if hand[2] == 1 then
+			plateCardFromHand(2)
+		end
+		if hand[3] == 1 then
+			plateCardFromHand(3)
+		end
 	end)
 end
 
@@ -315,18 +312,28 @@ function love.draw()
 	-- draw drawPile and discardPile
 	love.graphics.setColor(0.43, 0.43, 0.47)
 	love.graphics.rectangle("line", ui.drawPile.x, ui.drawPile.y, ui.drawPile.width, ui.drawPile.height)
-	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
 	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/2, ui.drawPile.width, 'center')
+	love.graphics.printf(countValueInTopOfPile(drawPile, #drawPile, 1)..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height, ui.drawPile.width, 'center')
+
+	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/2, ui.discardPile.width, 'center')
+	love.graphics.printf(countValueInTopOfPile(discardPile, #discardPile, 1)..' Bread Slices', ui.discardPile.x, ui.discardPile.y + ui.discardPile.height, ui.discardPile.width, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
 	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
 
-	-- draw any cards that are moving
-	if cardFromDeck.enabled then
+	-- draw plated cards
+	for cardIndex, plateCard in ipairs(currentPlate) do
 		love.graphics.setColor(0.43, 0.98, 0.47)
-		love.graphics.rectangle("line", cardFromDeck.x, cardFromDeck.y, cardSize.width, cardSize.height)
+		love.graphics.rectangle("line", ui.plateCards.x, ui.plateCards.y, ui.plateCards.width, ui.plateCards.height)
+		love.graphics.printf(cardDetails[plateCard].label, ui.plateCards.x, ui.plateCards.y + ui.plateCards.height + (cardIndex * 12), ui.plateCards.width, 'center')
+	end
+
+	-- draw any cards that are moving
+	if movingCard.enabled then
+		love.graphics.setColor(0.43, 0.98, 0.47)
+		love.graphics.rectangle("line", movingCard.x, movingCard.y, cardSize.width, cardSize.height)
 	end
 end
 
@@ -361,64 +368,70 @@ function love.keypressed(key)
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' or key == 'select' then
 		local nextSelection = ui[selection][key]
-		if nextSelection == 'none' then
-			return
-		end
+		if nextSelection ~= 'none' then
+			-- if they press up or down, make sure they can get back to the previous option
+			-- don't do this if they are in a hand selection
+			if key == 'up' and not isCardSelected then
+				ui[nextSelection].down = selection
+			elseif key == 'down' and not isCardSelected then
+				ui[nextSelection].up = selection
+			end
 
-		-- if they press up or down, make sure they can get back to the previous option
-		-- don't do this if they are in a hand selection
-		if key == 'up' and not isCardSelected then
-			ui[nextSelection].down = selection
-		elseif key == 'down' and not isCardSelected then
-			ui[nextSelection].up = selection
-		end
+			selection = ui[selection][key]
+			local posEaseFunction = ease.inovershoot
+			local sizeEaseFunction = ease.inovershoot
+			async(routines, function()
+				animateMany(cursor,
+					{"x", "y", "width", "height"},
+					{ui[selection].x, ui[selection].y, ui[selection].width, ui[selection].height},
+					navAnimationSpeed, posEaseFunction
+				)
+				animate(cursor, "x", ui[selection].x, navAnimationSpeed, posEaseFunction)
+			end)
 
-		selection = ui[selection][key]
-		local posEaseFunction = ease.inovershoot
-		local sizeEaseFunction = ease.inovershoot
-		async(routines, function()
-			animate(cursor, "x", ui[selection].x, navAnimationSpeed, posEaseFunction)
-		end)
-		async(routines, function()
-			animate(cursor, "y", ui[selection].y, navAnimationSpeed, posEaseFunction)
-		end)
-		async(routines, function()
-			animate(cursor, "width", ui[selection].width, navAnimationSpeed, sizeEaseFunction)
-		end)
-		async(routines, function()
-			animate(cursor, "height", ui[selection].height, navAnimationSpeed, sizeEaseFunction)
-		end)
-
-		local navDirections = 'Use the following keys to change selection: '
-		local dirLabel = ''
-		if ui[selection].select ~= 'none' then
-			dirLabel = ui[ui[selection].select].label
-			navDirections = navDirections..' select, '..dirLabel..'. '
+			local navDirections = 'Use the following keys to change selection: '
+			local dirLabel = ''
+			if ui[selection].select ~= 'none' then
+				dirLabel = ui[ui[selection].select].label
+				navDirections = navDirections..' select, '..dirLabel..'. '
+			end
+			if ui[selection].up ~= 'none' then
+				dirLabel = ui[ui[selection].up].label
+				navDirections = navDirections..' up, '..dirLabel..'; '
+			end
+			if ui[selection].down ~= 'none' then
+				dirLabel = ui[ui[selection].down].label
+				navDirections = navDirections..' down, '..dirLabel..'; '
+			end
+			if ui[selection].left ~= 'none' then
+				dirLabel = ui[ui[selection].left].label
+				navDirections = navDirections..' left, '..dirLabel..'; '
+			end
+			if ui[selection].right ~= 'none' then
+				dirLabel = ui[ui[selection].right].label
+				navDirections = navDirections..' right, '..dirLabel..'. '
+			end
+			dirLabel = ui[selection].label
+			ttsText = dirLabel..' selected. '..navDirections
+			print('tts: '..ttsText)
 		end
-		if ui[selection].up ~= 'none' then
-			dirLabel = ui[ui[selection].up].label
-			navDirections = navDirections..' up, '..dirLabel..'; '
-		end
-		if ui[selection].down ~= 'none' then
-			dirLabel = ui[ui[selection].down].label
-			navDirections = navDirections..' down, '..dirLabel..'; '
-		end
-		if ui[selection].left ~= 'none' then
-			dirLabel = ui[ui[selection].left].label
-			navDirections = navDirections..' left, '..dirLabel..'; '
-		end
-		if ui[selection].right ~= 'none' then
-			dirLabel = ui[ui[selection].right].label
-			navDirections = navDirections..' right, '..dirLabel..'. '
-		end
-		dirLabel = ui[selection].label
-		ttsText = dirLabel..' selected. '..navDirections
-		print('tts: '..ttsText)
 	end
 
 	-- card selection
+	print(key)
 	if key == 'select' and isCardSelected then
-
+		async(routines, function()
+			print('selecting card')
+			if selection == 'card1' then
+				plateCardFromHand(1)
+			end
+			if selection == 'card2' then
+				plateCardFromHand(2)
+			end
+			if selection == 'card3' then
+				plateCardFromHand(3)
+			end
+		end)
 	end
 
 	-- repeat text if r was pressed
