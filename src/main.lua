@@ -205,11 +205,6 @@ local drawPile = shuffle(deck)
 local discardPile = {}
 local hand = {}
 
--- draw three cards from drawPile to hand
-table.insert(hand, table.remove(drawPile, 1))
-table.insert(hand, table.remove(drawPile, 1))
-table.insert(hand, table.remove(drawPile, 1))
-
 local selection = 'hand'
 local cursor = {
 	x = ui[selection].x,
@@ -221,8 +216,32 @@ local cursor = {
 local	routines = {}
 local ttsText = ''
 
+local navAnimationSpeed = 0.35
+local drawAnimationSpeed = 1
+
+local cardFromDeck = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+
 function love.load()
 	print('tts: Created by Jesse Jurman.')
+
+	-- draw three cards from drawPile to hand
+	local posEaseFunction = ease.inovershoot
+	async(routines, function()
+		cardFromDeck.enabled = true
+		cardFromDeck.x = ui.drawPile.x
+		cardFromDeck.y = ui.drawPile.y
+		animate(cardFromDeck, "x", ui.card1.x, drawAnimationSpeed, posEaseFunction)
+		table.insert(hand, table.remove(drawPile, 1))
+		cardFromDeck.x = ui.drawPile.x
+		cardFromDeck.y = ui.drawPile.y
+		animate(cardFromDeck, "x", ui.card2.x, drawAnimationSpeed, posEaseFunction)
+		table.insert(hand, table.remove(drawPile, 1))
+		cardFromDeck.x = ui.drawPile.x
+		cardFromDeck.y = ui.drawPile.y
+		animate(cardFromDeck, "x", ui.card3.x, drawAnimationSpeed, posEaseFunction)
+		table.insert(hand, table.remove(drawPile, 1))
+		cardFromDeck.enabled = false
+	end)
 end
 
 function love.update(dt)
@@ -242,16 +261,16 @@ function love.draw()
 
 	-- draw cards
 	love.graphics.setColor(0.43, 0.98, 0.47)
-	love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
-	love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
-	love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
 	if hand[1] then
+		love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
 		love.graphics.printf(cardDetails[hand[1]].label, ui.card1.x, ui.card1.y + ui.card1.height, ui.card1.width, 'center')
 	end
 	if hand[2] then
+		love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
 		love.graphics.printf(cardDetails[hand[2]].label, ui.card2.x, ui.card2.y + ui.card2.height, ui.card2.width, 'center')
 	end
 	if hand[3] then
+		love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
 		love.graphics.printf(cardDetails[hand[3]].label, ui.card3.x, ui.card3.y + ui.card3.height, ui.card3.width, 'center')
 	end
 
@@ -265,6 +284,12 @@ function love.draw()
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
 	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
+
+	-- draw any cards that are moving
+	if cardFromDeck.enabled then
+		love.graphics.setColor(0.43, 0.98, 0.47)
+		love.graphics.rectangle("line", cardFromDeck.x, cardFromDeck.y, cardSize.width, cardSize.height)
+	end
 end
 
 -- for unknown reasons, love.js can sometimes read the arrow keys in safari as the following
@@ -313,18 +338,17 @@ function love.keypressed(key)
 		selection = ui[selection][key]
 		local posEaseFunction = ease.inovershoot
 		local sizeEaseFunction = ease.inovershoot
-		local animationSpeed = 0.35
 		async(routines, function()
-			animate(cursor, "x", ui[selection].x, animationSpeed, posEaseFunction)
+			animate(cursor, "x", ui[selection].x, navAnimationSpeed, posEaseFunction)
 		end)
 		async(routines, function()
-			animate(cursor, "y", ui[selection].y, animationSpeed, posEaseFunction)
+			animate(cursor, "y", ui[selection].y, navAnimationSpeed, posEaseFunction)
 		end)
 		async(routines, function()
-			animate(cursor, "width", ui[selection].width, animationSpeed, sizeEaseFunction)
+			animate(cursor, "width", ui[selection].width, navAnimationSpeed, sizeEaseFunction)
 		end)
 		async(routines, function()
-			animate(cursor, "height", ui[selection].height, animationSpeed, sizeEaseFunction)
+			animate(cursor, "height", ui[selection].height, navAnimationSpeed, sizeEaseFunction)
 		end)
 
 		local navDirections = 'Use the following keys to change selection: '
