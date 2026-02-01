@@ -55,6 +55,8 @@ local roundGoal = 15
 
 local	routines = {}
 local ttsText = ''
+
+gameSeed = 0
 seed = 0
 
 local navAnimationSpeed = 0.35
@@ -164,11 +166,18 @@ end
 function love.load()
 	print('tts: Created by Jesse Jurman.')
 
+	local savedSeed = loadGameData('seed.json')
+
 	-- shuffle and draw three at the start of the game
 	async(routines, function()
 		wait(1) -- wait one second to help generate a more random seed
-		print('seed: '..seed)
-		math.randomseed(seed)
+		if savedSeed then
+			gameSeed = savedSeed.seed
+		else
+			gameSeed = seed
+		end
+		print('seed: '..gameSeed)
+		math.randomseed(gameSeed)
 		shuffleDrawPile()
 		drawThree()
 	end)
@@ -415,16 +424,11 @@ function love.keypressed(rawKey)
 	end
 
 	-- testing saving / loading
-	if key == 'w' then
-		saveGameData('testing.json', { name = 'Jesse' })
-	end
-
-	if key == 'l' then
-		local savedData = loadGameData('testing.json')
-		print(dump(savedData))
+	if key == 's' or key == 'w' then
+		saveGameData('seed.json', { seed = gameSeed })
 	end
 
 	if key == 'c' then
-		clearGameData('testing.json')
+		clearGameData('seed.json')
 	end
 end
