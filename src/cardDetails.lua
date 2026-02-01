@@ -3,6 +3,8 @@ cardDetails = {
 		label = 'Bread',
 		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.',
 		points = 0,
+		onDraw = function()
+		end
 	},
 	[2] = {
 		label = 'Strawberries',

@@ -35,8 +35,6 @@ function shuffleDrawPile()
 	until countValueInTopOfPile(drawPile, 6, 1) == 1 or totalShuffles > 200
 end
 
-shuffleDrawPile()
-
 local discardPile = {}
 local hand = {}
 local currentPlate = {}
@@ -54,6 +52,7 @@ local roundGoal = 15
 
 local	routines = {}
 local ttsText = ''
+seed = 0
 
 local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 0.8
@@ -73,7 +72,8 @@ function getScoreForPlate(plate)
 	return plateScore
 end
 
-function drawFromDeck()
+function drawFromDeck(handIndex, targetX, targetY)
+	-- don't draw if the draw pile is empty
 	if #drawPile == 0 then
 		return
 	end
@@ -81,16 +81,8 @@ function drawFromDeck()
 	movingCard.enabled = true
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
-	local target = ui.card1
-	if hand[1] == nil then
-		target = ui.card1
-	elseif hand[2] == nil then
-		target = ui.card2
-	elseif hand[3] == nil then
-		target = ui.card3
-	end
-	animate(movingCard, "x", target.x, drawAnimationSpeed, ease.inovershoot)
-	table.insert(hand, table.remove(drawPile, 1))
+	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed, ease.inovershoot)
+	hand[handIndex] = table.remove(drawPile, 1)
 	movingCard.enabled = false
 end
 
@@ -133,13 +125,13 @@ end
 function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
-		drawFromDeck()
-		drawFromDeck()
-		drawFromDeck()
+		drawFromDeck(1, ui.card1.x, ui.card1.y)
+		drawFromDeck(2, ui.card2.x, ui.card2.y)
+		drawFromDeck(3, ui.card3.x, ui.card3.y)
 
 		wait(0.5)
 
-		-- check if any are bread (these automatically are played)
+		-- if any have onDraw, trigger those now
 		if hand[1] == 1 then
 			plateCardFromHand(1, ui.card1.x, ui.card1.y)
 		end
@@ -162,11 +154,18 @@ end
 function love.load()
 	print('tts: Created by Jesse Jurman.')
 
-	-- draw three at the start of the game
-	drawThree()
+	-- shuffle and draw three at the start of the game
+	async(routines, function()
+		wait(1) -- wait one second to help generate a more random seed
+		print('seed: '..seed)
+		math.randomseed(seed)
+		shuffleDrawPile()
+		drawThree()
+	end)
 end
 
 function love.update(dt)
+	seed = seed + dt*1000
 	updateAnimations(routines, dt)
 end
 
