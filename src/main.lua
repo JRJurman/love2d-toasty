@@ -50,6 +50,8 @@ local cursor = {
 	height = ui[selection].height,
 }
 
+local roundGoal = 15
+
 local	routines = {}
 local ttsText = ''
 
@@ -72,6 +74,10 @@ function getScoreForPlate(plate)
 end
 
 function drawFromDeck()
+	if #drawPile == 0 then
+		return
+	end
+
 	movingCard.enabled = true
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
@@ -143,6 +149,13 @@ function drawThree()
 		if hand[3] == 1 then
 			plateCardFromHand(3, ui.card3.x, ui.card3.y)
 		end
+
+		-- if we now have an empty hand, change the selection to actions
+		-- (this can happen if the last hand has all bread)
+		local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+		if handIsEmpty then
+			updateSelection('actionDraw')
+		end
 	end)
 end
 
@@ -165,7 +178,6 @@ function love.draw()
 	love.graphics.rectangle("line", ui.hand.x, ui.hand.y, ui.hand.width, ui.hand.height)
 	love.graphics.rectangle("line", ui.served.x, ui.served.y, ui.served.width, ui.served.height)
 	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
-	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
 
 	-- draw cards in hand
@@ -213,11 +225,36 @@ function love.draw()
 		love.graphics.printf(cardDetails[plateCard].label, ui.plateCards.x, ui.plateCards.y + ui.plateCards.height + (cardIndex * 12), ui.plateCards.width, 'center')
 	end
 
+	-- draw completed plates
+	for plateIndex, completedPlate in ipairs(completedPlates) do
+		love.graphics.setColor(0.98, 0.47, 0.98)
+		local plateX = ui.completedPlates.x
+		local plateY = ui.completedPlates.y - (40 * plateIndex)
+		local plateScore = getScoreForPlate(completedPlate)
+		love.graphics.rectangle("line", plateX, plateY, ui.completedPlates.width, ui.completedPlates.height)
+		love.graphics.printf('+'..plateScore, plateX, plateY + ui.completedPlates.height * (5 / 6), ui.completedPlates.width, 'center')
+	end
+
 	-- draw the current plate score
 	local currentPlateScore = getScoreForPlate(currentPlate)
+	local scoreDescription = ''
+	if #currentPlate == 0 then
+		scoreDescription = 'Start toast by drawing bread!'
+	elseif #currentPlate < 4 then
+		scoreDescription = 'You need three ingredients before you can score for this plate.'
+	end
 	love.graphics.setColor(0.98, 0.98, 0.98)
 	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
-	love.graphics.printf('+'..currentPlateScore, ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, 'center')
+	love.graphics.printf('+'..currentPlateScore, ui.plateScore.x + 10, ui.plateScore.y + ui.plateScore.height/2, ui.plateScore.width - 20, 'center')
+	love.graphics.printf(scoreDescription, ui.plateScore.x + 10, ui.plateScore.y + ui.plateScore.height/2 + 12, ui.plateScore.width - 20, 'center')
+
+		-- draw round score
+	local roundScore = currentPlateScore
+	for plateIndex, completedPlate in ipairs(completedPlates) do
+		roundScore = roundScore + getScoreForPlate(completedPlate)
+	end
+	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
+	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + ui.score.height/2, ui.score.width - 20, 'center')
 
 	-- draw any cards that are moving
 	if movingCard.enabled then

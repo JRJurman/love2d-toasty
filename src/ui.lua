@@ -204,5 +204,11 @@ ui = {
 		y = 30,
 		width = 125,
 		height = 125,
+	},
+	completedPlates = {
+		x = 40,
+		y = 450,
+		width = cardSize.width,
+		height = cardSize.height,
 	}
 }
