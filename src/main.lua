@@ -89,9 +89,16 @@ function getScoreForPlate(plate)
 		return 0
 	end
 
+	-- if there are two slices of bread, score zero
+	local slicesOfBread = countValueInTopOfPile(plate, #plate, 1)
+	if slicesOfBread > 1 then
+		return 0
+	end
+
 	for ingredientIndex, ingredient in ipairs(plate) do
 		plateScore = plateScore + cardDetails[ingredient].points
 	end
+
 	return plateScore
 end
 
@@ -275,9 +282,12 @@ function love.draw()
 
 	-- draw the current plate score
 	local currentPlateScore = getScoreForPlate(currentPlate)
+	local breadOnPlate = countValueInTopOfPile(currentPlate, #currentPlate, 1)
 	local scoreDescription = ''
 	if #currentPlate == 0 then
 		scoreDescription = 'Start toast by drawing bread!'
+	elseif breadOnPlate > 1 then
+		scoreDescription = 'You made a sandwich - NO POINTS!'
 	elseif #currentPlate < 4 then
 		scoreDescription = 'You need three ingredients before you can score for this plate.'
 	end
