@@ -1,4 +1,4 @@
-require('dump')
+local json = require("json")
 require('shuffle')
 
 require('save')
@@ -7,6 +7,8 @@ local ease = require('ease')
 
 require('cardDetails')
 require('ui')
+
+local DebuggingScreen = require('DebuggingScreen')
 
 local deck = {
 	1, 1, 1, 1,
@@ -41,7 +43,11 @@ local hand = {}
 local currentPlate = {}
 local completedPlates = {}
 
-local modalActive = true
+local modalCards = {}
+local modalActions = {}
+
+local modalActive = false
+local modalExpanded = false
 
 local selection = 'deck'
 local cursor = {
@@ -103,9 +109,12 @@ function drawFromDeck(handIndex, targetX, targetY)
 	movingCard.enabled = false
 
 	-- if this is bread, play it immediately
-	if hand[handIndex] == 1 then
-		wait(0.5)
-		plateCardFromHand(handIndex, targetX, targetY)
+	local drawnCardDetails = cardDetails[hand[handIndex]]
+	if drawnCardDetails.onDraw then
+		if drawnCardDetails.onDraw[1] == 'plate' then
+			wait(0.5)
+			plateCardFromHand(handIndex, targetX, targetY)
+		end
 	end
 end
 
@@ -287,6 +296,40 @@ function love.draw()
 	love.graphics.setColor(0.98, 0.47, 0.98)
 	love.graphics.rectangle("line", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
 
+	-- draw any cards on the modal
+	if modalCards[1] then
+		local cardX = ui.modal.x + ui.modalCard1.x
+		local cardY = ui.modal.y + ui.modalCard1.y
+		love.graphics.rectangle("line", cardX, cardY, ui.modalCard1.width, ui.modalCard1.height)
+		love.graphics.printf(cardDetails[modalCards[1]].label, cardX, cardY + ui.modalCard1.height, ui.modalCard1.width, 'center')
+	end
+	if modalCards[2] then
+		local cardX = ui.modal.x + ui.modalCard2.x
+		local cardY = ui.modal.y + ui.modalCard2.y
+		love.graphics.rectangle("line", cardX, cardY, ui.modalCard2.width, ui.modalCard2.height)
+		love.graphics.printf(cardDetails[modalCards[2]].label, cardX, cardY + ui.modalCard2.height, ui.modalCard2.width, 'center')
+	end
+	if modalCards[3] then
+		local cardX = ui.modal.x + ui.modalCard3.x
+		local cardY = ui.modal.y + ui.modalCard3.y
+		love.graphics.rectangle("line", cardX, cardY, ui.modalCard3.width, ui.modalCard3.height)
+		love.graphics.printf(cardDetails[modalCards[3]].label, cardX, cardY + ui.modalCard3.height, ui.modalCard3.width, 'center')
+	end
+
+	-- draw any actions on the modal
+	if modalActions[1] then
+		local actionX = ui.modal.x + ui.modalAction1.x
+		local actionY = ui.modal.y + ui.modalAction1.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
+		love.graphics.printf(modalActions[1], actionX, actionY + ui.modalAction1.height, ui.modalAction1.width, 'center')
+	end
+	if modalActions[2] then
+		local actionX = ui.modal.x + ui.modalAction2.x
+		local actionY = ui.modal.y + ui.modalAction2.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
+		love.graphics.printf(modalActions[2], actionX, actionY + ui.modalAction2.height, ui.modalAction2.width, 'center')
+	end
+
 	-- draw any cards that are moving
 	if movingCard.enabled then
 		love.graphics.setColor(0.43, 0.98, 0.47)
@@ -296,6 +339,8 @@ function love.draw()
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
 	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
+
+	DebuggingScreen.draw()
 end
 
 -- for unknown reasons, love.js can sometimes read the arrow keys in safari as the following
@@ -329,6 +374,7 @@ function expandModal()
 
 	ui.modal.y = ui.offScreenModal.y
 	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed, ease.outovershoot)
+	modalExpanded = true
 end
 
 function minimizeModal()
@@ -337,14 +383,22 @@ function minimizeModal()
 
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed, ease.inovershoot)
+	modalExpanded = false
 end
 
 function updateSelection(target)
 	selection = target
 	async(routines, function()
+		local targetX = ui[selection].x
+		local targetY = ui[selection].y
+		-- if we are in a modal, modify the target positions respectively
+		if (ui[selection].modal) then
+			targetX = targetX + ui.modal.x
+			targetY = targetY + ui.modal.y
+		end
 		animateMany(cursor,
 			{"x", "y", "width", "height"},
-			{ui[selection].x, ui[selection].y, ui[selection].width, ui[selection].height},
+			{targetX, targetY, ui[selection].width, ui[selection].height},
 			navAnimationSpeed, ease.inovershoot
 		)
 	end)
@@ -376,6 +430,8 @@ function updateSelection(target)
 end
 
 function love.keypressed(rawKey)
+	DebuggingScreen.keypressed(rawKey)
+
 	key = remap(rawKey)
 	print('raw, '..rawKey..' remapped, '..key)
 
@@ -389,14 +445,19 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			local nextSelection = ui[selection].nav[navKey][key]
 
-			-- if we were on the modal, and now we are not, hide the modal
-			if selection == 'modal' and nextSelection then
-				minimizeModal()
-			end
+			-- if we moved in or out of the modal, expand or minimize it
+			if nextSelection then
+				-- if we were on the modal, and now we are not, hide the modal
+				print('modalExpanded '.. (modalExpanded and 'true' or 'false'))
+				print('nextSelection.modal '.. (ui[nextSelection].modal and 'true' or 'false'))
+				if modalExpanded and not ui[nextSelection].modal then
+					minimizeModal()
+				end
 
-			-- if we were not on the modal, and now we are, show the modal
-			if nextSelection == 'modal' and selection ~= 'modal' then
-				expandModal()
+				-- if we were not on the modal, and now we are, show the modal
+				if not modalExpanded and ui[nextSelection].modal then
+					expandModal()
+				end
 			end
 
 			if nextSelection then
@@ -418,6 +479,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			-- get handIndex based on selection
 			local handIndex = ui[selection].handIndex
+			local playedCardDetails = cardDetails[hand[handIndex]]
 
 			-- if there is bread on the plate, plate this card
 			-- (otherwise, discard it)
@@ -427,9 +489,23 @@ function love.keypressed(rawKey)
 				discardCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			end
 
+			-- if there is a onPlay action, trigger that
+			if playedCardDetails.onPlay then
+				if playedCardDetails.onPlay.name == 'preview' then
+					local previewCount = playedCardDetails.onPlay.previewCount
+					for previewIndex=1, previewCount do
+						modalCards[previewIndex] = drawPile[previewIndex]
+					end
+					for actionIndex, action in ipairs(playedCardDetails.onPlay.actions) do
+						table.insert(modalActions, action)
+					end
+					modalActive = true
+				end
+			end
+
 			-- if hand is empty, update selection
 			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
-			if handIsEmpty then
+			if handIsEmpty and not modalActive then
 				updateSelection('actionDraw')
 			end
 		end)
@@ -473,4 +549,17 @@ function love.keypressed(rawKey)
 	if key == 'c' then
 		clearGameData('seed.json')
 	end
+
+	-- if we need to figure out where we are
+	if key == '/' then
+		print('selection: '..selection)
+	end
+end
+
+function love.mousepressed(x, y)
+	DebuggingScreen.mousepressed(x, y)
+end
+
+function love.mousereleased(x, y)
+	DebuggingScreen.mousereleased(x, y)
 end

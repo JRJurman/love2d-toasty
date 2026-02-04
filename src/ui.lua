@@ -110,7 +110,7 @@ ui = {
 			withModal = {
 				left = 'card3',
 				down = 'score',
-				up = 'modal',
+				up = 'modalAction1',
 			},
 		},
 
@@ -144,7 +144,7 @@ ui = {
 			withModal = {
 				right = 'card2',
 				down = 'served',
-				up = 'modal',
+				up = 'modalAction1',
 			},
 		},
 
@@ -168,7 +168,7 @@ ui = {
 				down = 'plate',
 				left = 'card1',
 				right = 'card3',
-				up = 'modal',
+				up = 'modalAction1',
 			},
 		},
 
@@ -192,7 +192,7 @@ ui = {
 					down = 'plate',
 				left = 'card2',
 				right = 'deck',
-				up = 'modal',
+				up = 'modalAction1',
 			},
 		},
 
@@ -261,16 +261,6 @@ ui = {
 		height = 520,
 	},
 	modal = {
-		label = 'Next cards Preview',
-
-		nav = {
-			withHand = {},
-			withActions = {},
-			withModal = {
-				down = 'deck',
-			},
-		},
-
 		x = 40,
 		y = -600,
 		width = 720,
@@ -283,5 +273,99 @@ ui = {
 		y = 15,
 		width = 440,
 		height = 20,
+	},
+	-- NOTE: modal ui is relative, because it moves with it
+	modalCard1 = {
+		label = 'First Previewed Card',
+		modal = true,
+
+		nav = {
+			withHand = {},
+			withActions = {},
+			withModal = {
+				right = 'modalCard2',
+				down = 'modalAction1',
+			},
+		},
+
+		x = 150,
+		y = 150,
+		width = cardSize.width,
+		height = cardSize.height,
+	},
+	modalCard2 = {
+		label = 'Second Previewed Card',
+		modal = true,
+
+		nav = {
+			withHand = {},
+			withActions = {},
+			withModal = {
+				left = 'modalCard1',
+				right = 'modalCard3',
+				down = 'modalAction1',
+			},
+		},
+
+		x = 300,
+		y = 150,
+		width = cardSize.width,
+		height = cardSize.height,
+	},
+	modalCard3 = {
+		label = 'Third Previewed Card',
+		modal = true,
+
+		nav = {
+			withHand = {},
+			withActions = {},
+			withModal = {
+				left = 'modalCard2',
+				down = 'modalAction2',
+			},
+		},
+
+		x = 450,
+		y = 150,
+		width = cardSize.width,
+		height = cardSize.height,
+	},
+	modalAction1 = {
+		label = 'Card Preview',
+		modal = true,
+
+		nav = {
+			withHand = {},
+			withActions = {},
+			withModal = {
+				up = 'modalCard1',
+				down = 'deck',
+				right = 'modalAction2',
+			},
+		},
+
+		x = 100,
+		y = 300,
+		width = 300,
+		height = 100,
+	},
+	modalAction2 = {
+		label = 'Card Preview',
+		modal = true,
+
+		nav = {
+			withHand = {},
+			withActions = {},
+			withModal = {
+				up = 'modalCard3',
+				down = 'deck',
+				left = 'modalAction1',
+			},
+		},
+
+		x = 450,
+		y = 300,
+		width = 300,
+		height = 100,
 	}
 }
