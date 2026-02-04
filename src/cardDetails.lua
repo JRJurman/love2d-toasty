@@ -48,6 +48,7 @@ cardDetails = {
 	[6] = {
 		label = 'Jam',
 		effect = 'preview the next 3 cards, you may shuffle the draw pile',
+		points = 1,
 		onPlay = {
 			name = 'preview',
 			previewCount = 3,

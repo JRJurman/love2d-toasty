@@ -95,7 +95,11 @@ function getScoreForPlate(plate)
 	return plateScore
 end
 
-function drawFromDeck(handIndex, targetX, targetY)
+function drawFromDeck(handIndex, drawIndex)
+	drawIndex = drawIndex or 1
+	local targetX = ui['card'..handIndex].x
+	local targetY = ui['card'..handIndex].y
+
 	-- don't draw if the draw pile is empty
 	if #drawPile == 0 then
 		return
@@ -105,7 +109,7 @@ function drawFromDeck(handIndex, targetX, targetY)
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
 	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed, ease.inovershoot)
-	hand[handIndex] = table.remove(drawPile, 1)
+	hand[handIndex] = table.remove(drawPile, drawIndex)
 	movingCard.enabled = false
 
 	-- if this is bread, play it immediately
@@ -157,9 +161,9 @@ end
 function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
-		drawFromDeck(1, ui.card1.x, ui.card1.y)
-		drawFromDeck(2, ui.card2.x, ui.card2.y)
-		drawFromDeck(3, ui.card3.x, ui.card3.y)
+		drawFromDeck(1)
+		drawFromDeck(2)
+		drawFromDeck(3)
 
 		wait(0.5)
 
@@ -448,8 +452,6 @@ function love.keypressed(rawKey)
 			-- if we moved in or out of the modal, expand or minimize it
 			if nextSelection then
 				-- if we were on the modal, and now we are not, hide the modal
-				print('modalExpanded '.. (modalExpanded and 'true' or 'false'))
-				print('nextSelection.modal '.. (ui[nextSelection].modal and 'true' or 'false'))
 				if modalExpanded and not ui[nextSelection].modal then
 					minimizeModal()
 				end
@@ -511,6 +513,19 @@ function love.keypressed(rawKey)
 		end)
 	end
 
+	-- if we are selecting a card and the modal action is pick, draw it
+	local modalActionIsPick = modalActions[1] == 'pick'
+	local isSelectingModalCard = ui[selection].modal and ui[selection].card
+	if key == 'select' and isSelectingModalCard and modalActionIsPick then
+		async(routines, function()
+			local firstEmptyHandSlot = (hand[1] == nil and 1) or (hand[2] == nil and 2) or (hand[3] == nil and 3)
+			local targetSelection = 'card'..firstEmptyHandSlot
+			minimizeModal()
+			modalActive = false
+			drawFromDeck(firstEmptyHandSlot, ui[selection].drawIndex)
+			updateSelection(targetSelection)
+		end)
+	end
 	-- action selection
 	if key == 'select' and isActionSelected then
 		async(routines, function()

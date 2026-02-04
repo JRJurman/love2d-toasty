@@ -133,6 +133,7 @@ ui = {
 	},
 	card1 = {
 		label = 'First Card',
+		card = true,
 		handIndex = 1,
 
 		nav = {
@@ -155,6 +156,7 @@ ui = {
 	},
 	card2 = {
 		label = 'Second Card',
+		card = true,
 		handIndex = 2,
 
 		nav = {
@@ -179,6 +181,7 @@ ui = {
 	},
 	card3 = {
 		label = 'Third Card',
+		card = true,
 		handIndex = 3,
 
 		nav = {
@@ -278,6 +281,8 @@ ui = {
 	modalCard1 = {
 		label = 'First Previewed Card',
 		modal = true,
+		card = true,
+		drawIndex = 1,
 
 		nav = {
 			withHand = {},
@@ -296,6 +301,8 @@ ui = {
 	modalCard2 = {
 		label = 'Second Previewed Card',
 		modal = true,
+		card = true,
+		drawIndex = 2,
 
 		nav = {
 			withHand = {},
@@ -315,6 +322,8 @@ ui = {
 	modalCard3 = {
 		label = 'Third Previewed Card',
 		modal = true,
+		card = true,
+		drawIndex = 3,
 
 		nav = {
 			withHand = {},
