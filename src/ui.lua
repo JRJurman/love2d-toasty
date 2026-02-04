@@ -212,6 +212,7 @@ ui = {
 	},
 	actionDraw = {
 			label = 'Draw 3 New Cards',
+			action = true,
 
 			nav = {
 				withHand = {},
@@ -229,6 +230,7 @@ ui = {
 	},
 	actionNewPlate = {
 		label = 'Start a new Plate',
+		action = true,
 
 		nav = {
 			withHand = {},
@@ -342,6 +344,8 @@ ui = {
 	modalAction1 = {
 		label = 'Card Preview',
 		modal = true,
+		action = true,
+		actionIndex = 1,
 
 		nav = {
 			withHand = {},
@@ -361,6 +365,8 @@ ui = {
 	modalAction2 = {
 		label = 'Card Preview',
 		modal = true,
+		action = true,
+		actionIndex = 2,
 
 		nav = {
 			withHand = {},

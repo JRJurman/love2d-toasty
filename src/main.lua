@@ -441,9 +441,6 @@ function love.keypressed(rawKey)
 
 	local navKey = getNavKey()
 
-	local isCardSelected = selection == 'card1' or selection == 'card2' or selection == 'card3'
-	local isActionSelected = selection == 'actionDraw' or selection == 'actionNewPlate'
-
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
 		async(routines, function()
@@ -470,14 +467,14 @@ function love.keypressed(rawKey)
 				elseif key == 'down' then
 					ui[nextSelection].nav[navKey].up = selection
 				end
-
 				updateSelection(nextSelection)
 			end
 		end)
 	end
 
-	-- card selection
-	if key == 'select' and isCardSelected then
+	-- if we are selecting a non-modal card and modal is not active, trigger the onPlay
+	local isNonModalCard = ui[selection].card and not ui[selection].modal
+	if key == 'select' and isNonModalCard and not modalActive then
 		async(routines, function()
 			-- get handIndex based on selection
 			local handIndex = ui[selection].handIndex
@@ -526,23 +523,71 @@ function love.keypressed(rawKey)
 			updateSelection(targetSelection)
 		end)
 	end
-	-- action selection
-	if key == 'select' and isActionSelected then
+
+	-- if we are selecting a card and the modal action is pick, draw it
+	local modalActionIsPick = modalActions[1] == 'pick'
+	local isSelectingModalCard = ui[selection].modal and ui[selection].card
+	if key == 'select' and isSelectingModalCard and modalActionIsPick then
+		async(routines, function()
+			local firstEmptyHandSlot = (hand[1] == nil and 1) or (hand[2] == nil and 2) or (hand[3] == nil and 3)
+			local targetSelection = 'card'..firstEmptyHandSlot
+			minimizeModal()
+			modalActive = false
+			drawFromDeck(firstEmptyHandSlot, ui[selection].drawIndex)
+			updateSelection(targetSelection)
+		end)
+	end
+
+	-- if we are choosing to skip the modal action...
+	local isSelectingModalAction = ui[selection].modal and ui[selection].action
+	local isSelectingSkip = isSelectingModalAction and modalActions[ui[selection].actionIndex] == 'skip'
+	if key == 'select' and isSelectingSkip then
+		async(routines, function()
+			minimizeModal()
+			modalActive = false
+
+			-- reset the selection to hand or actions
+			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+			if (handIsEmpty) then
+				updateSelection('actionDraw')
+			else
+				updateSelection('card1')
+			end
+		end)
+	end
+
+	-- if we are choosing to shuffle cards
+	local isSelectingShuffle = isSelectingModalAction and modalActions[ui[selection].actionIndex] == 'shuffle'
+	if key == 'select' and isSelectingShuffle then
+		async(routines, function()
+			minimizeModal()
+			modalActive = false
+			shuffleDrawPile()
+
+			-- reset the selection to hand or actions
+			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+			if (handIsEmpty) then
+				updateSelection('actionDraw')
+			else
+				updateSelection('card1')
+			end
+		end)
+	end
+
+	-- non-modal action selection
+	if key == 'select' and ui[selection].action then
 		async(routines, function()
 			if selection == 'actionDraw' then
-				-- we don't actually have to do anything here, we'll draw at the end anyways
+				drawThree()
 			end
 			if selection == 'actionNewPlate' then
 				local completedPlate = currentPlate
 				currentPlate = {}
 				-- TODO animate plate to completed plates
 				table.insert(completedPlates, completedPlate)
+				drawThree()
 			end
 
-			-- draw three now (we always do this)
-			drawThree()
-
-			-- reset the selection to hand
 			updateSelection('card1')
 		end)
 	end

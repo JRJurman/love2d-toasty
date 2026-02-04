@@ -22,7 +22,7 @@ cardDetails = {
 		onPlay = {
 			name = 'preview',
 			previewCount = 1,
-			actions = {'shuffle', 'skip_shuffle'}
+			actions = {'shuffle', 'skip'}
 		}
 	},
 	[4] = {
@@ -32,7 +32,7 @@ cardDetails = {
 		onPlay = {
 			name = 'preview',
 			previewCount = 1,
-			actions = {'pick', 'skip_pick'}
+			actions = {'pick', 'skip'}
 		}
 	},
 	[5] = {
@@ -42,7 +42,7 @@ cardDetails = {
 		onPlay = {
 			name = 'preview',
 			previewCount = 3,
-			actions = {'pick', 'skip_pick'}
+			actions = {'pick', 'skip'}
 		}
 	},
 	[6] = {
@@ -52,7 +52,7 @@ cardDetails = {
 		onPlay = {
 			name = 'preview',
 			previewCount = 3,
-			actions = {'shuffle', 'skip_shuffle'}
+			actions = {'shuffle', 'skip'}
 		}
 	},
 	[7] = {

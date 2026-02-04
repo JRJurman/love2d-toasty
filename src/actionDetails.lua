@@ -2,7 +2,7 @@ actionDetails = {
 	"close" = {
 		label = "Close",
 	},
-	"skip_shuffle" = {
+	"skip" = {
 		label = "Skip",
 	},
 	"shuffle" = {
@@ -10,8 +10,5 @@ actionDetails = {
 	},
 	"pick" = {
 		label = "Select Card",
-	},
-	"skip_pick" = {
-		label = "Skip",
 	},
 }
