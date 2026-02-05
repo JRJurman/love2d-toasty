@@ -155,6 +155,20 @@ function plateCardFromHand(handIndex, startX, startY)
 	movingCard.enabled = false
 end
 
+function updateSelectionAfterPlayOrDraw()
+	-- if we now have an empty hand (and the modal isn't active), change the selection to actions
+	-- (this can happen for draw if the last hand has all bread)
+	local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+	if handIsEmpty and not modalActive then
+		updateSelection('actionDraw')
+	else
+		-- if we aren't already selecting a card, reset to card1
+		if selection ~= 'card1' and selection ~= 'card2' and selection ~= 'card3' then
+			updateSelection('card1')
+		end
+	end
+end
+
 function discardCardFromHand(handIndex, startX, startY)
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
@@ -180,16 +194,7 @@ function drawThree()
 		drawFromDeck(2)
 		drawFromDeck(3)
 
-		wait(0.5)
-
-		-- if we now have an empty hand, change the selection to actions
-		-- (this can happen if the last hand has all bread)
-		local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
-		if handIsEmpty then
-			updateSelection('actionDraw')
-		end
-
-		updateSelection('card1')
+		updateSelectionAfterPlayOrDraw()
 	end)
 end
 
@@ -429,27 +434,41 @@ function updateSelection(target)
 
 	local navKey = getNavKey()
 
+	local selectionDetails = ''
+	if selection == 'plate' then
+		selectionDetails = 'Current Plate: '
+		for plateIndex, ingredient in ipairs(currentPlate) do
+			selectionDetails = selectionDetails..cardDetails[ingredient].label..', '
+		end
+	end
+	if selection == 'deck' then
+		for drawIndex, ingredient in ipairs(drawPile) do
+			print(drawIndex..': '..cardDetails[ingredient].label)
+		end
+	end
+
 	local navDirections = 'Use the following keys to change selection: '
 	local dirLabel = ''
 
-	if ui[selection].nav[navKey].up then
-		dirLabel = ui[ui[selection].nav[navKey].up].label
+	local selectedNavDetails = ui[selection].nav[navKey]
+	if selectedNavDetails.up then
+		dirLabel = ui[selectedNavDetails.up].label
 		navDirections = navDirections..' up, '..dirLabel..'; '
 	end
-	if ui[selection].nav[navKey].down then
-		dirLabel = ui[ui[selection].nav[navKey].down].label
+	if selectedNavDetails.down then
+		dirLabel = ui[selectedNavDetails.down].label
 		navDirections = navDirections..' down, '..dirLabel..'; '
 	end
-	if ui[selection].nav[navKey].left then
-		dirLabel = ui[ui[selection].nav[navKey].left].label
+	if selectedNavDetails.left then
+		dirLabel = ui[selectedNavDetails.left].label
 		navDirections = navDirections..' left, '..dirLabel..'; '
 	end
-	if ui[selection].nav[navKey].right then
-		dirLabel = ui[ui[selection].nav[navKey].right].label
+	if selectedNavDetails.right then
+		dirLabel = ui[selectedNavDetails.right].label
 		navDirections = navDirections..' right, '..dirLabel..'. '
 	end
 	dirLabel = ui[selection].label
-	ttsText = dirLabel..' selected. '..navDirections
+	ttsText = dirLabel..' selected. '..selectionDetails..navDirections
 	print('tts: '..ttsText)
 end
 
@@ -517,8 +536,11 @@ function love.keypressed(rawKey)
 			if playedCardDetails.onPlay then
 				if playedCardDetails.onPlay.name == 'preview' then
 					local previewCount = playedCardDetails.onPlay.previewCount
+					modalCards = {}
 					for previewIndex=1, previewCount do
-						modalCards[previewIndex] = drawPile[previewIndex]
+						if drawPile[previewIndex] then
+							modalCards[previewIndex] = drawPile[previewIndex]
+						end
 					end
 					for actionIndex, action in ipairs(playedCardDetails.onPlay.actions) do
 						table.insert(modalActions, action)
@@ -527,11 +549,7 @@ function love.keypressed(rawKey)
 				end
 			end
 
-			-- if hand is empty, update selection
-			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
-			if handIsEmpty and not modalActive then
-				updateSelection('actionDraw')
-			end
+			updateSelectionAfterPlayOrDraw()
 		end)
 	end
 
@@ -549,35 +567,16 @@ function love.keypressed(rawKey)
 		end)
 	end
 
-	-- if we are selecting a card and the modal action is pick, draw it
-	local modalActionIsPick = modalActions[1] == 'pick'
-	local isSelectingModalCard = ui[selection].modal and ui[selection].card
-	if key == 'select' and isSelectingModalCard and modalActionIsPick then
-		async(routines, function()
-			local firstEmptyHandSlot = (hand[1] == nil and 1) or (hand[2] == nil and 2) or (hand[3] == nil and 3)
-			local targetSelection = 'card'..firstEmptyHandSlot
-			minimizeModal()
-			modalActive = false
-			drawFromDeck(firstEmptyHandSlot, ui[selection].drawIndex)
-			updateSelection(targetSelection)
-		end)
-	end
-
-	-- if we are choosing to skip the modal action...
+	-- if we are choosing to skip or close the modal action...
 	local isSelectingModalAction = ui[selection].modal and ui[selection].action
-	local isSelectingSkip = isSelectingModalAction and modalActions[ui[selection].actionIndex] == 'skip'
+	local modalAction = isSelectingModalAction and modalActions[ui[selection].actionIndex]
+	local isSelectingSkip = isSelectingModalAction and modalAction == 'skip' or modalAction == 'close'
 	if key == 'select' and isSelectingSkip then
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
 
-			-- reset the selection to hand or actions
-			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
-			if (handIsEmpty) then
-				updateSelection('actionDraw')
-			else
-				updateSelection('card1')
-			end
+			updateSelectionAfterPlayOrDraw()
 		end)
 	end
 
@@ -589,13 +588,7 @@ function love.keypressed(rawKey)
 			modalActive = false
 			shuffleDrawPile(drawPile)
 
-			-- reset the selection to hand or actions
-			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
-			if (handIsEmpty) then
-				updateSelection('actionDraw')
-			else
-				updateSelection('card1')
-			end
+			updateSelectionAfterPlayOrDraw()
 		end)
 	end
 
