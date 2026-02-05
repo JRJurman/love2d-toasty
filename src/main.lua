@@ -27,14 +27,14 @@ function countValueInTopOfPile(pile, count, value)
 	end
 	return totalCount
 end
-function shuffleDrawPile()
+function shuffleDrawPile(source)
 	-- keep shuffling until the first six contain exactly 1 bread
 	-- or until we hit like, 200 shuffles (give up at that point)
 	local totalShuffles = 0
 	repeat
 		print('shuffling.. '..totalShuffles)
 		totalShuffles = totalShuffles + 1
-		drawPile = shuffle(deck)
+		drawPile = shuffle(source)
 	until countValueInTopOfPile(drawPile, 6, 1) == 1 or totalShuffles > 200
 end
 
@@ -48,6 +48,8 @@ local modalActions = {}
 
 local modalActive = false
 local modalExpanded = false
+local isDrawing = true
+local isPlating = false
 
 local selection = 'deck'
 local cursor = {
@@ -103,12 +105,14 @@ function getScoreForPlate(plate)
 end
 
 function drawFromDeck(handIndex, drawIndex)
+	isDrawing = true
 	drawIndex = drawIndex or 1
 	local targetX = ui['card'..handIndex].x
 	local targetY = ui['card'..handIndex].y
 
 	-- don't draw if the draw pile is empty
 	if #drawPile == 0 then
+		isDrawing = false
 		return
 	end
 
@@ -127,9 +131,12 @@ function drawFromDeck(handIndex, drawIndex)
 			plateCardFromHand(handIndex, targetX, targetY)
 		end
 	end
+
+	isDrawing = false
 end
 
 function plateCardFromHand(handIndex, startX, startY)
+	isPlating = true
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
@@ -144,6 +151,7 @@ function plateCardFromHand(handIndex, startX, startY)
 		drawAnimationSpeed, ease.inovershoot
 	)
 	table.insert(currentPlate, movedCard)
+	isPlating = false
 	movingCard.enabled = false
 end
 
@@ -180,6 +188,8 @@ function drawThree()
 		if handIsEmpty then
 			updateSelection('actionDraw')
 		end
+
+		updateSelection('card1')
 	end)
 end
 
@@ -198,7 +208,7 @@ function love.load()
 		end
 		print('seed: '..gameSeed)
 		math.randomseed(gameSeed)
-		shuffleDrawPile()
+		shuffleDrawPile(deck)
 		drawThree()
 	end)
 end
@@ -451,6 +461,11 @@ function love.keypressed(rawKey)
 
 	local navKey = getNavKey()
 
+	-- if we are drawing or plating, don't allow other actions
+	if isDrawing or isPlating then
+		return
+	end
+
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
 		async(routines, function()
@@ -572,7 +587,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
-			shuffleDrawPile()
+			shuffleDrawPile(drawPile)
 
 			-- reset the selection to hand or actions
 			local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
@@ -597,8 +612,6 @@ function love.keypressed(rawKey)
 				table.insert(completedPlates, completedPlate)
 				drawThree()
 			end
-
-			updateSelection('card1')
 		end)
 	end
 
