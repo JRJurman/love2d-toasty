@@ -8,7 +8,10 @@ local ease = require('ease')
 require('cardDetails')
 require('ui')
 
-local DebuggingScreen = require('DebuggingScreen')
+require('FontFunctions')
+DebuggingScreen = require('DebuggingScreen')
+
+love.graphics.setFont(getFont(12))
 
 local deck = {
 	1, 1, 1, 1,
@@ -537,6 +540,7 @@ function love.keypressed(rawKey)
 				if playedCardDetails.onPlay.name == 'preview' then
 					local previewCount = playedCardDetails.onPlay.previewCount
 					modalCards = {}
+					modalActions = {}
 					for previewIndex=1, previewCount do
 						if drawPile[previewIndex] then
 							modalCards[previewIndex] = drawPile[previewIndex]
@@ -563,7 +567,10 @@ function love.keypressed(rawKey)
 			minimizeModal()
 			modalActive = false
 			drawFromDeck(firstEmptyHandSlot, ui[selection].drawIndex)
+			-- first update to the target selection
+			-- but, if our hand is empty (it was bread), reset it
 			updateSelection(targetSelection)
+			updateSelectionAfterPlayOrDraw()
 		end)
 	end
 
