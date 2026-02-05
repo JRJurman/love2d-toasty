@@ -11,7 +11,7 @@ require('ui')
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
 
-love.graphics.setFont(getFont(12))
+love.graphics.setFont(getFont(30))
 
 local deck = {
 	1, 1, 1, 1,
