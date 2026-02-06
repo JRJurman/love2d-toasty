@@ -2,6 +2,7 @@ local fonts = {
 	dynapuff = {},
 	atkinson = {},
 	whacky = {},
+	cherrybomb = {}
 }
 
 fontDetails = {
@@ -11,14 +12,19 @@ fontDetails = {
 		fontHint = 'normal',
 	},
 	atkinson = {
-		fontSrc = 'Fonts/font-atkinson-bold.ttf',
+		fontSrc = 'Fonts/atkinson-bold.ttf',
 		fontSizeModifier = 0,
 		fontHint = 'normal',
 	},
 	whacky = {
-		fontSrc = 'Fonts/font-whacky-joe.ttf',
+		fontSrc = 'Fonts/whacky-joe.ttf',
 		fontSizeModifier = 0,
 		fontHint = 'mono',
+	},
+	cherrybomb = {
+		fontSrc = 'Fonts/cherrybomb-regular.ttf',
+		fontSizeModifier = 0,
+		fontHint = 'normal',
 	}
 }
 
@@ -34,7 +40,7 @@ currentFontSrc = ''
 fontSizeModifier = 0
 fontHint = ''
 
-loadFont('dynapuff')
+loadFont('cherrybomb')
 
 function swapFont()
 	if currentFont == 'dynapuff' then

@@ -261,8 +261,8 @@ function love.draw()
 		end
 	end
 
-	-- draw actions if we don't have cards or an active modal
-	if not hasCardsInHand and not modalActive then
+	-- draw actions if we don't have cards or an active modal, and we aren't drawing or plating
+	if not hasCardsInHand and not modalActive and not isDrawing and not isPlating then
 		love.graphics.setColor(0.98, 0.98, 0.47)
 		love.graphics.rectangle("line", ui.actionDraw.x, ui.actionDraw.y, ui.actionDraw.width, ui.actionDraw.height)
 		love.graphics.printf(ui.actionDraw.label, ui.actionDraw.x, ui.actionDraw.y + ui.actionDraw.height, ui.actionDraw.width, 'center')
@@ -274,18 +274,22 @@ function love.draw()
 	-- draw drawPile and discardPile
 	love.graphics.setColor(0.43, 0.43, 0.47)
 	love.graphics.rectangle("line", ui.drawPile.x, ui.drawPile.y, ui.drawPile.width, ui.drawPile.height)
-	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/2, ui.drawPile.width, 'center')
+	love.graphics.setFont(getFont(80))
+	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/4, ui.drawPile.width, 'center')
+	love.graphics.setFont(getFont(30))
 	love.graphics.printf(countValueInTopOfPile(drawPile, #drawPile, 1)..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height, ui.drawPile.width, 'center')
 
 	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
-	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/2, ui.discardPile.width, 'center')
+	love.graphics.setFont(getFont(80))
+	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/4, ui.discardPile.width, 'center')
+	love.graphics.setFont(getFont(30))
 	love.graphics.printf(countValueInTopOfPile(discardPile, #discardPile, 1)..' Bread Slices', ui.discardPile.x, ui.discardPile.y + ui.discardPile.height, ui.discardPile.width, 'center')
 
 	-- draw plated cards
 	for cardIndex, plateCard in ipairs(currentPlate) do
 		love.graphics.setColor(0.43, 0.98, 0.47)
 		love.graphics.rectangle("line", ui.plateCards.x, ui.plateCards.y, ui.plateCards.width, ui.plateCards.height)
-		love.graphics.printf(cardDetails[plateCard].label, ui.plateCards.x, ui.plateCards.y + ui.plateCards.height + (cardIndex * 12), ui.plateCards.width, 'center')
+		love.graphics.printf(cardDetails[plateCard].label, ui.plateCards.x, ui.plateCards.y + ui.plateCards.height + ((cardIndex - 1) * 25), ui.plateCards.width, 'center')
 	end
 
 	-- draw completed plates
@@ -311,10 +315,14 @@ function love.draw()
 	end
 	love.graphics.setColor(0.98, 0.98, 0.98)
 	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
-	love.graphics.printf('+'..currentPlateScore, ui.plateScore.x + 10, ui.plateScore.y + ui.plateScore.height/2, ui.plateScore.width - 20, 'center')
+
+	love.graphics.setFont(getFont(90))
+	love.graphics.printf('+'..currentPlateScore, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
+
+	love.graphics.setFont(getFont(30))
 	love.graphics.printf(scoreDescription, ui.plateScore.x + 10, ui.plateScore.y + ui.plateScore.height/2 + 12, ui.plateScore.width - 20, 'center')
 
-		-- draw round score
+	-- draw round score
 	local roundScore = currentPlateScore
 	for plateIndex, completedPlate in ipairs(completedPlates) do
 		roundScore = roundScore + getScoreForPlate(completedPlate)
@@ -353,13 +361,13 @@ function love.draw()
 		local actionX = ui.modal.x + ui.modalAction1.x
 		local actionY = ui.modal.y + ui.modalAction1.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
-		love.graphics.printf(modalActions[1], actionX, actionY + ui.modalAction1.height, ui.modalAction1.width, 'center')
+		love.graphics.printf(modalActions[1], actionX, actionY + ui.modalAction1.height/2, ui.modalAction1.width, 'center')
 	end
 	if modalActions[2] then
 		local actionX = ui.modal.x + ui.modalAction2.x
 		local actionY = ui.modal.y + ui.modalAction2.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
-		love.graphics.printf(modalActions[2], actionX, actionY + ui.modalAction2.height, ui.modalAction2.width, 'center')
+		love.graphics.printf(modalActions[2], actionX, actionY + ui.modalAction2.height/2, ui.modalAction2.width, 'center')
 	end
 
 	-- draw any cards that are moving
