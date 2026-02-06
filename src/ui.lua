@@ -9,7 +9,7 @@ ui = {
 		x = 20,
 		y = 20,
 		width = 920,
-		height = 400,
+		height = 375,
 	},
 	actions = {
 		x = 20,
@@ -36,7 +36,7 @@ ui = {
 		},
 
 		x = 20,
-		y = 440,
+		y = 415,
 		width = 400,
 		height = 740,
 	},
@@ -62,13 +62,13 @@ ui = {
 		},
 
 		x = 440,
-		y = 440,
+		y = 415,
 		width = 600,
-		height = 740,
+		height = 480,
 	},
 	plateScore = {
 		x = 1060,
-		y = 540,
+		y = 415,
 		width = 520,
 		height = 280,
 	},
@@ -91,9 +91,9 @@ ui = {
 		},
 
 		x = 1060,
-		y = 900,
+		y = 715,
 		width = 520,
-		height = 280,
+		height = 180,
 	},
 	deck = {
 		label = 'Draw and Discard Piles',
@@ -117,7 +117,7 @@ ui = {
 		x = 960,
 		y = 20,
 		width = 620,
-		height = 400,
+		height = 375,
 	},
 	drawPile = {
 		x = 1000,
@@ -150,7 +150,7 @@ ui = {
 		},
 
 		x = 80,
-		y = 100,
+		y = 60,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -175,7 +175,7 @@ ui = {
 		},
 
 		x = 350,
-		y = 100,
+		y = 60,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -200,7 +200,7 @@ ui = {
 		},
 
 		x = 620,
-		y = 100,
+		y = 60,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -224,7 +224,7 @@ ui = {
 			},
 
 			x = 80,
-			y = 100,
+			y = 60,
 			width = 250,
 			height = 250,
 	},
@@ -243,7 +243,7 @@ ui = {
 		},
 
 		x = 350,
-		y = 100,
+		y = 60,
 		width = 250,
 		height = 250,
 	},
@@ -382,5 +382,11 @@ ui = {
 		y = 800,
 		width = 500,
 		height = 200,
-	}
+	},
+	readout = {
+		x = 440,
+		y = 915,
+		width = 1140,
+		height = 240,
+	},
 }

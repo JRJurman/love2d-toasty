@@ -228,6 +228,7 @@ end
 
 function love.draw()
 	love.graphics.clear()
+	love.graphics.setFont(getFont(30))
 
 	-- draw the UI elements
 	love.graphics.setColor(0.98, 0.43, 0.47)
@@ -375,6 +376,11 @@ function love.draw()
 		love.graphics.setColor(0.43, 0.98, 0.47)
 		love.graphics.rectangle("line", movingCard.x, movingCard.y, cardSize.width, cardSize.height)
 	end
+
+	-- draw the readout
+	love.graphics.setColor(0.87, 0.87, 0.97)
+	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
+	love.graphics.printf(ttsText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
