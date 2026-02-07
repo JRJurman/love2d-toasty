@@ -7,6 +7,8 @@ local ease = require('ease')
 
 require('cardDetails')
 require('ui')
+require('deckFunctions')
+require('remapFunctions')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -21,25 +23,6 @@ local deck = {
 }
 
 local drawPile = {}
-function countValueInTopOfPile(pile, count, value)
-	local totalCount = 0
-	for pileIndex=1, count do
-		if pile[pileIndex] == value then
-			totalCount = totalCount + 1
-		end
-	end
-	return totalCount
-end
-function shuffleDrawPile(source)
-	-- keep shuffling until the first six contain exactly 1 bread
-	-- or until we hit like, 200 shuffles (give up at that point)
-	local totalShuffles = 0
-	repeat
-		print('shuffling.. '..totalShuffles)
-		totalShuffles = totalShuffles + 1
-		drawPile = shuffle(source)
-	until countValueInTopOfPile(drawPile, 6, 1) == 1 or totalShuffles > 200
-end
 
 local discardPile = {}
 local hand = {}
@@ -85,26 +68,6 @@ function getNavKey()
 	else
 		return 'withActions'
 	end
-end
-
-function getScoreForPlate(plate)
-	local plateScore = 0
-	-- need 3 ingredients to start scoring (after bread)
-	if #plate < 4 then
-		return 0
-	end
-
-	-- if there are two slices of bread, score zero
-	local slicesOfBread = countValueInTopOfPile(plate, #plate, 1)
-	if slicesOfBread > 1 then
-		return 0
-	end
-
-	for ingredientIndex, ingredient in ipairs(plate) do
-		plateScore = plateScore + cardDetails[ingredient].points
-	end
-
-	return plateScore
 end
 
 function drawFromDeck(handIndex, drawIndex)
@@ -216,7 +179,9 @@ function love.load()
 		end
 		print('seed: '..gameSeed)
 		math.randomseed(gameSeed)
-		shuffleDrawPile(deck)
+		drawPile = safeShuffle(deck)
+		print('deck size: '..#deck)
+		print('drawPile size: '..#drawPile)
 		drawThree()
 	end)
 end
@@ -387,31 +352,6 @@ function love.draw()
 	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
 
 	DebuggingScreen.draw()
-end
-
--- for unknown reasons, love.js can sometimes read the arrow keys in safari as the following
--- https://github.com/JRJurman/love2d-a11y-template/issues/1
-local hardware_remap = {
-  kp8 = "up",
-  kp2 = "down",
-  kp4 = "left",
-  kp6 = "right",
-}
-
-local game_remap = {
-	x = "select",
-	space = "select",
-	["return"] = "select",
-}
-
-local player_remap = {}
-
-function remap(key)
-	key = hardware_remap[key] or key
-	key = game_remap[key] or key
-	key = player_remap[key] or key
-
-	return key
 end
 
 function expandModal()
@@ -607,7 +547,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
-			shuffleDrawPile(drawPile)
+			drawPile = safeShuffle(drawPile)
 
 			updateSelectionAfterPlayOrDraw()
 		end)
