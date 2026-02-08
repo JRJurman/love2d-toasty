@@ -1,4 +1,6 @@
 require('cardDetails')
+require('recipeDetails')
+require('recipeFunctions')
 
 function countValueInTopOfPile(pile, count, value)
 	local totalCount = 0
@@ -82,16 +84,18 @@ function getRawScoreForPlate(plate)
 		plateScore = plateScore + cardDetails[ingredient].points
 	end
 
+	-- if we also made a recipe, add the associated number of points for that
+	local recipe = getCompletedRecipeOnPlate(plate)
+	if recipe then
+		plateScore = plateScore + recipeDetails[recipe].points
+	end
+
 	return plateScore
 end
 
 function getScoreForPlate(plate)
-	local plateScore = 0
+	local plateScore = getRawScoreForPlate(plate)
 	local typeOfPlate = getTypeOfPlate(plate)
-
-	for ingredientIndex, ingredient in ipairs(plate) do
-		plateScore = plateScore + cardDetails[ingredient].points
-	end
 
 	return math.max(plateScore * typeOfPlate, 0)
 end

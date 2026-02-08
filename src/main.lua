@@ -11,6 +11,8 @@ require('drawCard')
 require('drawFatRect')
 require('deckFunctions')
 require('remapFunctions')
+require('recipeDetails')
+require('recipeFunctions')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -272,7 +274,6 @@ function love.draw()
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 	local breadOnPlate = countValueInTopOfPile(currentPlate, #currentPlate, 1)
-	local scoreDescription = typesOfPlates[typeOfPlate]
 	love.graphics.setColor(0.98, 0.98, 0.98)
 	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
 	love.graphics.setFont(getFont(90))
@@ -286,8 +287,17 @@ function love.draw()
 	end
 	love.graphics.printf(scoreLabel, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
 
-	love.graphics.setFont(getFont(30))
-	love.graphics.printf(scoreDescription, ui.plateScore.x + 10, ui.plateScore.y + ui.plateScore.height/2 + 12, ui.plateScore.width - 20, 'center')
+	-- print type of plate
+	love.graphics.setFont(getFont(50))
+	local scoreDescription = typesOfPlates[typeOfPlate]
+	local plateRecipe = getCompletedRecipeOnPlate(currentPlate)
+	if plateRecipe then
+		scoreDescription = recipeDetails[plateRecipe].label..' (+'..recipeDetails[plateRecipe].points..')'
+	end
+	love.graphics.printf(scoreDescription, ui.plateScore.x, ui.plateScore.y + 100, ui.plateScore.width, 'center')
+
+	-- print the points from toppings
+
 
 	-- draw round score
 	love.graphics.setFont(getFont(90))
@@ -394,9 +404,23 @@ function updateSelection(target)
 
 	local selectionDetails = ''
 	if selection == 'plate' then
+		-- write down all the ingredients on the plate
 		selectionDetails = 'Current Plate: '
 		for plateIndex, ingredient in ipairs(currentPlate) do
 			selectionDetails = selectionDetails..cardDetails[ingredient].label..', '
+		end
+
+		-- write down how many undiscovered recipes (and what discovered recipes) we have
+		local plateRecipes = getPotentialRecipeOnPlate(currentPlate)
+		local discoveredPlateRecipes, undiscoveredPlateRecipes = splitDiscoveredAndUndiscoveredRecipes(plateRecipes)
+		if #undiscoveredPlateRecipes > 0 then
+			selectionDetails = selectionDetails..'. '..#undiscoveredPlateRecipes..' undiscovered recipes.'
+		end
+		if #discoveredPlateRecipes > 0 then
+			selectionDetails = selectionDetails..'. '..#discoveredPlateRecipes..' discovered recipes: '
+			for _, discoveredPlateRecipes in ipairs(discoveredPlateRecipes) do
+				-- TODO add print for discovered recipes
+			end
 		end
 	end
 	if selection == 'deck' then
