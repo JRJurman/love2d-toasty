@@ -18,7 +18,7 @@ DebuggingScreen = require('DebuggingScreen')
 love.graphics.setFont(getFont(30))
 
 local deck = {
-	1, 1, 1, 1,
+	1, 1, 1, 1, 1,
 	2, 2, 3, 3, 4, 4,
 	5, 5, 6, 6, 7, 7,
 	8, 8, 9, 9, 9, 9,
@@ -184,7 +184,7 @@ function love.load()
 		end
 		print('seed: '..gameSeed)
 		math.randomseed(gameSeed)
-		drawPile = safeShuffle(deck)
+		drawPile = startingShuffle(deck)
 		print('deck size: '..#deck)
 		print('drawPile size: '..#drawPile)
 		drawThree()
@@ -269,32 +269,35 @@ function love.draw()
 	end
 
 	-- draw the current plate score
-	local currentPlateScore = getScoreForPlate(currentPlate)
+	local typeOfPlate = getTypeOfPlate(currentPlate)
+	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 	local breadOnPlate = countValueInTopOfPile(currentPlate, #currentPlate, 1)
-	local scoreDescription = ''
-	if #currentPlate == 0 then
-		scoreDescription = 'Start toast by drawing bread!'
-	elseif breadOnPlate > 1 then
-		scoreDescription = 'You made a sandwich - NO POINTS!'
-	elseif #currentPlate < 4 then
-		scoreDescription = 'You need three ingredients before you can score for this plate.'
-	end
+	local scoreDescription = typesOfPlates[typeOfPlate]
 	love.graphics.setColor(0.98, 0.98, 0.98)
 	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
-
 	love.graphics.setFont(getFont(90))
-	love.graphics.printf('+'..currentPlateScore, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
+
+	local scoreLabel = '+'..currentPlateRawScore
+	-- if this is fat or ultimate toast, show the multiplier
+	if typeOfPlate < 1 then
+		scoreLabel = '0'
+	elseif (typeOfPlate > 1) then
+		scoreLabel = scoreLabel..' x'..typeOfPlate
+	end
+	love.graphics.printf(scoreLabel, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
 
 	love.graphics.setFont(getFont(30))
 	love.graphics.printf(scoreDescription, ui.plateScore.x + 10, ui.plateScore.y + ui.plateScore.height/2 + 12, ui.plateScore.width - 20, 'center')
 
 	-- draw round score
-	local roundScore = currentPlateScore
+	love.graphics.setFont(getFont(90))
+	local roundScore = getScoreForPlate(currentPlate)
 	for plateIndex, completedPlate in ipairs(completedPlates) do
 		roundScore = roundScore + getScoreForPlate(completedPlate)
 	end
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
-	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + ui.score.height/2, ui.score.width - 20, 'center')
+	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y, ui.score.width - 20, 'center')
+	love.graphics.setFont(getFont(30))
 
 	-- always draw the modal (it is sometimes offscreen)
 	love.graphics.setColor( 0, 0, 0)
