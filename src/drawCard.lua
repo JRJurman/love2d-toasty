@@ -3,13 +3,44 @@ require('ui')
 require('drawFatRect')
 local json = require('json')
 
+local abilityMapping = {
+	close = 'Preview',
+	shuffle = 'Shuffle',
+	pick = 'Pick'
+}
+
 function drawCard(card, x, y)
+	-- get the current font (so we can unset it later)
+	local currentFont = love.graphics.getFont()
+
+	-- get the current color (so we can use it after making a black background)
 	local currentColor = { love.graphics.getColor() }
+
+	-- border and then black inside
 	love.graphics.rectangle("fill", x, y, cardSize.width, cardSize.height, 20, 20)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", x + 3, y + 3, cardSize.width - 6, cardSize.height - 6, 20, 20)
+
+	-- title, points, and ability
+	local cardFontSize = 50
+	love.graphics.setFont(getFont(cardFontSize))
 	love.graphics.setColor(unpack(currentColor))
-	love.graphics.printf(cardDetails[card].label, x, y + 5, cardSize.width, 'center')
+	love.graphics.printf(cardDetails[card].label, x, y - 10, cardSize.width, 'center')
+	local titleLineY = y + cardFontSize + 10
+	love.graphics.line(x, titleLineY, x + cardSize.width, titleLineY)
+
+	-- write the number of points on the top left
+	love.graphics.print('+'..cardDetails[card].points, x + 8, titleLineY - 10)
+
+	-- write the ability under that (so cards can stack on the right side)
+	if (cardDetails[card].onPlay) then
+		local abilityLabel = abilityMapping[cardDetails[card].onPlay.actions[1]];
+		local previewLabel = '('..cardDetails[card].onPlay.previewCount..')'
+		love.graphics.print(previewLabel..':'..abilityLabel, x + 8, titleLineY + 35)
+	end
+
+	-- reset the font
+	love.graphics.setFont(currentFont)
 end
 
 -- build a list of rotation values that we can consistently render

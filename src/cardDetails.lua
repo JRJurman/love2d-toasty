@@ -6,7 +6,7 @@ cardDetails = {
 		onDraw = {'plate'}
 	},
 	[2] = {
-		label = 'Strawberries',
+		label = 'Strawberry',
 		effect = 'when played, previews the next three cards in the deck',
 		points = 1,
 		onPlay = {
