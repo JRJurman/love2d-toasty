@@ -19,7 +19,7 @@ function startingShuffle(source)
 		print('shuffling.. '..totalShuffles)
 		totalShuffles = totalShuffles + 1
 		target = shuffle(source)
-	until countValueInTopOfPile(target, 3, 1) == 3 or totalShuffles > 200
+	until countValueInTopOfPile(target, 3, 1) == 1 or totalShuffles > 200
 
 	return target
 end
