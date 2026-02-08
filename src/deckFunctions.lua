@@ -24,6 +24,16 @@ function safeShuffle(source)
 	return target
 end
 
+typesOfPlates = {
+	[-1] = 'Sandwich!' ,
+	[0] = 'Not Toast Yet',
+	[1] = 'Simple Toast',
+	[2] = 'Fat Toast',
+	[3] = 'Ultimate Toast',
+}
+function getTypeOfPlate(plate)
+end
+
 function getScoreForPlate(plate)
 	local plateScore = 0
 	-- need 3 ingredients to start scoring (after bread)

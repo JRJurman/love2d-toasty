@@ -7,6 +7,8 @@ local ease = require('ease')
 
 require('cardDetails')
 require('ui')
+require('drawCard')
+require('drawFatRect')
 require('deckFunctions')
 require('remapFunctions')
 
@@ -49,6 +51,9 @@ local roundGoal = 15
 
 local	routines = {}
 local ttsText = ''
+
+local selectionText = ''
+local navText = ''
 
 gameSeed = 0
 seed = 0
@@ -214,16 +219,13 @@ function love.draw()
 	if hasCardsInHand then
 		love.graphics.setColor(0.43, 0.98, 0.47)
 		if hand[1] then
-			love.graphics.rectangle("line", ui.card1.x, ui.card1.y, ui.card1.width, ui.card1.height)
-			love.graphics.printf(cardDetails[hand[1]].label, ui.card1.x, ui.card1.y + ui.card1.height, ui.card1.width, 'center')
+			drawCard(hand[1], ui.card1.x, ui.card1.y)
 		end
 		if hand[2] then
-			love.graphics.rectangle("line", ui.card2.x, ui.card2.y, ui.card2.width, ui.card2.height)
-			love.graphics.printf(cardDetails[hand[2]].label, ui.card2.x, ui.card2.y + ui.card2.height, ui.card2.width, 'center')
+			drawCard(hand[2], ui.card2.x, ui.card2.y)
 		end
 		if hand[3] then
-			love.graphics.rectangle("line", ui.card3.x, ui.card3.y, ui.card3.width, ui.card3.height)
-			love.graphics.printf(cardDetails[hand[3]].label, ui.card3.x, ui.card3.y + ui.card3.height, ui.card3.width, 'center')
+			drawCard(hand[3], ui.card3.x, ui.card3.y)
 		end
 	end
 
@@ -253,9 +255,7 @@ function love.draw()
 
 	-- draw plated cards
 	for cardIndex, plateCard in ipairs(currentPlate) do
-		love.graphics.setColor(0.43, 0.98, 0.47)
-		love.graphics.rectangle("line", ui.plateCards.x, ui.plateCards.y, ui.plateCards.width, ui.plateCards.height)
-		love.graphics.printf(cardDetails[plateCard].label, ui.plateCards.x, ui.plateCards.y + ui.plateCards.height + ((cardIndex - 1) * 25), ui.plateCards.width, 'center')
+		drawRotatedCard(plateCard, ui.plateCards.x, ui.plateCards.y, cardIndex)
 	end
 
 	-- draw completed plates
@@ -306,20 +306,17 @@ function love.draw()
 	if modalCards[1] then
 		local cardX = ui.modal.x + ui.modalCard1.x
 		local cardY = ui.modal.y + ui.modalCard1.y
-		love.graphics.rectangle("line", cardX, cardY, ui.modalCard1.width, ui.modalCard1.height)
-		love.graphics.printf(cardDetails[modalCards[1]].label, cardX, cardY + ui.modalCard1.height, ui.modalCard1.width, 'center')
+		drawCard(modalCards[1], cardX, cardY)
 	end
 	if modalCards[2] then
 		local cardX = ui.modal.x + ui.modalCard2.x
 		local cardY = ui.modal.y + ui.modalCard2.y
-		love.graphics.rectangle("line", cardX, cardY, ui.modalCard2.width, ui.modalCard2.height)
-		love.graphics.printf(cardDetails[modalCards[2]].label, cardX, cardY + ui.modalCard2.height, ui.modalCard2.width, 'center')
+		drawCard(modalCards[2], cardX, cardY)
 	end
 	if modalCards[3] then
 		local cardX = ui.modal.x + ui.modalCard3.x
 		local cardY = ui.modal.y + ui.modalCard3.y
-		love.graphics.rectangle("line", cardX, cardY, ui.modalCard3.width, ui.modalCard3.height)
-		love.graphics.printf(cardDetails[modalCards[3]].label, cardX, cardY + ui.modalCard3.height, ui.modalCard3.width, 'center')
+		drawCard(modalCards[3], cardX, cardY)
 	end
 
 	-- draw any actions on the modal
@@ -345,11 +342,12 @@ function love.draw()
 	-- draw the readout
 	love.graphics.setColor(0.87, 0.87, 0.97)
 	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
-	love.graphics.printf(ttsText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
+	love.graphics.printf(selectionText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
+	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + ui.readout.height - 20, ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
-	love.graphics.rectangle("line", cursor.x, cursor.y, cursor.width, cursor.height)
+	drawFatRect('outset', 5, cursor.x, cursor.y, cursor.width, cursor.height)
 
 	DebuggingScreen.draw()
 end
