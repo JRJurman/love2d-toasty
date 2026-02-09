@@ -53,10 +53,11 @@ local cursor = {
 local roundGoal = 15
 
 local	routines = {}
-local ttsText = ''
 
 local selectionText = ''
+local drawnSelectionText = ''
 local navText = ''
+local drawnNavText = ''
 
 gameSeed = 0
 seed = 0
@@ -365,6 +366,12 @@ function love.draw()
 	drawFatRect('outset', 5, cursor.x, cursor.y, cursor.width, cursor.height)
 
 	DebuggingScreen.draw()
+
+	if drawnSelectionText ~= selectionText or drawnNavText ~= navText then
+		print('tts: '..selectionText..'. '..navText)
+		drawnSelectionText = selectionText
+		drawnNavText = navText
+	end
 end
 
 function expandModal()
@@ -580,7 +587,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			print('tts: repeating...')
 			wait(0.5 * animationScale)
-			print('tts: '..ttsText)
+			print('tts: '..navText)
 		end)
 	end
 
@@ -597,8 +604,6 @@ function love.keypressed(rawKey)
 	if key == '/' then
 		print('selection: '..selection)
 	end
-
-	print('tts: '..navText)
 end
 
 function love.mousepressed(x, y)
