@@ -13,6 +13,7 @@ require('deckFunctions')
 require('remapFunctions')
 require('recipeDetails')
 require('recipeFunctions')
+require('ttsFunctions')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -60,6 +61,7 @@ local navText = ''
 gameSeed = 0
 seed = 0
 
+local animationScale = 0.25
 local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 0.8
 
@@ -92,7 +94,7 @@ function drawFromDeck(handIndex, drawIndex)
 	movingCard.enabled = true
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
-	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed, ease.inovershoot)
+	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
 	hand[handIndex] = table.remove(drawPile, drawIndex)
 	movingCard.enabled = false
 
@@ -100,7 +102,7 @@ function drawFromDeck(handIndex, drawIndex)
 	local drawnCardDetails = cardDetails[hand[handIndex]]
 	if drawnCardDetails.onDraw then
 		if drawnCardDetails.onDraw[1] == 'plate' then
-			wait(0.5)
+			wait(0.5 * animationScale)
 			plateCardFromHand(handIndex, targetX, targetY)
 		end
 	end
@@ -121,7 +123,7 @@ function plateCardFromHand(handIndex, startX, startY)
 		movingCard,
 		{'x', 'y'},
 		{ui.plateCards.x, ui.plateCards.y},
-		drawAnimationSpeed, ease.inovershoot
+		drawAnimationSpeed * animationScale, ease.inovershoot
 	)
 	table.insert(currentPlate, movedCard)
 	isPlating = false
@@ -154,7 +156,7 @@ function discardCardFromHand(handIndex, startX, startY)
 		movingCard,
 		{'x', 'y'},
 		{ui.discardPile.x, ui.discardPile.y},
-		drawAnimationSpeed, ease.inovershoot
+		drawAnimationSpeed * animationScale, ease.inovershoot
 	)
 	table.insert(discardPile, movedCard)
 	movingCard.enabled = false
@@ -178,7 +180,7 @@ function love.load()
 
 	-- shuffle and draw three at the start of the game
 	async(routines, function()
-		wait(1) -- wait one second to help generate a more random seed
+		wait(1 * animationScale) -- wait one second to help generate a more random seed
 		if savedSeed then
 			gameSeed = savedSeed.seed
 		else
@@ -349,14 +351,14 @@ function love.draw()
 	-- draw any cards that are moving
 	if movingCard.enabled then
 		love.graphics.setColor(0.43, 0.98, 0.47)
-		love.graphics.rectangle("line", movingCard.x, movingCard.y, cardSize.width, cardSize.height)
+		drawCard(nil, movingCard.x, movingCard.y)
 	end
 
 	-- draw the readout
 	love.graphics.setColor(0.87, 0.87, 0.97)
 	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
 	love.graphics.printf(selectionText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
-	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + ui.readout.height - 20, ui.readout.width - 20, 'center')
+	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -370,7 +372,7 @@ function expandModal()
 	cursor = { x = 0, y = 0, width = 800, height = 0}
 
 	ui.modal.y = ui.offScreenModal.y
-	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed, ease.outovershoot)
+	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
 	modalExpanded = true
 end
 
@@ -379,7 +381,7 @@ function minimizeModal()
 	cursor = { x = 0, y = 0, width = 800, height = 0}
 
 	ui.modal.y = ui.onScreenModal.y
-	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed, ease.inovershoot)
+	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
 	modalExpanded = false
 end
 
@@ -396,7 +398,7 @@ function updateSelection(target)
 		animateMany(cursor,
 			{"x", "y", "width", "height"},
 			{targetX, targetY, ui[selection].width, ui[selection].height},
-			navAnimationSpeed, ease.inovershoot
+			navAnimationSpeed * animationScale, ease.inovershoot
 		)
 	end)
 
@@ -405,10 +407,7 @@ function updateSelection(target)
 	local selectionDetails = ''
 	if selection == 'plate' then
 		-- write down all the ingredients on the plate
-		selectionDetails = 'Current Plate: '
-		for plateIndex, ingredient in ipairs(currentPlate) do
-			selectionDetails = selectionDetails..cardDetails[ingredient].label..', '
-		end
+		selectionDetails = 'Current Plate, '
 
 		-- write down how many undiscovered recipes (and what discovered recipes) we have
 		local plateRecipes = getPotentialRecipeOnPlate(currentPlate)
@@ -429,29 +428,7 @@ function updateSelection(target)
 		end
 	end
 
-	local navDirections = 'Use the following keys to change selection: '
-	local dirLabel = ''
-
-	local selectedNavDetails = ui[selection].nav[navKey]
-	if selectedNavDetails.up then
-		dirLabel = ui[selectedNavDetails.up].label
-		navDirections = navDirections..' up, '..dirLabel..'; '
-	end
-	if selectedNavDetails.down then
-		dirLabel = ui[selectedNavDetails.down].label
-		navDirections = navDirections..' down, '..dirLabel..'; '
-	end
-	if selectedNavDetails.left then
-		dirLabel = ui[selectedNavDetails.left].label
-		navDirections = navDirections..' left, '..dirLabel..'; '
-	end
-	if selectedNavDetails.right then
-		dirLabel = ui[selectedNavDetails.right].label
-		navDirections = navDirections..' right, '..dirLabel..'. '
-	end
-	dirLabel = ui[selection].label
-	ttsText = dirLabel..' selected. '..selectionDetails..navDirections
-	print('tts: '..ttsText)
+	navText = getNavInstructions(selection, navKey)
 end
 
 function love.keypressed(rawKey)
@@ -529,10 +506,14 @@ function love.keypressed(rawKey)
 						table.insert(modalActions, action)
 					end
 					modalActive = true
-				end
-			end
 
-			updateSelectionAfterPlayOrDraw()
+					-- immediately set the modal as the selection
+					expandModal()
+					updateSelection('modalCard1')
+				end
+			else
+				updateSelectionAfterPlayOrDraw()
+			end
 		end)
 	end
 
@@ -598,7 +579,7 @@ function love.keypressed(rawKey)
 	if key == "r" then
 		async(routines, function()
 			print('tts: repeating...')
-			wait(0.5)
+			wait(0.5 * animationScale)
 			print('tts: '..ttsText)
 		end)
 	end
@@ -616,6 +597,8 @@ function love.keypressed(rawKey)
 	if key == '/' then
 		print('selection: '..selection)
 	end
+
+	print('tts: '..navText)
 end
 
 function love.mousepressed(x, y)
