@@ -359,7 +359,7 @@ function love.draw()
 	love.graphics.setColor(0.87, 0.87, 0.97)
 	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
 	love.graphics.printf(selectionText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
-	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
+	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + (ui.readout.height*0.75), ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -367,6 +367,8 @@ function love.draw()
 
 	DebuggingScreen.draw()
 
+	-- update the screen reader (if text changed)
+	-- (we don't do this every frame, because it would overwhelm the dev console)
 	if drawnSelectionText ~= selectionText or drawnNavText ~= navText then
 		print('tts: '..selectionText..'. '..navText)
 		drawnSelectionText = selectionText
@@ -435,6 +437,7 @@ function updateSelection(target)
 		end
 	end
 
+	selectionText = getSelectionInstruction(selection, hand, modalCards)
 	navText = getNavInstructions(selection, navKey)
 end
 

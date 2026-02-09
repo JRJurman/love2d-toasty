@@ -1,4 +1,30 @@
 require('ui')
+require('cardDetails')
+require('recipeFunctions')
+
+function getSelectionInstruction(selection, hand, modalCards)
+	-- if this is a card, determine if this is a hand or modalCard,
+	-- and then return those details
+	if ui[selection].card then
+		local selectedCard = nil
+		if ui[selection].handIndex then
+			selectedCard = hand[ui[selection].handIndex]
+		elseif ui[selection].drawIndex then
+			selectedCard = modalCards[ui[selection].drawIndex]
+		end
+
+		-- if there is no card in this spot, return no details
+		if selectedCard == nil then
+			return 'No Card;'
+		end
+
+		local label = cardDetails[selectedCard].label
+		local effect = cardDetails[selectedCard].effect
+		local recipes = getRecipesForIngredient(selectedCard)
+		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
+		return label..'; '..effect..'; '..#undiscoveredRecipes.. ' undiscovered recipes.'
+	end
+end
 
 function getNavInstructions(selection, navKey)
 	local navDirections = ''
