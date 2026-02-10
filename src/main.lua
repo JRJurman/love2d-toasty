@@ -62,7 +62,7 @@ local drawnNavText = ''
 gameSeed = 0
 seed = 0
 
-local animationScale = 0.25
+local animationScale = 0.75
 local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 0.8
 
@@ -318,7 +318,9 @@ function love.draw()
 		roundScore = roundScore + getScoreForPlate(completedPlate)
 	end
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
-	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y, ui.score.width - 20, 'center')
+	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
+	-- draw the number of discovered vs undiscovered in the round score
+	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
 	love.graphics.setFont(getFont(30))
 
 	-- always draw the modal (it is sometimes offscreen)
