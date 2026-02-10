@@ -1,4 +1,5 @@
 require('recipeDetails')
+require('deckFunctions')
 
 discoveredRecipes = {
 
@@ -56,11 +57,23 @@ end
 function getCompletedRecipeOnPlate(plate)
 	local plateIngredients = getPlateIngredients(plate)
 	local recipes = getPotentialRecipeOnPlate(plate)
-	-- if we have exactly the number of ingredients for a recipe,
-	-- and we have a recipe, return that one
-	if #plateIngredients == recipeSize and #recipes == 1 then
-		return recipes[1]
+	-- if we have more than one recipe, we have some
+	-- duplicate ingredients, so we didn't complete it
+	if #recipes ~= 1 then
+		return nil
 	end
+
+	-- iterate through each ingredient, and make sure that we have one of each
+	local selectedRecipe = recipeDetails[recipes[1]]
+	for ingredient, _ in pairs(selectedRecipe.ingredients) do
+		local countOfIngredientOnPlate = countValueInTopOfPile(plate, #plate, ingredient)
+		if countOfIngredientOnPlate ~= 1 then
+			return nil
+		end
+	end
+
+	-- if we didn't return early, it means we have one of every ingredient we needed
+	return recipes[1]
 end
 
 function getRecipesForIngredient(ingredient)
@@ -88,4 +101,65 @@ function splitDiscoveredAndUndiscoveredRecipes(recipes)
 	end
 
 	return discovered, undiscovered
+end
+
+typesOfPlates = {
+	[-1] = 'Sandwich!' ,
+	[0] = 'Not Toast Yet',
+	[1] = 'Toast',
+	[2] = 'Fat Toast',
+	[3] = 'Ultimate Toast',
+}
+function getTypeOfPlate(plate)
+	-- if we don't have anything on this plate, this isn't toast yet
+	if plate[1] == nil then
+		return 0
+	end
+
+	-- check if we swap between ingredients and bread (if we do, this is a sandwich)
+	local hasIngredients = false
+	for plateIndex, ingredient in ipairs(plate) do
+		if ingredient ~= 1 then
+			hasIngredients = true
+		end
+		if hasIngredients and ingredient == 1 then
+			return -1
+		end
+	end
+
+	-- if the first 3 ingredients are bread (and it isn't a sandwich), this is ultimate toast
+	if plate[2] == 1 and plate[3] == 1 then
+		return 3
+	end
+
+	-- if the first 2 ingredients are bread, this is fat toast
+	if plate[2] == 1 then
+		return 2
+	end
+
+	-- otherwise, we just have one slice of bread, normal toast
+	return 1
+end
+
+function getRawScoreForPlate(plate)
+	local plateScore = 0
+
+	for ingredientIndex, ingredient in ipairs(plate) do
+		plateScore = plateScore + cardDetails[ingredient].points
+	end
+
+	-- if we also made a recipe, add the associated number of points for that
+	local recipe = getCompletedRecipeOnPlate(plate)
+	if recipe then
+		plateScore = plateScore + recipeDetails[recipe].points
+	end
+
+	return plateScore
+end
+
+function getScoreForPlate(plate)
+	local plateScore = getRawScoreForPlate(plate)
+	local typeOfPlate = getTypeOfPlate(plate)
+
+	return math.max(plateScore * typeOfPlate, 0)
 end

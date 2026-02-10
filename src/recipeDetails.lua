@@ -28,12 +28,12 @@ recipeDetails = {
 		points = 5
 	},
 	[6] = {
-		label = 'Fifth Recipe',
+		label = 'Sixth Recipe',
 		ingredients = {[7] = true, [8] = true},
 		points = 5
 	},
 	[7] = {
-		label = 'Fifth Recipe',
+		label = 'Seventh Recipe',
 		ingredients = {[8] = true, [9] = true},
 		points = 5
 	},

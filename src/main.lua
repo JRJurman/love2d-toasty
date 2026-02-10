@@ -428,7 +428,7 @@ function updateSelection(target)
 	if selection == 'plate' then
 		-- for debugging, just print all cards on plate
 		for plateIndex, ingredient in ipairs(currentPlate) do
-			print(plateIndex..': '..cardDetails[ingredient].label)
+			print(plateIndex..': '..cardDetails[ingredient].label..' ('..ingredient..')')
 		end
 
 		-- write down all the ingredients on the plate
@@ -450,7 +450,7 @@ function updateSelection(target)
 	if selection == 'deck' then
 		-- for debugging, just print all cards remaining in deck
 		for drawIndex, ingredient in ipairs(drawPile) do
-			print(drawIndex..': '..cardDetails[ingredient].label)
+			print(drawIndex..': '..cardDetails[ingredient].label..' ('..ingredient..')')
 		end
 	end
 
