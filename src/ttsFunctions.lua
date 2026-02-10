@@ -24,6 +24,8 @@ function getSelectionInstruction(selection, hand, modalCards)
 		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
 		return label..'; '..effect..'; '..#undiscoveredRecipes.. ' undiscovered recipes.'
 	end
+
+	return ''
 end
 
 function getNavInstructions(selection, navKey)

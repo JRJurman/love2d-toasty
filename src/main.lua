@@ -132,16 +132,25 @@ function plateCardFromHand(handIndex, startX, startY)
 end
 
 function updateSelectionAfterPlayOrDraw()
+	local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+	local plateIsEmpty = #currentPlate == 0
+	-- if hand is empty, modal isn't active, and plate is empty,
+	-- just draw three cards (we can't start a new plate anyways)
+	if handIsEmpty and not modalActive and plateIsEmpty then
+		drawThree()
+		return;
+	end
+
 	-- if we now have an empty hand (and the modal isn't active), change the selection to actions
 	-- (this can happen for draw if the last hand has all bread)
-	local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
 	if handIsEmpty and not modalActive then
 		updateSelection('actionDraw')
-	else
-		-- if we aren't already selecting a card, reset to card1
-		if selection ~= 'card1' and selection ~= 'card2' and selection ~= 'card3' then
-			updateSelection('card1')
-		end
+		return;
+	end
+
+	-- if we aren't already selecting a card, reset to card1
+	if selection ~= 'card1' and selection ~= 'card2' and selection ~= 'card3' then
+		updateSelection('card1')
 	end
 end
 
@@ -415,6 +424,11 @@ function updateSelection(target)
 
 	local selectionDetails = ''
 	if selection == 'plate' then
+		-- for debugging, just print all cards on plate
+		for plateIndex, ingredient in ipairs(currentPlate) do
+			print(plateIndex..': '..cardDetails[ingredient].label)
+		end
+
 		-- write down all the ingredients on the plate
 		selectionDetails = 'Current Plate, '
 
@@ -432,6 +446,7 @@ function updateSelection(target)
 		end
 	end
 	if selection == 'deck' then
+		-- for debugging, just print all cards remaining in deck
 		for drawIndex, ingredient in ipairs(drawPile) do
 			print(drawIndex..': '..cardDetails[ingredient].label)
 		end
