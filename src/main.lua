@@ -109,6 +109,13 @@ function drawFromDeck(handIndex, drawIndex)
 	end
 
 	isDrawing = false
+
+	-- if we made a sandwich, immediately toss the plate
+	local typeOfPlate = getTypeOfPlate(currentPlate)
+	if typeOfPlate == -1 then
+		wait(2 * animationScale)
+		completePlate()
+	end
 end
 
 function plateCardFromHand(handIndex, startX, startY)
@@ -405,6 +412,13 @@ function minimizeModal()
 	modalExpanded = false
 end
 
+function completePlate()
+	local completedPlate = currentPlate
+	currentPlate = {}
+	-- TODO animate plate to completed plates
+	table.insert(completedPlates, completedPlate)
+end
+
 function updateSelection(target)
 	selection = target
 	async(routines, function()
@@ -593,10 +607,7 @@ function love.keypressed(rawKey)
 				drawThree()
 			end
 			if selection == 'actionNewPlate' then
-				local completedPlate = currentPlate
-				currentPlate = {}
-				-- TODO animate plate to completed plates
-				table.insert(completedPlates, completedPlate)
+				completePlate()
 				drawThree()
 			end
 		end)
