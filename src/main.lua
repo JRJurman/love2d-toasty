@@ -52,6 +52,7 @@ local cursor = {
 
 local roundGoal = 15
 local roundNumber = 1
+local roundMultiplier = 1.3
 local completingRound = false
 
 local	routines = {}
@@ -389,7 +390,7 @@ function love.draw()
 	love.graphics.setFont(getFont(40))
 	love.graphics.printf(selectionText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + (ui.readout.height-35), ui.readout.width - 20, 'center')
+	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + (ui.readout.height-40), ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -458,7 +459,13 @@ function completePlate()
 			wait(1)
 		end
 		roundNumber = roundNumber + 1
-		roundGoal = math.floor(roundGoal * 1.5)
+		roundGoal = math.floor(roundGoal * roundMultiplier)
+
+		-- load modal for players to add a new card to the deck
+		modalActions = {'add', 'skip'}
+		modalCards = { math.random(#cardDetails), math.random(#cardDetails), math.random(#cardDetails) }
+		startModal()
+
 		completingRound = false
 	end
 end
@@ -514,6 +521,14 @@ function updateSelection(target)
 
 	selectionText = getSelectionInstruction(selection, hand, modalCards)
 	navText = getNavInstructions(selection, navKey)
+end
+
+function startModal()
+	modalActive = true
+
+	-- immediately set the modal as the selection
+	expandModal()
+	updateSelection('modalCard1')
 end
 
 function love.keypressed(rawKey)
@@ -590,11 +605,7 @@ function love.keypressed(rawKey)
 					for actionIndex, action in ipairs(playedCardDetails.onPlay.actions) do
 						table.insert(modalActions, action)
 					end
-					modalActive = true
-
-					-- immediately set the modal as the selection
-					expandModal()
-					updateSelection('modalCard1')
+					startModal()
 				end
 			else
 				updateSelectionAfterPlayOrDraw()
@@ -615,6 +626,17 @@ function love.keypressed(rawKey)
 			-- first update to the target selection
 			-- but, if our hand is empty (it was bread), reset it
 			updateSelection(targetSelection)
+			updateSelectionAfterPlayOrDraw()
+		end)
+	end
+
+	-- if we are selecting a card and the modal action is add, add it to our deck
+	local modalActionIsAdd = modalActions[1] == 'add'
+	if key == 'select' and isSelectingModalCard and modalActionIsAdd then
+		async(routines, function()
+			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
+			minimizeModal()
+			modalActive = false
 			updateSelectionAfterPlayOrDraw()
 		end)
 	end
@@ -652,7 +674,9 @@ function love.keypressed(rawKey)
 			end
 			if selection == 'actionNewPlate' then
 				completePlate()
-				drawThree()
+				if not modalActive then
+					drawThree()
+				end
 			end
 		end)
 	end
