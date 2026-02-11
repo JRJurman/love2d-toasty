@@ -52,6 +52,7 @@ local cursor = {
 
 local roundGoal = 15
 local roundNumber = 1
+local completingRound = false
 
 local	routines = {}
 
@@ -137,6 +138,12 @@ function plateCardFromHand(handIndex, startX, startY)
 	table.insert(currentPlate, movedCard)
 	isPlating = false
 	movingCard.enabled = false
+
+	-- if this resolved in a discovered recipe, add that to our known recipes
+	local recipe = getCompletedRecipeOnPlate(currentPlate)
+	if recipe then
+		discoveredRecipes[recipe] = true
+	end
 end
 
 function updateSelectionAfterPlayOrDraw()
@@ -290,34 +297,36 @@ function love.draw()
 		love.graphics.printf('+'..plateScore, plateX, plateY + ui.completedPlates.height * (5 / 6), ui.completedPlates.width, 'center')
 	end
 
-	-- draw the current plate score
-	local typeOfPlate = getTypeOfPlate(currentPlate)
-	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
-	local breadOnPlate = countValueInTopOfPile(currentPlate, #currentPlate, 1)
+	-- draw the current plate score (if we aren't completing a round)
 	love.graphics.setColor(0.98, 0.98, 0.98)
 	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
-	love.graphics.setFont(getFont(90))
+	if not completingRound then
+		local typeOfPlate = getTypeOfPlate(currentPlate)
+		local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+		local breadOnPlate = countValueInTopOfPile(currentPlate, #currentPlate, 1)
+		love.graphics.setFont(getFont(90))
 
-	local scoreLabel = '+'..currentPlateRawScore
-	-- if this is fat or ultimate toast, show the multiplier
-	if typeOfPlate < 1 then
-		scoreLabel = '0'
-	elseif (typeOfPlate > 1) then
-		scoreLabel = scoreLabel..' x'..typeOfPlate
+		local scoreLabel = '+'..currentPlateRawScore
+		-- if this is fat or ultimate toast, show the multiplier
+		if typeOfPlate < 1 then
+			scoreLabel = '0'
+		elseif (typeOfPlate > 1) then
+			scoreLabel = scoreLabel..' x'..typeOfPlate
+		end
+		love.graphics.printf(scoreLabel, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
+
+		-- print type of plate
+		love.graphics.setFont(getFont(50))
+		local scoreDescription = typesOfPlates[typeOfPlate]
+		local plateRecipe = getCompletedRecipeOnPlate(currentPlate)
+		if plateRecipe then
+			scoreDescription = recipeDetails[plateRecipe].label..' (+'..recipeDetails[plateRecipe].points..')'
+		end
+		love.graphics.printf(scoreDescription, ui.plateScore.x, ui.plateScore.y + 100, ui.plateScore.width, 'center')
+	else
+		love.graphics.setFont(getFont(90))
+		love.graphics.printf('ROUND COMPLETE', ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, 'center')
 	end
-	love.graphics.printf(scoreLabel, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
-
-	-- print type of plate
-	love.graphics.setFont(getFont(50))
-	local scoreDescription = typesOfPlates[typeOfPlate]
-	local plateRecipe = getCompletedRecipeOnPlate(currentPlate)
-	if plateRecipe then
-		scoreDescription = recipeDetails[plateRecipe].label..' (+'..recipeDetails[plateRecipe].points..')'
-	end
-	love.graphics.printf(scoreDescription, ui.plateScore.x, ui.plateScore.y + 100, ui.plateScore.width, 'center')
-
-	-- print the points from toppings
-
 
 	-- draw round score
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
@@ -328,7 +337,8 @@ function love.draw()
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 5, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf(#discoveredRecipes..'/'..(#recipeDetails - #discoveredRecipes)..' Discovered Recipes', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
+	local totalDiscoveredRecipes = getTotalDiscoveredRecipes()
+	love.graphics.printf(totalDiscoveredRecipes..'/'..#recipeDetails..' Discovered Recipes', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
 	-- always draw the modal (it is sometimes offscreen)
 	love.graphics.setColor( 0, 0, 0)
@@ -431,6 +441,7 @@ function completePlate()
 	-- if we pass the round score, shuffle the discard and plate cards back to the draw pile
 	local completedPlatesScore = getScoreForCompletedPlates()
 	if completedPlatesScore >= roundGoal then
+		completingRound = true
 		-- add the discard to draw pile
 		for discardIndex = #discardPile, 1, -1 do
 			table.insert(drawPile, table.remove(discardPile, discardIndex))
@@ -447,7 +458,8 @@ function completePlate()
 			wait(1)
 		end
 		roundNumber = roundNumber + 1
-		roundGoal = roundGoal * 2
+		roundGoal = math.floor(roundGoal * 1.5)
+		completingRound = false
 	end
 end
 

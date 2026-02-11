@@ -5,6 +5,16 @@ discoveredRecipes = {
 
 }
 
+function getTotalDiscoveredRecipes()
+	local totalDiscoveredRecipes = 0
+	for recipeKey, recipe in pairs(recipeDetails) do
+		if discoveredRecipes[recipeKey] then
+			totalDiscoveredRecipes = totalDiscoveredRecipes + 1
+		end
+	end
+	return totalDiscoveredRecipes
+end
+
 function getPlateIngredients(plate)
 	-- get ingredients past our initial slices of bread
 	local plateIngredients = {}
@@ -72,7 +82,7 @@ function getCompletedRecipeOnPlate(plate)
 		end
 	end
 
-	-- if we didn't return early, it means we have one of every ingredient we needed
+	-- if we didn't return early, it means we have one of every ingredient we needed!
 	return recipes[1]
 end
 
