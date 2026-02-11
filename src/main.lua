@@ -51,6 +51,7 @@ local cursor = {
 }
 
 local roundGoal = 15
+local roundNumber = 1
 
 local	routines = {}
 
@@ -319,13 +320,15 @@ function love.draw()
 
 
 	-- draw round score
+	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
+	love.graphics.setFont(getFont(30))
+	love.graphics.printf('Round '..roundNumber, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
 	love.graphics.setFont(getFont(90))
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
-	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
-	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
+	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 5, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
-	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
 	love.graphics.setFont(getFont(30))
+	love.graphics.printf(#discoveredRecipes..'/'..(#recipeDetails - #discoveredRecipes)..' Discovered Recipes', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
 	-- always draw the modal (it is sometimes offscreen)
 	love.graphics.setColor( 0, 0, 0)
@@ -443,6 +446,8 @@ function completePlate()
 			table.remove(completedPlates, plateIndex)
 			wait(1)
 		end
+		roundNumber = roundNumber + 1
+		roundGoal = roundGoal * 2
 	end
 end
 
