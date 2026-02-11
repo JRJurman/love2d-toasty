@@ -213,7 +213,7 @@ function love.load()
 end
 
 function love.update(dt)
-	seed = seed + dt*1000
+	seed = seed + dt*10000
 	updateAnimations(routines, dt)
 end
 
@@ -320,10 +320,7 @@ function love.draw()
 
 	-- draw round score
 	love.graphics.setFont(getFont(90))
-	local roundScore = getScoreForPlate(currentPlate)
-	for plateIndex, completedPlate in ipairs(completedPlates) do
-		roundScore = roundScore + getScoreForPlate(completedPlate)
-	end
+	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
@@ -376,8 +373,10 @@ function love.draw()
 	-- draw the readout
 	love.graphics.setColor(0.87, 0.87, 0.97)
 	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
+	love.graphics.setFont(getFont(40))
 	love.graphics.printf(selectionText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
-	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + (ui.readout.height*0.75), ui.readout.width - 20, 'center')
+	love.graphics.setFont(getFont(30))
+	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + (ui.readout.height-35), ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -412,11 +411,39 @@ function minimizeModal()
 	modalExpanded = false
 end
 
+function getScoreForCompletedPlates()
+	local completedPlatesScore = 0
+	for plateIndex, completedPlate in ipairs(completedPlates) do
+		completedPlatesScore = completedPlatesScore + getScoreForPlate(completedPlate)
+	end
+	return completedPlatesScore
+end
+
 function completePlate()
 	local completedPlate = currentPlate
 	currentPlate = {}
 	-- TODO animate plate to completed plates
 	table.insert(completedPlates, completedPlate)
+
+	-- if we pass the round score, shuffle the discard and plate cards back to the draw pile
+	local completedPlatesScore = getScoreForCompletedPlates()
+	if completedPlatesScore >= roundGoal then
+		-- add the discard to draw pile
+		for discardIndex = #discardPile, 1, -1 do
+			table.insert(drawPile, table.remove(discardPile, discardIndex))
+		end
+		wait(1)
+
+		-- for each plate, add each card in that plate back to the drawPile
+		for plateIndex = #completedPlates, 1, -1 do
+			local completedPlate = completedPlates[plateIndex]
+			for ingredientIndex = #completedPlate, 1, -1 do
+				table.insert(drawPile, table.remove(completedPlate, ingredientIndex))
+			end
+			table.remove(completedPlates, plateIndex)
+			wait(1)
+		end
+	end
 end
 
 function updateSelection(target)

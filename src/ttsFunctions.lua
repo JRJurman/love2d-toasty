@@ -22,7 +22,7 @@ function getSelectionInstruction(selection, hand, modalCards)
 		local effect = cardDetails[selectedCard].effect
 		local recipes = getRecipesForIngredient(selectedCard)
 		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
-		return label..'; '..effect..'; '..#undiscoveredRecipes.. ' undiscovered recipes.'
+		return label..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
 	end
 
 	return ''

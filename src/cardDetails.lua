@@ -1,13 +1,13 @@
 cardDetails = {
 	[1] = {
 		label = 'Bread',
-		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches',
+		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.',
 		points = 0,
 		onDraw = {'plate'}
 	},
 	[2] = {
 		label = 'Strawberry',
-		effect = 'when played, previews the next three cards in the deck',
+		effect = 'when played, previews the next three cards in the deck.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -17,7 +17,7 @@ cardDetails = {
 	},
 	[3] = {
 		label = 'Blueberries',
-		effect = 'when played, preview the next card, you may shuffle',
+		effect = 'when played, preview the next card, you may shuffle.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -27,7 +27,7 @@ cardDetails = {
 	},
 	[4] = {
 		label = 'Oranges',
-		effect = 'preview the next card, you may draw',
+		effect = 'preview the next card, you may draw.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -37,7 +37,7 @@ cardDetails = {
 	},
 	[5] = {
 		label = 'Avocado',
-		effect = 'preview the next 3 cards, you may draw one',
+		effect = 'preview the next 3 cards, you may draw one.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -47,7 +47,7 @@ cardDetails = {
 	},
 	[6] = {
 		label = 'Jam',
-		effect = 'preview the next 3 cards, you may shuffle the draw pile',
+		effect = 'preview the next 3 cards, you may shuffle the draw pile.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -57,17 +57,17 @@ cardDetails = {
 	},
 	[7] = {
 		label = 'Tomatoes',
-		effect = 'worth an extra point',
+		effect = 'worth an extra point.',
 		points = 2,
 	},
 	[8] = {
 		label = 'Hummus',
-		effect = 'worth an extra point',
+		effect = 'worth an extra point.',
 		points = 2,
 	},
 	[9] = {
 		label = 'Bananas',
-		effect = 'worth an extra point',
+		effect = 'worth an extra point.',
 		points = 2,
 	},
 }
