@@ -140,6 +140,7 @@ ui = {
 		card = true,
 		handIndex = 1,
 		selectable = true,
+		hand = true,
 
 		nav = {
 			withHand = {
@@ -164,6 +165,7 @@ ui = {
 		card = true,
 		handIndex = 2,
 		selectable = true,
+		hand = true,
 
 		nav = {
 			withHand = {
@@ -190,6 +192,7 @@ ui = {
 		card = true,
 		handIndex = 3,
 		selectable = true,
+		hand = true,
 
 		nav = {
 			withHand = {
@@ -221,6 +224,7 @@ ui = {
 		label = 'Draw 3 New Cards',
 		action = true,
 		selectable = true,
+		hand = false,
 
 		nav = {
 			withHand = {},
@@ -240,6 +244,7 @@ ui = {
 		label = 'Start a new Plate',
 		action = true,
 		selectable = true,
+		hand = false,
 
 		nav = {
 			withHand = {},

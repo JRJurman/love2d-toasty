@@ -711,15 +711,31 @@ function love.keypressed(rawKey)
 end
 
 function love.mousemoved(x, y)
+	local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+
 	for selectionKey, uiElement in pairs(ui) do
-		if not uiElement.selectable then
-			return
-		end
-		print('is selectable')
-		local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
-		local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
-		if isWithinX and isWithinY then
-			print('hovering: '..selectionKey)
+		if selectionKey ~= selection then
+			if uiElement.selectable then
+				local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
+				local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
+				if isWithinX and isWithinY then
+					if uiElement.modal then
+						if modalExpanded then
+							updateSelection(selectionKey)
+						end
+					elseif uiElement.hand then
+						if not handIsEmpty then
+							updateSelection(selectionKey)
+						end
+					elseif uiElement.hand == false then
+						if handIsEmpty then
+							updateSelection(selectionKey)
+						end
+					else
+						updateSelection(selectionKey)
+					end
+				end
+			end
 		end
 	end
 end
