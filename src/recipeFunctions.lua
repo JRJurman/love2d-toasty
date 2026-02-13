@@ -78,7 +78,7 @@ function getCompletedRecipeOnPlate(plate)
 	-- iterate through each ingredient, and make sure that we have one of each
 	local selectedRecipe = recipeDetails[recipes[1]]
 	for ingredient, _ in pairs(selectedRecipe.ingredients) do
-		local countOfIngredientOnPlate = countValueInTopOfPile(plate, #plate, ingredient)
+		local countOfIngredientOnPlate = countValueInTopOfPile(plateIngredients, recipeSize, ingredient)
 		if countOfIngredientOnPlate ~= 1 then
 			return nil
 		end
