@@ -18,12 +18,13 @@ end
 function getPlateIngredients(plate)
 	-- get ingredients past our initial slices of bread
 	local plateIngredients = {}
-	for plateIndex, plateIngredient in ipairs(plate) do
-		-- if we made a sandwich, no recipes are valid, return nil
-		if #plateIngredients > 0 and plateIngredient == 1 then
-			return {}
-		end
+	local typeOfPlate = getTypeOfPlate(plate)
+	-- if we made a sandwich, no recipes are valid, return none
+	if typeOfPlate == -1 then
+		return {}
+	end
 
+	for plateIndex, plateIngredient in ipairs(plate) do
 		-- if we are past the recipe size, we shouldn't add more ingredients
 		local withinRecipeLimit = #plateIngredients < recipeSize
 
@@ -51,7 +52,8 @@ function getPotentialRecipeOnPlate(plate)
 	for recipeKey, recipe in pairs(recipeDetails) do
 		-- check if everything on the plate works towards this recipe
 		local recipePossible = true
-		for plateIndex, ingredient in ipairs(plateIngredients) do
+		for ingredientIndex = 1, recipeSize do
+			local ingredient = plateIngredients[ingredientIndex]
 			if not recipe.ingredients[ingredient] then
 				recipePossible = false
 			end

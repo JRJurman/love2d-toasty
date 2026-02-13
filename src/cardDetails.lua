@@ -21,7 +21,7 @@ cardDetails = {
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 1,
+			previewCount = 2,
 			actions = {'shuffle', 'skip'}
 		}
 	},
@@ -31,7 +31,7 @@ cardDetails = {
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 1,
+			previewCount = 2,
 			actions = {'pick', 'skip'}
 		}
 	},
@@ -41,7 +41,7 @@ cardDetails = {
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 3,
+			previewCount = 2,
 			actions = {'pick', 'skip'}
 		}
 	},
@@ -51,7 +51,7 @@ cardDetails = {
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 3,
+			previewCount = 2,
 			actions = {'shuffle', 'skip'}
 		}
 	},

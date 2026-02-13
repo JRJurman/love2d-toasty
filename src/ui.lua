@@ -19,6 +19,7 @@ ui = {
 	},
 	served = {
 		label = 'Completed Plates',
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -42,6 +43,7 @@ ui = {
 	},
 	plate = {
 		label = 'Current Plate',
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -74,6 +76,7 @@ ui = {
 	},
 	score = {
 		label = 'Round Score',
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -97,6 +100,7 @@ ui = {
 	},
 	deck = {
 		label = 'Draw and Discard Piles',
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -135,6 +139,7 @@ ui = {
 		label = 'First Card',
 		card = true,
 		handIndex = 1,
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -158,6 +163,7 @@ ui = {
 		label = 'Second Card',
 		card = true,
 		handIndex = 2,
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -183,6 +189,7 @@ ui = {
 		label = 'Third Card',
 		card = true,
 		handIndex = 3,
+		selectable = true,
 
 		nav = {
 			withHand = {
@@ -211,26 +218,28 @@ ui = {
 		height = cardSize.height,
 	},
 	actionDraw = {
-			label = 'Draw 3 New Cards',
-			action = true,
+		label = 'Draw 3 New Cards',
+		action = true,
+		selectable = true,
 
-			nav = {
-				withHand = {},
-				withActions = {
-					down = 'served',
-					right = 'actionNewPlate',
-				},
-				withModal = {},
+		nav = {
+			withHand = {},
+			withActions = {
+				down = 'served',
+				right = 'actionNewPlate',
 			},
+			withModal = {},
+		},
 
-			x = 80,
-			y = 60,
-			width = 250,
-			height = 250,
+		x = 80,
+		y = 60,
+		width = 250,
+		height = 250,
 	},
 	actionNewPlate = {
 		label = 'Start a new Plate',
 		action = true,
+		selectable = true,
 
 		nav = {
 			withHand = {},
@@ -285,6 +294,7 @@ ui = {
 		modal = true,
 		card = true,
 		drawIndex = 1,
+		selectable = true,
 
 		nav = {
 			withHand = {},
@@ -305,6 +315,7 @@ ui = {
 		modal = true,
 		card = true,
 		drawIndex = 2,
+		selectable = true,
 
 		nav = {
 			withHand = {},
@@ -326,6 +337,7 @@ ui = {
 		modal = true,
 		card = true,
 		drawIndex = 3,
+		selectable = true,
 
 		nav = {
 			withHand = {},
@@ -346,6 +358,7 @@ ui = {
 		modal = true,
 		action = true,
 		actionIndex = 1,
+		selectable = true,
 
 		nav = {
 			withHand = {},
@@ -367,6 +380,7 @@ ui = {
 		modal = true,
 		action = true,
 		actionIndex = 2,
+		selectable = true,
 
 		nav = {
 			withHand = {},

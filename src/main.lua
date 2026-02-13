@@ -466,6 +466,9 @@ function completePlate()
 		modalCards = { math.random(#cardDetails), math.random(#cardDetails), math.random(#cardDetails) }
 		startModal()
 
+		-- once the player has selected a card to add, we'll shuffle then
+		-- (see love.keypressed)
+
 		completingRound = false
 	end
 end
@@ -634,6 +637,8 @@ function love.keypressed(rawKey)
 	local modalActionIsAdd = modalActions[1] == 'add'
 	if key == 'select' and isSelectingModalCard and modalActionIsAdd then
 		async(routines, function()
+			-- do starting shuffle
+			deck = startingShuffle(drawPile)
 			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
 			minimizeModal()
 			modalActive = false
@@ -702,6 +707,20 @@ function love.keypressed(rawKey)
 	-- if we need to figure out where we are
 	if key == '/' then
 		print('selection: '..selection)
+	end
+end
+
+function love.mousemoved(x, y)
+	for selectionKey, uiElement in pairs(ui) do
+		if not uiElement.selectable then
+			return
+		end
+		print('is selectable')
+		local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
+		local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
+		if isWithinX and isWithinY then
+			print('hovering: '..selectionKey)
+		end
 	end
 end
 
