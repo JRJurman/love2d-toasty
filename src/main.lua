@@ -638,7 +638,7 @@ function love.keypressed(rawKey)
 	if key == 'select' and isSelectingModalCard and modalActionIsAdd then
 		async(routines, function()
 			-- do starting shuffle
-			deck = startingShuffle(drawPile)
+			drawPile = startingShuffle(drawPile)
 			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
 			minimizeModal()
 			modalActive = false
