@@ -522,7 +522,7 @@ function updateSelection(target)
 		end
 	end
 
-	selectionText = getSelectionInstruction(selection, hand, modalCards)
+	selectionText = getSelectionInstruction(selection, hand, modalCards, modalActions)
 	navText = getNavInstructions(selection, navKey)
 end
 
@@ -538,8 +538,6 @@ function love.keypressed(rawKey)
 	DebuggingScreen.keypressed(rawKey)
 
 	key = remap(rawKey)
-	print('raw, '..rawKey..' remapped, '..key)
-
 	local navKey = getNavKey()
 
 	-- if we are drawing or plating, don't allow other actions

@@ -1,15 +1,16 @@
 require('ui')
 require('cardDetails')
 require('recipeFunctions')
+require('actionDetails')
 
-function getSelectionInstruction(selection, hand, modalCards)
+function getSelectionInstruction(selection, hand, modalCards, modalActions)
 	-- if this is a card, determine if this is a hand or modalCard,
 	-- and then return those details
 	if ui[selection].card then
 		local selectedCard = nil
-		if ui[selection].handIndex then
+		if ui[selection].hand then
 			selectedCard = hand[ui[selection].handIndex]
-		elseif ui[selection].drawIndex then
+		elseif ui[selection].modal then
 			selectedCard = modalCards[ui[selection].drawIndex]
 		end
 
@@ -22,7 +23,17 @@ function getSelectionInstruction(selection, hand, modalCards)
 		local effect = cardDetails[selectedCard].effect
 		local recipes = getRecipesForIngredient(selectedCard)
 		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
-		return label..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
+		local cardSelectionText = label..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
+
+		return cardSelectionText
+	end
+
+	if selection == 'modalAction1' then
+		print('first action: '..modalActions[1])
+		local selectedAction = actionDetails[modalActions[1]]
+		if selectedAction then
+			return selectedAction.actionDescription
+		end
 	end
 
 	return ''

@@ -359,7 +359,7 @@ ui = {
 		height = cardSize.height,
 	},
 	modalAction1 = {
-		label = 'Card Preview',
+		label = 'Modal',
 		modal = true,
 		action = true,
 		actionIndex = 1,
@@ -381,7 +381,7 @@ ui = {
 		height = 200,
 	},
 	modalAction2 = {
-		label = 'Card Preview',
+		label = 'Modal',
 		modal = true,
 		action = true,
 		actionIndex = 2,
