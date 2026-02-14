@@ -280,8 +280,6 @@ function love.draw()
 	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
 	love.graphics.setFont(getFont(80))
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/4, ui.discardPile.width, 'center')
-	love.graphics.setFont(getFont(30))
-	love.graphics.printf(countValueInTopOfPile(discardPile, #discardPile, 1)..' Bread Slices', ui.discardPile.x, ui.discardPile.y + ui.discardPile.height, ui.discardPile.width, 'center')
 
 	-- draw plated cards
 	for cardIndex, plateCard in ipairs(currentPlate) do
@@ -304,7 +302,6 @@ function love.draw()
 	if not completingRound then
 		local typeOfPlate = getTypeOfPlate(currentPlate)
 		local currentPlateRawScore = getRawScoreForPlate(currentPlate)
-		local breadOnPlate = countValueInTopOfPile(currentPlate, #currentPlate, 1)
 		love.graphics.setFont(getFont(90))
 
 		local scoreLabel = '+'..currentPlateRawScore
@@ -522,7 +519,7 @@ function updateSelection(target)
 		end
 	end
 
-	selectionText = getSelectionInstruction(selection, hand, modalCards, modalActions)
+	selectionText = getSelectionInstruction()
 	navText = getNavInstructions(selection, navKey)
 end
 
@@ -532,6 +529,71 @@ function startModal()
 	-- immediately set the modal as the selection
 	expandModal()
 	updateSelection('modalCard1')
+end
+
+function getSelectionInstruction()
+	-- if this is a card, determine if this is a hand or modalCard,
+	-- and then return those details
+	if ui[selection].card then
+		local selectedCard = nil
+		if ui[selection].hand then
+			selectedCard = hand[ui[selection].handIndex]
+		elseif ui[selection].modal then
+			selectedCard = modalCards[ui[selection].drawIndex]
+		end
+
+		-- if there is no card in this spot, return no details
+		if selectedCard == nil then
+			return 'No Card;'
+		end
+
+		local label = cardDetails[selectedCard].label
+		local effect = cardDetails[selectedCard].effect
+		local recipes = getRecipesForIngredient(selectedCard)
+		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
+		local cardSelectionText = label..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
+
+		return cardSelectionText
+	end
+
+	if selection == 'modalAction1' then
+		local selectedAction = actionDetails[modalActions[1]]
+		if selectedAction then
+			return selectedAction.actionDescription
+		end
+	end
+
+	if selection == 'deck' then
+		local breadInDrawPile = countValueInTopOfPile(drawPile, #drawPile, 1)
+		local breadInDiscard = countValueInTopOfPile(discardPile, #discardPile, 1)
+
+		return 'Deck and Discard; '..#drawPile..' cards left in deck, includes '..breadInDrawPile..' Bread Slices. '..#discardPile..' cards in discard. '
+	end
+
+	if selection == 'plate' then
+		local typeOfPlate = getTypeOfPlate(currentPlate)
+		local scoreDescription = typesOfPlates[typeOfPlate]
+		local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+		local plateRecipe = getCompletedRecipeOnPlate(currentPlate)
+
+		if plateRecipe then
+			scoreDescription = recipeDetails[plateRecipe].label..' (additional '..recipeDetails[plateRecipe].points..' points)'
+		end
+
+		local plateDescription = 'Current Plate: '..scoreDescription..' worth '..currentPlateRawScore..' points'
+
+		-- if this is fat or ultimate toast, show the multiplier
+		if (typeOfPlate > 1) then
+			plateDescription = plateDescription..' times '..typeOfPlate
+		end
+
+		return plateDescription
+	end
+
+	if selection == 'actionDraw' then
+	end
+
+	return ''
 end
 
 function love.keypressed(rawKey)
