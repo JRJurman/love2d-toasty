@@ -38,8 +38,7 @@ function drawCard(card, x, y)
 		-- write the ability under that (so cards can stack on the right side)
 		if cardDetails[card].onPlay then
 			local abilityLabel = abilityMapping[cardDetails[card].onPlay.actions[1]];
-			local previewLabel = '('..cardDetails[card].onPlay.previewCount..')'
-			love.graphics.print(previewLabel..':'..abilityLabel, x + 8, titleLineY + 35)
+			love.graphics.print(abilityLabel, x + 8, titleLineY + 35)
 		end
 	end
 

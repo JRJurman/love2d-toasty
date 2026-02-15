@@ -59,7 +59,7 @@ recipeDetails = {
 	},
 	[12] = {
 		label = 'Smoky Revival',
-		ingredients = {[3] = true, [10] = true, [11] = true},
+		ingredients = {[3] = true, [10] = true, [14] = true},
 		points = 10
 	},
 	[13] = {
