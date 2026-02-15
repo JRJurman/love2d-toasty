@@ -6,10 +6,10 @@ cardSize = {
 -- UI elements
 ui = {
 	readout = {
-		x = 10,
+		x = 1090,
 		y = 10,
-		width = 530,
-		height = 760,
+		width = 510,
+		height = 800,
 	},
 	plate = {
 		label = 'Current Plate',
@@ -17,20 +17,14 @@ ui = {
 
 		nav = {
 			withHand = {
-				up = 'card2',
-				right = 'score',
-				left = 'served',
+				down = 'card2',
+				left = 'score',
 			},
 			withActions = {
-				up = 'actionNewPlate',
-				right = 'score',
-				left = 'served',
+				down = 'actionNewPlate',
+				left = 'score',
 			},
-			withModal = {
-				up = 'card2',
-				right = 'score',
-				left = 'served',
-			},
+			withModal = {},
 		},
 
 		x = 550,
@@ -44,20 +38,20 @@ ui = {
 
 		nav = {
 			withHand = {
-				up = 'deck',
-				left = 'plate'
+				down = 'deck',
+				right = 'plate'
 			},
 			withActions = {
-				up = 'deck',
-				left = 'plate'
+				down = 'deck',
+				right = 'plate'
 			},
 			withModal = {
-				up = 'deck',
-				left = 'plate'
+				down = 'deck',
+				right = 'modalAction1'
 			},
 		},
 
-		x = 1080,
+		x = 50,
 		y = 10,
 		width = 510,
 		height = 800,
@@ -69,24 +63,7 @@ ui = {
 		height = 375,
 	},
 	served = {
-		label = 'Completed Plates',
-
-		nav = {
-			withHand = {
-				up = 'card1',
-				right = 'plate',
-			},
-			withActions = {
-				up = 'actionDraw',
-				right = 'plate',
-			},
-			withModal = {
-				up = 'card1',
-				right = 'plate',
-			},
-		},
-
-		x = 1135,
+		x = 110,
 		y = 215,
 		width = 400,
 		height = 570,
@@ -98,22 +75,21 @@ ui = {
 		height = 280,
 	},
 	deck = {
-		label = 'Draw and Discard Piles',
+		label = 'Deck',
 		selectable = true,
 
 		nav = {
 			withHand = {
-				left = 'card3',
-				down = 'score',
+				right = 'card1',
+				up = 'score',
 			},
 			withActions = {
-				left = 'actionNewPlate',
-				down = 'score',
+				right = 'actionNewPlate',
+				up = 'score',
 			},
 			withModal = {
-				left = 'card3',
-				down = 'score',
-				up = 'modalAction1',
+				right = 'card1',
+				up = 'score',
 			},
 		},
 
@@ -143,13 +119,14 @@ ui = {
 
 		nav = {
 			withHand = {
+				left = 'deck',
 				right = 'card2',
-				down = 'served',
+				up = 'plate',
 			},
 			withActions = {},
 			withModal = {
+				left = 'deck',
 				right = 'card2',
-				down = 'served',
 				up = 'modalAction1',
 			},
 		},
@@ -168,16 +145,15 @@ ui = {
 
 		nav = {
 			withHand = {
-				down = 'plate',
+				up = 'plate',
 				left = 'card1',
 				right = 'card3',
 			},
 			withActions = {},
 			withModal = {
-				down = 'plate',
+				up = 'modalAction1',
 				left = 'card1',
 				right = 'card3',
-				up = 'modalAction1',
 			},
 		},
 
@@ -195,16 +171,13 @@ ui = {
 
 		nav = {
 			withHand = {
-				down = 'plate',
+				up = 'plate',
 				left = 'card2',
-				right = 'deck'
 			},
 			withActions = {},
 			withModal = {
-					down = 'plate',
-				left = 'card2',
-				right = 'deck',
 				up = 'modalAction1',
+				left = 'card2',
 			},
 		},
 
@@ -228,7 +201,8 @@ ui = {
 		nav = {
 			withHand = {},
 			withActions = {
-				down = 'served',
+				up = 'plate',
+				left = 'deck',
 				right = 'actionNewPlate',
 			},
 			withModal = {},
@@ -248,9 +222,8 @@ ui = {
 		nav = {
 			withHand = {},
 			withActions = {
-				down = 'plate',
+				up = 'plate',
 				left = 'actionDraw',
-				right = 'deck'
 			},
 			withModal = {},
 		},
@@ -290,6 +263,7 @@ ui = {
 			withHand = {},
 			withActions = {},
 			withModal = {
+				left = 'score',
 				right = 'modalCard2',
 				down = 'modalAction1',
 			},
@@ -355,7 +329,8 @@ ui = {
 			withActions = {},
 			withModal = {
 				up = 'modalCard1',
-				down = 'deck',
+				down = 'card1',
+				left = 'score',
 				right = 'modalAction2',
 			},
 		},
@@ -377,7 +352,7 @@ ui = {
 			withActions = {},
 			withModal = {
 				up = 'modalCard3',
-				down = 'deck',
+				down = 'card1',
 				left = 'modalAction1',
 			},
 		},

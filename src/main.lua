@@ -247,14 +247,9 @@ function love.draw()
 	love.graphics.clear()
 	love.graphics.setFont(getFont(30))
 
-	-- draw the UI elements
+	-- draw cards in hand
 	love.graphics.setColor(0.98, 0.43, 0.47)
 	love.graphics.rectangle("line", ui.hand.x, ui.hand.y, ui.hand.width, ui.hand.height)
-	love.graphics.rectangle("line", ui.served.x, ui.served.y, ui.served.width, ui.served.height)
-	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
-	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
-
-	-- draw cards in hand
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 	if hasCardsInHand then
 		love.graphics.setColor(0.43, 0.98, 0.47)
@@ -280,6 +275,9 @@ function love.draw()
 	end
 
 	-- draw drawPile and discardPile
+	love.graphics.setColor(0.98, 0.43, 0.47)
+	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
+
 	love.graphics.setColor(0.83, 0.83, 0.87)
 	drawCard(0, ui.drawPile.x, ui.drawPile.y)
 	love.graphics.setFont(getFont(80))
@@ -293,11 +291,15 @@ function love.draw()
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/4, ui.discardPile.width, 'center')
 
 	-- draw plated cards
+	love.graphics.setColor(0.98, 0.43, 0.47)
+	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
 	for cardIndex, plateCard in ipairs(currentPlate) do
 		drawRotatedCard(plateCard, ui.plateCards.x, ui.plateCards.y, cardIndex)
 	end
 
 	-- draw completed plates as receipts
+	love.graphics.setColor(0.43, 0.43, 0.47)
+	love.graphics.rectangle("line", ui.served.x, ui.served.y, ui.served.width, ui.served.height)
 	for plateIndex, completedPlate in ipairs(completedPlates) do
 		love.graphics.setColor(0.98, 0.47, 0.98)
 		local receiptWidth = 200
