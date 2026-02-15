@@ -9,6 +9,11 @@ local hardware_remap = {
 }
 
 local game_remap = {
+	w = "up",
+	a = "left",
+	s = "down",
+	d = "right",
+
 	x = "select",
 	space = "select",
 	["return"] = "select",

@@ -758,7 +758,7 @@ function love.keypressed(rawKey)
 	end
 
 	-- testing saving / loading
-	if key == 's' or key == 'w' then
+	if key == 'v' then
 		saveGameData('seed.json', { seed = gameSeed })
 	end
 
@@ -769,10 +769,6 @@ function love.keypressed(rawKey)
 	-- if we need to figure out where we are
 	if key == '/' then
 		print('selection: '..selection)
-	end
-
-	if key == 'p' then
-		table.insert(currentPlate, math.random(#cardDetails))
 	end
 end
 
