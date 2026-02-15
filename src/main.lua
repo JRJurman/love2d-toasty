@@ -676,7 +676,7 @@ function love.keypressed(rawKey)
 
 	-- if we are selecting a card and the modal action is pick, draw it
 	local modalActionIsPick = modalActions[1] == 'pick'
-	local isSelectingModalCard = ui[selection].modal and ui[selection].card
+	local isSelectingModalCard = ui[selection].modal and ui[selection].card and modalCards[ui[selection].drawIndex]
 	if key == 'select' and isSelectingModalCard and modalActionIsPick then
 		async(routines, function()
 			local firstEmptyHandSlot = (hand[1] == nil and 1) or (hand[2] == nil and 2) or (hand[3] == nil and 3)
