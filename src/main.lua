@@ -14,6 +14,7 @@ require('remapFunctions')
 require('recipeDetails')
 require('recipeFunctions')
 require('ttsFunctions')
+require('trackDetails')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -61,6 +62,7 @@ local selectionText = ''
 local drawnSelectionText = ''
 local navText = ''
 local drawnNavText = ''
+local intro, loop
 
 gameSeed = 0
 seed = 0
@@ -199,6 +201,13 @@ function drawThree()
 	end)
 end
 
+function checkToLoopMusic()
+	if intro and not intro:isPlaying() then
+			intro = nil
+			loop:play()
+	end
+end
+
 function love.load()
 	print('tts: Created by Jesse Jurman.')
 
@@ -219,11 +228,19 @@ function love.load()
 		print('drawPile size: '..#drawPile)
 		drawThree()
 	end)
+
+	-- music loading (and looping)
+	intro = love.audio.newSource("Assets/intro.ogg", "stream")
+	loop  = love.audio.newSource("Assets/loop.ogg", "stream")
+	loop:setLooping(true)
+
+	intro:play()
 end
 
 function love.update(dt)
 	seed = seed + dt*10000
 	updateAnimations(routines, dt)
+	checkToLoopMusic()
 end
 
 function love.draw()
