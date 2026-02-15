@@ -23,41 +23,41 @@ cardDetails = {
 	},
 	[4] = {
 		label = 'Strawberry',
-		effect = 'preview the next 3 cards.',
+		effect = 'preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 3,
+			previewCount = 2,
 			actions = {'close'}
 		}
 	},
 	[5] = {
 		label = 'Whip Cream',
-		effect = 'preview the next 3 cards.',
+		effect = 'preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 3,
+			previewCount = 2,
 			actions = {'close'}
 		}
 	},
 	[6] = {
 		label = 'Jam',
-		effect = 'preview the next 3 cards.',
+		effect = 'preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 3,
+			previewCount = 2,
 			actions = {'close'}
 		}
 	},
 	[7] = {
 		label = 'Orange',
-		effect = 'preview the next 3 cards.',
+		effect = 'preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
-			previewCount = 3,
+			previewCount = 2,
 			actions = {'close'}
 		}
 	},

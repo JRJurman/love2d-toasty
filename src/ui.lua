@@ -269,7 +269,7 @@ ui = {
 		},
 
 		x = 70,
-		y = 180,
+		y = 220,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -291,7 +291,7 @@ ui = {
 		},
 
 		x = 70 + cardSize.width + 10,
-		y = 180,
+		y = 220,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -312,7 +312,7 @@ ui = {
 		},
 
 		x = 70 + (cardSize.width * 2) + 20,
-		y = 180,
+		y = 220,
 		width = cardSize.width,
 		height = cardSize.height,
 	},

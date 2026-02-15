@@ -370,7 +370,11 @@ function love.draw()
 	-- draw modal title
 	if modalActions[1] then
 		love.graphics.setFont(getFont(90))
-		love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y + 10, ui.modal.width - 20, 'center')
+		love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y, ui.modal.width - 20, 'center')
+		if actionDetails[modalActions[1]].modalSubtitle then
+			love.graphics.setFont(getFont(50))
+			love.graphics.printf(actionDetails[modalActions[1]].modalSubtitle, ui.modal.x + 10, ui.modal.y + 95, ui.modal.width - 20, 'center')
+		end
 		love.graphics.setFont(getFont(30))
 	end
 
@@ -480,7 +484,9 @@ function completePlate()
 
 		-- load modal for players to add a new card to the deck
 		modalActions = {'add', 'skip'}
-		modalCards = { math.random(#cardDetails), math.random(#cardDetails), math.random(#cardDetails) }
+		-- make sure each number is unique by starting at a random number, and showing the next two
+		local firstRandomCard = math.random(2, #cardDetails - 2)
+		modalCards = { firstRandomCard, firstRandomCard + 1, firstRandomCard + 2 }
 		startModal()
 
 		-- once the player has selected a card to add, we'll shuffle then
@@ -509,29 +515,6 @@ function updateSelection(target)
 
 	local navKey = getNavKey()
 
-	local selectionDetails = ''
-	if selection == 'plate' then
-		-- for debugging, just print all cards on plate
-		for plateIndex, ingredient in ipairs(currentPlate) do
-			print(plateIndex..': '..cardDetails[ingredient].label..' ('..ingredient..')')
-		end
-
-		-- write down all the ingredients on the plate
-		selectionDetails = 'Current Plate, '
-
-		-- write down how many undiscovered recipes (and what discovered recipes) we have
-		local plateRecipes = getPotentialRecipeOnPlate(currentPlate)
-		local discoveredPlateRecipes, undiscoveredPlateRecipes = splitDiscoveredAndUndiscoveredRecipes(plateRecipes)
-		if #undiscoveredPlateRecipes > 0 then
-			selectionDetails = selectionDetails..'. '..#undiscoveredPlateRecipes..' undiscovered recipes.'
-		end
-		if #discoveredPlateRecipes > 0 then
-			selectionDetails = selectionDetails..'. '..#discoveredPlateRecipes..' discovered recipes: '
-			for _, discoveredPlateRecipes in ipairs(discoveredPlateRecipes) do
-				-- TODO add print for discovered recipes
-			end
-		end
-	end
 	if selection == 'deck' then
 		-- for debugging, just print all cards remaining in deck
 		for drawIndex, ingredient in ipairs(drawPile) do
@@ -704,8 +687,13 @@ function love.keypressed(rawKey)
 	local modalActionIsAdd = modalActions[1] == 'add'
 	if key == 'select' and isSelectingModalCard and modalActionIsAdd then
 		async(routines, function()
+			-- add free bread
+			table.insert(drawPile, 1, 1)
+
 			-- do starting shuffle
 			drawPile = startingShuffle(drawPile)
+
+			-- insert selected card at top of draw pile
 			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
 
 			minimizeModal()

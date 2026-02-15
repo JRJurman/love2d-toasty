@@ -72,7 +72,7 @@ recipeDetails = {
 		ingredients = {[3] = true, [10] = true, [11] = true},
 		points = 10
 	},
-	[14] = {
+	[15] = {
 		label = 'Smoky Stack',
 		ingredients = {[10] = true, [11] = true, [14] = true},
 		points = 10
