@@ -5,41 +5,11 @@ cardSize = {
 
 -- UI elements
 ui = {
-	hand = {
-		x = 20,
-		y = 20,
-		width = 920,
-		height = 375,
-	},
-	actions = {
-		x = 20,
-		y = 20,
-		width = 920,
-		height = 400,
-	},
-	served = {
-		label = 'Completed Plates',
-		selectable = true,
-
-		nav = {
-			withHand = {
-				up = 'card1',
-				right = 'plate',
-			},
-			withActions = {
-				up = 'actionDraw',
-				right = 'plate',
-			},
-			withModal = {
-				up = 'card1',
-				right = 'plate',
-			},
-		},
-
-		x = 20,
-		y = 415,
-		width = 400,
-		height = 740,
+	readout = {
+		x = 10,
+		y = 10,
+		width = 530,
+		height = 760,
 	},
 	plate = {
 		label = 'Current Plate',
@@ -63,16 +33,10 @@ ui = {
 			},
 		},
 
-		x = 440,
-		y = 415,
-		width = 600,
-		height = 480,
-	},
-	plateScore = {
-		x = 1060,
-		y = 415,
-		width = 520,
-		height = 280,
+		x = 550,
+		y = 10,
+		width = 530,
+		height = 800,
 	},
 	score = {
 		label = 'Round Score',
@@ -93,10 +57,45 @@ ui = {
 			},
 		},
 
-		x = 1060,
-		y = 715,
+		x = 1080,
+		y = 10,
+		width = 510,
+		height = 800,
+	},
+	hand = {
+		x = 380,
+		y = 780,
+		width = 880,
+		height = 375,
+	},
+	served = {
+		label = 'Completed Plates',
+
+		nav = {
+			withHand = {
+				up = 'card1',
+				right = 'plate',
+			},
+			withActions = {
+				up = 'actionDraw',
+				right = 'plate',
+			},
+			withModal = {
+				up = 'card1',
+				right = 'plate',
+			},
+		},
+
+		x = 1135,
+		y = 215,
+		width = 400,
+		height = 570,
+	},
+	plateScore = {
+		x = 550,
+		y = 10,
 		width = 520,
-		height = 180,
+		height = 280,
 	},
 	deck = {
 		label = 'Draw and Discard Piles',
@@ -118,20 +117,20 @@ ui = {
 			},
 		},
 
-		x = 960,
-		y = 20,
-		width = 620,
+		x = 10,
+		y = 780,
+		width = 340,
 		height = 375,
 	},
 	drawPile = {
-		x = 1000,
-		y = 60,
+		x = 30,
+		y = 810,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
 	discardPile = {
 		x = 1290,
-		y = 60,
+		y = 810,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -155,8 +154,8 @@ ui = {
 			},
 		},
 
-		x = 80,
-		y = 60,
+		x = 405,
+		y = 810,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -182,8 +181,8 @@ ui = {
 			},
 		},
 
-		x = 350,
-		y = 60,
+		x = 405 + (cardSize.width*0.9),
+		y = 810,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -209,14 +208,14 @@ ui = {
 			},
 		},
 
-		x = 620,
-		y = 60,
+		x = 405 + (cardSize.width*1.8),
+		y = 810,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
 	plateCards = {
-		x = 480,
-		y = 480,
+		x = 675,
+		y = 400,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -261,12 +260,6 @@ ui = {
 		width = 250,
 		height = 250,
 	},
-	completedPlates = {
-		x = 80,
-		y = 900,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
 	offScreenModal = {
 		x = 80,
 		y = -1200,
@@ -284,14 +277,6 @@ ui = {
 		y = -1200,
 		width = 1440,
 		height = 1040,
-	},
-	actionModal = {
-		label = '^ Go to Card Preview ^',
-
-		x = 40,
-		y = 30,
-		width = 880,
-		height = 40,
 	},
 	-- NOTE: modal ui is relative, because it moves with it
 	modalCard1 = {
@@ -401,11 +386,5 @@ ui = {
 		y = 800,
 		width = 500,
 		height = 200,
-	},
-	readout = {
-		x = 440,
-		y = 915,
-		width = 1140,
-		height = 240,
 	},
 }

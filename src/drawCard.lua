@@ -31,7 +31,9 @@ function drawCard(card, x, y)
 		love.graphics.line(x, titleLineY, x + cardSize.width, titleLineY)
 
 		-- write the number of points on the top left
-		love.graphics.print('+'..cardDetails[card].points, x + 8, titleLineY - 10)
+		if cardDetails[card].points then
+			love.graphics.print('+'..cardDetails[card].points, x + 8, titleLineY - 10)
+		end
 
 		-- write the ability under that (so cards can stack on the right side)
 		if cardDetails[card].onPlay then
@@ -40,8 +42,6 @@ function drawCard(card, x, y)
 			love.graphics.print(previewLabel..':'..abilityLabel, x + 8, titleLineY + 35)
 		end
 	end
-
-
 
 	-- reset the font
 	love.graphics.setFont(currentFont)

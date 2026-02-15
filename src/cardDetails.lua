@@ -1,4 +1,10 @@
 cardDetails = {
+	[-1] = {
+		label = 'Discard',
+	},
+	[0] = {
+		label = 'Deck',
+	},
 	[1] = {
 		label = 'Bread',
 		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.',

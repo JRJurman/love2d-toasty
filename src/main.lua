@@ -254,13 +254,6 @@ function love.draw()
 	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
 	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
 
-	-- if we have an active modal, draw the modal action
-	if modalActive then
-		love.graphics.setColor(0.98, 0.98, 0.47)
-		love.graphics.rectangle("line", ui.actionModal.x, ui.actionModal.y, ui.actionModal.width, ui.actionModal.height)
-		love.graphics.printf(ui.actionModal.label, ui.actionModal.x, ui.actionModal.y, ui.actionModal.width, 'center')
-	end
-
 	-- draw cards in hand
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 	if hasCardsInHand then
@@ -287,14 +280,15 @@ function love.draw()
 	end
 
 	-- draw drawPile and discardPile
-	love.graphics.setColor(0.43, 0.43, 0.47)
-	love.graphics.rectangle("line", ui.drawPile.x, ui.drawPile.y, ui.drawPile.width, ui.drawPile.height)
+	love.graphics.setColor(0.83, 0.83, 0.87)
+	drawCard(0, ui.drawPile.x, ui.drawPile.y)
 	love.graphics.setFont(getFont(80))
 	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/4, ui.drawPile.width, 'center')
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf(countValueInTopOfPile(drawPile, #drawPile, 1)..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height, ui.drawPile.width, 'center')
+	love.graphics.printf(countValueInTopOfPile(drawPile, #drawPile, 1)..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height - 50, ui.drawPile.width, 'center')
 
-	love.graphics.rectangle("line", ui.discardPile.x, ui.discardPile.y, ui.discardPile.width, ui.discardPile.height)
+	love.graphics.setColor(0.43, 0.43, 0.47)
+	drawCard(-1, ui.discardPile.x, ui.discardPile.y)
 	love.graphics.setFont(getFont(80))
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/4, ui.discardPile.width, 'center')
 
@@ -303,14 +297,16 @@ function love.draw()
 		drawRotatedCard(plateCard, ui.plateCards.x, ui.plateCards.y, cardIndex)
 	end
 
-	-- draw completed plates
+	-- draw completed plates as receipts
 	for plateIndex, completedPlate in ipairs(completedPlates) do
 		love.graphics.setColor(0.98, 0.47, 0.98)
-		local plateX = ui.completedPlates.x
-		local plateY = ui.completedPlates.y - (40 * plateIndex)
+		local receiptWidth = 200
+		local receiptHeight = 150
+		local receiptX = ui.served.x + 60
+		local receiptY = ui.served.y + ((plateIndex-1) * (receiptHeight*0.8))
 		local plateScore = getScoreForPlate(completedPlate)
-		love.graphics.rectangle("line", plateX, plateY, ui.completedPlates.width, ui.completedPlates.height)
-		love.graphics.printf('+'..plateScore, plateX, plateY + ui.completedPlates.height * (5 / 6), ui.completedPlates.width, 'center')
+		love.graphics.rectangle("line", receiptX, receiptY, receiptWidth, receiptHeight)
+		love.graphics.printf('+'..plateScore, receiptX, receiptY, receiptWidth, 'center')
 	end
 
 	-- draw the current plate score (if we aren't completing a round)
@@ -346,10 +342,10 @@ function love.draw()
 	-- draw round score
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf('Round '..roundNumber, ui.score.x + 10, ui.score.y - 5, ui.score.width - 20, 'center')
+	love.graphics.printf('Round '..roundNumber, ui.score.x + 10, ui.score.y, ui.score.width - 20, 'center')
 	love.graphics.setFont(getFont(90))
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
-	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 5, ui.score.width - 20, 'center')
+	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 15, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
 	love.graphics.setFont(getFont(30))
 	local totalDiscoveredRecipes = getTotalDiscoveredRecipes()
@@ -402,9 +398,7 @@ function love.draw()
 	love.graphics.setColor(0.87, 0.87, 0.97)
 	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
 	love.graphics.setFont(getFont(40))
-	love.graphics.printf(selectionText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
-	love.graphics.setFont(getFont(30))
-	love.graphics.printf(navText, ui.readout.x + 10, ui.readout.y + (ui.readout.height-40), ui.readout.width - 20, 'center')
+	love.graphics.printf(selectionText..'\n\n'..navText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -717,8 +711,10 @@ function love.keypressed(rawKey)
 			-- do starting shuffle
 			drawPile = startingShuffle(drawPile)
 			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
+
 			minimizeModal()
 			modalActive = false
+
 			updateSelectionAfterPlayOrDraw()
 		end)
 	end
@@ -729,6 +725,11 @@ function love.keypressed(rawKey)
 	local isSelectingSkip = isSelectingModalAction and modalAction == 'skip' or modalAction == 'close'
 	if key == 'select' and isSelectingSkip then
 		async(routines, function()
+			-- if the modal action was add, we still need to shuffle here
+			if modalActions[1] == 'add' then
+				drawPile = startingShuffle(drawPile)
+			end
+
 			minimizeModal()
 			modalActive = false
 
