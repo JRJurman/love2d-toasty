@@ -13,17 +13,17 @@ actionDetails = {
 	shuffle = {
 		modalTitle = "Shuffle Next Cards?",
 		label = "Shuffle",
-		initialModalDescription = "Preview the next cards that you will draw, you may shuffle them back into your draw pile.",
+		initialModalDescription = "Preview the next cards that you will draw, you may shuffle them back into your draw pile, and guarantee a bread next hand.",
 		actionDescription = "Select to shuffle your draw pile.",
 	},
 	pick = {
-		modalTitle = "Draw A Card?",
+		modalTitle = "Draw a Card?",
 		label = "Select Card",
 		initialModalDescription = "Preview the next cards that you will draw, you may choose to add one to your hand now.",
 		actionDescription = "Select a card above to add to your hand.",
 	},
 	add = {
-		modalTitle = "Add a card to your Deck?",
+		modalTitle = "Add a Card?",
 		label = "Add Card",
 		initialModalDescription = "Choose one of these cards to add to your deck.",
 		actionDescription = "Select a card above to add this to your deck.",

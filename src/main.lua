@@ -23,9 +23,9 @@ love.graphics.setFont(getFont(30))
 
 local deck = {
 	1, 1, 1, 1, 1,
-	2, 2, 3, 3, 4, 4,
-	5, 5, 6, 6, 7, 7,
-	8, 8, 9, 9, 9, 9,
+	2, 2, 3, 3,
+	4, 5, 6, 7, 8, 9,
+	10, 11, 12, 13, 14
 }
 
 local drawPile = {}
@@ -212,7 +212,7 @@ function love.load()
 
 	local savedSeed = loadGameData('seed.json')
 
-	-- shuffle and draw three at the start of the game
+	-- seed loading and starting shuffle
 	async(routines, function()
 		wait(1 * animationScale) -- wait one second to help generate a more random seed
 		if savedSeed then
@@ -222,6 +222,12 @@ function love.load()
 		end
 		print('seed: '..gameSeed)
 		math.randomseed(gameSeed)
+		-- add 5 random ingredients
+		for addIndex = 1, 5 do
+			table.insert(deck, math.random(13) + 1)
+		end
+
+		-- shuffle the deck to make the start pile
 		drawPile = startingShuffle(deck)
 		print('deck size: '..#deck)
 		print('drawPile size: '..#drawPile)
@@ -290,10 +296,13 @@ function love.draw()
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/4, ui.discardPile.width, 'center')
 
 	-- draw plated cards
+	-- (we only draw the top 5, since there can be rendering issues if we try to draw too many)
 	love.graphics.setColor(0.98, 0.43, 0.47)
 	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
-	for cardIndex, plateCard in ipairs(currentPlate) do
-		drawRotatedCard(plateCard, ui.plateCards.x, ui.plateCards.y, cardIndex)
+	if #currentPlate > 0 then
+		for cardIndex=math.max(#currentPlate - 5, 1), #currentPlate do
+			drawRotatedCard(currentPlate[cardIndex], ui.plateCards.x, ui.plateCards.y, cardIndex)
+		end
 	end
 
 	-- draw completed plates as receipts
@@ -772,6 +781,10 @@ function love.keypressed(rawKey)
 	-- if we need to figure out where we are
 	if key == '/' then
 		print('selection: '..selection)
+	end
+
+	if key == 'p' then
+		table.insert(currentPlate, math.random(#cardDetails))
 	end
 end
 
