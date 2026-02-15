@@ -48,7 +48,7 @@ function DebuggingScreen.draw()
 	-- if there is an origin point, draw a line from there to here
 	if originPoint then
 		love.graphics.line(originPoint[1], originPoint[2], x, y)
-		love.graphics.print(math.abs(originPoint[1] - x)..', '..math.abs(originPoint[2] - y), x + 5, y - 10)
+		love.graphics.print(math.abs(originPoint[1] - x)..', '..math.abs(originPoint[2] - y), x + 5, y - 60)
 	end
 
 
@@ -60,7 +60,7 @@ function DebuggingScreen.draw()
 		local colorKey = (key - 1) % #colors + 1
 		love.graphics.setColor(unpack(colors[colorKey]))
 		local px, py = point[1], point[2]
-		love.graphics.print('point '..px..', '..py, 20, 580 - (key * 16))
+		love.graphics.print('point '..px..', '..py, 20, 580 - (key * 30))
 		love.graphics.circle('fill', px, py, 3)
 	end
 end

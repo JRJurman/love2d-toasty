@@ -39,7 +39,6 @@ local modalCards = {}
 local modalActions = {}
 
 local modalActive = false
-local modalExpanded = false
 local isDrawing = true
 local isPlating = false
 
@@ -359,6 +358,13 @@ function love.draw()
 	love.graphics.setColor(0.98, 0.47, 0.98)
 	love.graphics.rectangle("line", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
 
+	-- draw modal title
+	if modalActions[1] then
+		love.graphics.setFont(getFont(90))
+		love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y + 10, ui.modal.width - 20, 'center')
+		love.graphics.setFont(getFont(30))
+	end
+
 	-- draw any cards on the modal
 	if modalCards[1] then
 		local cardX = ui.modal.x + ui.modalCard1.x
@@ -418,21 +424,13 @@ function love.draw()
 end
 
 function expandModal()
-	-- flatten cursor to the top
-	cursor = { x = 0, y = 0, width = 800, height = 0}
-
 	ui.modal.y = ui.offScreenModal.y
 	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
-	modalExpanded = true
 end
 
 function minimizeModal()
-	-- flatten cursor to the top
-	cursor = { x = 0, y = 0, width = 800, height = 0}
-
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
-	modalExpanded = false
 end
 
 function getScoreForCompletedPlates()
@@ -624,19 +622,6 @@ function love.keypressed(rawKey)
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
 		async(routines, function()
 			local nextSelection = ui[selection].nav[navKey][key]
-
-			-- if we moved in or out of the modal, expand or minimize it
-			if nextSelection then
-				-- if we were on the modal, and now we are not, hide the modal
-				if modalExpanded and not ui[nextSelection].modal then
-					minimizeModal()
-				end
-
-				-- if we were not on the modal, and now we are, show the modal
-				if not modalExpanded and ui[nextSelection].modal then
-					expandModal()
-				end
-			end
 
 			if nextSelection then
 				-- if they press up or down, make sure they can get back to the previous option
