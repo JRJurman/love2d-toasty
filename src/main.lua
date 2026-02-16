@@ -67,8 +67,8 @@ gameSeed = 0
 seed = 0
 
 local animationScale = 0.75
-local navAnimationSpeed = 0.35
-local drawAnimationSpeed = 0.8
+local navAnimationSpeed = 0.5
+local drawAnimationSpeed = 1
 
 local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
 
@@ -101,6 +101,7 @@ function drawFromDeck(handIndex, drawIndex)
 	movingCard.y = ui.drawPile.y
 	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
 	hand[handIndex] = table.remove(drawPile, drawIndex)
+	print('tts: '..cardDetails[hand[handIndex]].label)
 	movingCard.enabled = false
 
 	-- if this is bread, play it immediately
@@ -117,12 +118,14 @@ function drawFromDeck(handIndex, drawIndex)
 	-- if we made a sandwich, immediately toss the plate
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if typeOfPlate == -1 then
-		wait(2 * animationScale)
+		print('tts: You made a Sandwich, no points! Tossing Plate.')
+		wait(2.5 * animationScale)
 		completePlate()
 	end
 end
 
 function plateCardFromHand(handIndex, startX, startY)
+	print('tts: plating '..cardDetails[hand[handIndex]].label)
 	isPlating = true
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
@@ -172,6 +175,7 @@ function updateSelectionAfterPlayOrDraw()
 end
 
 function discardCardFromHand(handIndex, startX, startY)
+	print('tts: No bread, discarding '..cardDetails[hand[handIndex]].label)
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
@@ -192,6 +196,7 @@ end
 function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
+		print('tts: drawing from deck')
 		drawFromDeck(1)
 		drawFromDeck(2)
 		drawFromDeck(3)
@@ -429,8 +434,15 @@ function love.draw()
 
 	-- update the screen reader (if text changed)
 	-- (we don't do this every frame, because it would overwhelm the dev console)
-	if drawnSelectionText ~= selectionText or drawnNavText ~= navText then
-		print('tts: '..selectionText..'. '..navText)
+	-- only do this if we aren't animating right now
+	local isAnimating = #routines > 0
+	if isAnimating then
+		drawnSelectionText = ''
+		drawnNavText = ''
+	end
+	if not isAnimating and (drawnSelectionText ~= selectionText or drawnNavText ~= navText) then
+		local ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
+		print('tts: '..ttsText)
 		drawnSelectionText = selectionText
 		drawnNavText = navText
 	end
@@ -539,10 +551,17 @@ function getSelectionInstruction()
 	-- and then return those details
 	if ui[selection].card then
 		local selectedCard = nil
+		local location = ''
 		if ui[selection].hand then
 			selectedCard = hand[ui[selection].handIndex]
+			location = ' in hand'
 		elseif ui[selection].modal then
 			selectedCard = modalCards[ui[selection].drawIndex]
+			if modalActions[1] == 'add' then
+				location = ''
+			else
+				location = ' in deck'
+			end
 		end
 
 		-- if there is no card in this spot, return no details
@@ -554,7 +573,7 @@ function getSelectionInstruction()
 		local effect = cardDetails[selectedCard].effect
 		local recipes = getRecipesForIngredient(selectedCard)
 		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
-		local cardSelectionText = label..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
+		local cardSelectionText = label..location..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
 
 		return cardSelectionText
 	end
@@ -566,11 +585,20 @@ function getSelectionInstruction()
 		end
 	end
 
+	if selection == 'modalAction2' then
+		local selectedAction = actionDetails[modalActions[2]]
+		if selectedAction then
+			return selectedAction.actionDescription
+		else
+			return 'No Action'
+		end
+	end
+
 	if selection == 'deck' then
 		local breadInDrawPile = countValueInTopOfPile(drawPile, #drawPile, 1)
 		local breadInDiscard = countValueInTopOfPile(discardPile, #discardPile, 1)
 
-		return 'Deck and Discard; '..#drawPile..' cards left in deck, includes '..breadInDrawPile..' Bread Slices. '..#discardPile..' cards in discard. '
+		return 'Deck; There are '..#drawPile..' cards left in deck, including '..breadInDrawPile..' Bread Slices. There are '..#discardPile..' cards in discard. '
 	end
 
 	if selection == 'plate' then
@@ -593,7 +621,17 @@ function getSelectionInstruction()
 		return plateDescription
 	end
 
+	if selection == 'score' then
+		local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
+		return 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
+	end
+
 	if selection == 'actionDraw' then
+		return 'Draw Action: Select to draw 3 new cards.'
+	end
+
+	if selection == 'actionNewPlate' then
+		return 'New Plate Action: Select to start a new plate.'
 	end
 
 	return ''
@@ -675,6 +713,7 @@ function love.keypressed(rawKey)
 			local targetSelection = 'card'..firstEmptyHandSlot
 			minimizeModal()
 			modalActive = false
+			print('tts: drawing from deck')
 			drawFromDeck(firstEmptyHandSlot, ui[selection].drawIndex)
 			-- first update to the target selection
 			-- but, if our hand is empty (it was bread), reset it
@@ -753,7 +792,8 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			print('tts: repeating...')
 			wait(0.5 * animationScale)
-			print('tts: '..navText)
+			local ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
+			print('tts: '..ttsText)
 		end)
 	end
 

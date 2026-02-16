@@ -193,7 +193,7 @@ ui = {
 		height = cardSize.height,
 	},
 	actionDraw = {
-		label = 'Draw 3 New Cards',
+		label = 'Draw Action',
 		action = true,
 		selectable = true,
 		hand = false,
@@ -214,7 +214,7 @@ ui = {
 		height = 250,
 	},
 	actionNewPlate = {
-		label = 'Start a new Plate',
+		label = 'Plate Action',
 		action = true,
 		selectable = true,
 		hand = false,
