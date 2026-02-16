@@ -58,7 +58,7 @@ ui = {
 	},
 	hand = {
 		x = 380,
-		y = 780,
+		y = 820,
 		width = 880,
 		height = 375,
 	},
@@ -94,19 +94,19 @@ ui = {
 		},
 
 		x = 10,
-		y = 780,
+		y = 820,
 		width = 340,
 		height = 375,
 	},
 	drawPile = {
 		x = 30,
-		y = 810,
+		y = 850,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
 	discardPile = {
-		x = 1290,
-		y = 810,
+		x = 1280,
+		y = 850,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -132,7 +132,7 @@ ui = {
 		},
 
 		x = 405,
-		y = 810,
+		y = 850,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -158,7 +158,7 @@ ui = {
 		},
 
 		x = 405 + (cardSize.width*0.9),
-		y = 810,
+		y = 850,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -182,7 +182,7 @@ ui = {
 		},
 
 		x = 405 + (cardSize.width*1.8),
-		y = 810,
+		y = 850,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -209,7 +209,7 @@ ui = {
 		},
 
 		x = 440,
-		y = 860,
+		y = 900,
 		width = 365,
 		height = 225,
 	},
@@ -229,27 +229,27 @@ ui = {
 		},
 
 		x = 825,
-		y = 860,
+		y = 900,
 		width = 365,
 		height = 225,
 	},
 	offScreenModal = {
-		x = 20,
+		x = 5,
 		y = -1200,
-		width = 1030,
-		height = 760,
+		width = 1075,
+		height = 805,
 	},
 	onScreenModal = {
-		x = 20,
-		y = 20,
-		width = 1030,
-		height = 760,
+		x = 5,
+		y = 5,
+		width = 1075,
+		height = 805,
 	},
 	modal = {
-		x = 20,
+		x = 5,
 		y = -1200,
-		width = 1030,
-		height = 760,
+		width = 1075,
+		height = 805,
 	},
 	-- NOTE: modal ui is relative, because it moves with it
 	modalCard1 = {
