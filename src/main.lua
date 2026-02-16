@@ -277,11 +277,12 @@ function love.draw()
 	-- draw actions if we don't have cards or an active modal, and we aren't drawing or plating
 	if not hasCardsInHand and not modalActive and not isDrawing and not isPlating then
 		love.graphics.setColor(0.98, 0.98, 0.47)
+		love.graphics.setFont(getFont(50))
 		love.graphics.rectangle("line", ui.actionDraw.x, ui.actionDraw.y, ui.actionDraw.width, ui.actionDraw.height)
-		love.graphics.printf(ui.actionDraw.label, ui.actionDraw.x, ui.actionDraw.y + ui.actionDraw.height, ui.actionDraw.width, 'center')
+		love.graphics.printf("Draw Cards", ui.actionDraw.x, ui.actionDraw.y + 20, ui.actionDraw.width, 'center')
 
 		love.graphics.rectangle("line", ui.actionNewPlate.x, ui.actionNewPlate.y, ui.actionNewPlate.width, ui.actionNewPlate.height)
-		love.graphics.printf(ui.actionNewPlate.label, ui.actionNewPlate.x, ui.actionNewPlate.y + ui.actionNewPlate.height, ui.actionNewPlate.width, 'center')
+		love.graphics.printf("New Plate", ui.actionNewPlate.x, ui.actionNewPlate.y + 20, ui.actionNewPlate.width, 'center')
 	end
 
 	-- draw drawPile and discardPile

@@ -208,10 +208,10 @@ ui = {
 			withModal = {},
 		},
 
-		x = 500,
-		y = 900,
-		width = 250,
-		height = 250,
+		x = 440,
+		y = 860,
+		width = 365,
+		height = 225,
 	},
 	actionNewPlate = {
 		label = 'Plate Action',
@@ -228,10 +228,10 @@ ui = {
 			withModal = {},
 		},
 
-		x = 770,
-		y = 900,
-		width = 250,
-		height = 250,
+		x = 825,
+		y = 860,
+		width = 365,
+		height = 225,
 	},
 	offScreenModal = {
 		x = 20,
