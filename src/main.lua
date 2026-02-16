@@ -402,18 +402,20 @@ function love.draw()
 	end
 
 	-- draw any actions on the modal
+	love.graphics.setFont(getFont(50))
 	if modalActions[1] then
 		local actionX = ui.modal.x + ui.modalAction1.x
 		local actionY = ui.modal.y + ui.modalAction1.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
-		love.graphics.printf(modalActions[1], actionX, actionY + ui.modalAction1.height/2, ui.modalAction1.width, 'center')
+		love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY + 20, ui.modalAction1.width, 'center')
 	end
 	if modalActions[2] then
 		local actionX = ui.modal.x + ui.modalAction2.x
 		local actionY = ui.modal.y + ui.modalAction2.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
-		love.graphics.printf(modalActions[2], actionX, actionY + ui.modalAction2.height/2, ui.modalAction2.width, 'center')
+		love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY + 20, ui.modalAction2.width, 'center')
 	end
+	love.graphics.setFont(getFont(30))
 
 	-- draw any cards that are moving
 	if movingCard.enabled then

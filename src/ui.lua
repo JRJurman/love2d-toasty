@@ -51,7 +51,7 @@ ui = {
 			},
 		},
 
-		x = 50,
+		x = 10,
 		y = 10,
 		width = 510,
 		height = 800,
@@ -63,7 +63,7 @@ ui = {
 		height = 375,
 	},
 	served = {
-		x = 110,
+		x = 60,
 		y = 215,
 		width = 400,
 		height = 570,
@@ -333,9 +333,9 @@ ui = {
 			},
 		},
 
-		x = 70,
+		x = 90,
 		y = 570,
-		width = 300,
+		width = 365,
 		height = 150,
 	},
 	modalAction2 = {
@@ -355,9 +355,9 @@ ui = {
 			},
 		},
 
-		x = 500,
+		x = 510,
 		y = 570,
-		width = 300,
+		width = 365,
 		height = 150,
 	},
 }
