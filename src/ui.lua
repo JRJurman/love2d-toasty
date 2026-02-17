@@ -17,7 +17,7 @@ ui = {
 
 		nav = {
 			withHand = {
-				down = 'card2',
+				down = 'card1',
 				left = 'score',
 			},
 			withActions = {
@@ -307,7 +307,7 @@ ui = {
 			withActions = {},
 			withModal = {
 				left = 'modalCard2',
-				down = 'modalAction2',
+				down = 'modalAction1',
 			},
 		},
 
@@ -349,7 +349,7 @@ ui = {
 			withHand = {},
 			withActions = {},
 			withModal = {
-				up = 'modalCard3',
+				up = 'modalCard1',
 				down = 'card1',
 				left = 'modalAction1',
 			},

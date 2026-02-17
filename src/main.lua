@@ -65,6 +65,8 @@ local intro, loop
 
 gameSeed = 0
 seed = 0
+masterVolume = 0.7
+musicVolume = 0.6
 
 local animationScale = 0.75
 local navAnimationSpeed = 0.5
@@ -242,6 +244,8 @@ function love.load()
 	-- music loading (and looping)
 	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 	loop  = love.audio.newSource("Assets/loop.ogg", "stream")
+	intro:setVolume(masterVolume * musicVolume)
+	loop:setVolume(masterVolume * musicVolume)
 	loop:setLooping(true)
 
 	intro:play()
@@ -457,6 +461,7 @@ function expandModal()
 end
 
 function minimizeModal()
+	print('tts: closing modal')
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
 end
@@ -657,13 +662,6 @@ function love.keypressed(rawKey)
 			local nextSelection = ui[selection].nav[navKey][key]
 
 			if nextSelection then
-				-- if they press up or down, make sure they can get back to the previous option
-				-- don't do this if they are in a hand selection
-				if key == 'up' then
-					ui[nextSelection].nav[navKey].down = selection
-				elseif key == 'down' then
-					ui[nextSelection].nav[navKey].up = selection
-				end
 				updateSelection(nextSelection)
 			end
 		end)
@@ -671,6 +669,9 @@ function love.keypressed(rawKey)
 
 	-- if we are selecting a non-modal card and modal is not active, trigger the onPlay
 	local isNonModalCard = ui[selection].card and not ui[selection].modal
+	if key == 'select' and isNonModalCard and modalActive then
+		selectionText = 'Modal open, can not play card.'
+	end
 	if key == 'select' and isNonModalCard and not modalActive then
 		async(routines, function()
 			-- get handIndex based on selection
