@@ -3,6 +3,17 @@ require('cardDetails')
 require('recipeFunctions')
 require('actionDetails')
 
+function indexToString(index)
+	if index == 1 then
+		return 'First'
+	elseif index == 2 then
+		return 'Second'
+	elseif index == 3 then
+		return 'Third'
+	end
+	return ''
+end
+
 function getNavInstructions(selection, navKey)
 	local navDirections = ''
 	local dirLabel = ''

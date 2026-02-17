@@ -37,6 +37,7 @@ local completedPlates = {}
 
 local modalCards = {}
 local modalActions = {}
+local hasSeenInstructions = true
 
 local modalActive = false
 local isDrawing = true
@@ -65,8 +66,8 @@ local intro, loop
 
 gameSeed = 0
 seed = 0
-masterVolume = 0.7
-musicVolume = 0.6
+masterVolume = 0.8
+musicVolume = 1
 
 local animationScale = 0.75
 local navAnimationSpeed = 0.5
@@ -151,6 +152,9 @@ function plateCardFromHand(handIndex, startX, startY)
 	if recipe then
 		discoveredRecipes[recipe] = true
 	end
+
+	-- update the selection text after plating (usually empty spot in hand)
+	selectionText = getSelectionInstruction()
 end
 
 function updateSelectionAfterPlayOrDraw()
@@ -208,10 +212,17 @@ function drawThree()
 end
 
 function checkToLoopMusic()
+	-- sometimes, if we've left the tab focus, we'll fail to start the loop
+	if intro == nil and not loop:isPlaying() then
+		loop:play()
+	end
+
+	-- when the intro is done, unset it and start the loop
 	if intro and not intro:isPlaying() then
 			intro = nil
 			loop:play()
 	end
+
 end
 
 function love.load()
@@ -439,16 +450,20 @@ function love.draw()
 
 	DebuggingScreen.draw()
 
-	-- update the screen reader (if text changed)
-	-- (we don't do this every frame, because it would overwhelm the dev console)
-	-- only do this if we aren't animating right now
+
+	-- if we are animating, unset the selection and nav text
+	-- (these will almost always be set by the animating function)
 	local isAnimating = #routines > 0
 	if isAnimating then
 		drawnSelectionText = ''
 		drawnNavText = ''
 	end
+	-- update the screen reader (if text changed)
+	-- (we don't do this every frame, because it would overwhelm the dev console)
+	-- only do this if we aren't animating right now
 	if not isAnimating and (drawnSelectionText ~= selectionText or drawnNavText ~= navText) then
-		local ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
+		-- local ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
+		local ttsText = string.gsub(selectionText..'. ', '\n', '; ')
 		print('tts: '..ttsText)
 		drawnSelectionText = selectionText
 		drawnNavText = navText
@@ -456,6 +471,8 @@ function love.draw()
 end
 
 function expandModal()
+	local modalAction = actionDetails[modalActions[1]]
+	print('tts: opening '..modalAction.modalTitle)
 	ui.modal.y = ui.offScreenModal.y
 	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
 end
@@ -551,6 +568,7 @@ function startModal()
 
 	-- immediately set the modal as the selection
 	expandModal()
+	hasSeenInstructions = false
 	updateSelection('modalCard1')
 end
 
@@ -559,29 +577,51 @@ function getSelectionInstruction()
 	-- and then return those details
 	if ui[selection].card then
 		local selectedCard = nil
+		local indexText = ''
 		local location = ''
 		if ui[selection].hand then
 			selectedCard = hand[ui[selection].handIndex]
-			location = ' in hand'
+			indexText = indexToString(ui[selection].handIndex)
+			location = indexText..' card in hand;'
 		elseif ui[selection].modal then
 			selectedCard = modalCards[ui[selection].drawIndex]
+			indexText = indexToString(ui[selection].drawIndex)
 			if modalActions[1] == 'add' then
-				location = ''
+				location = indexText..' card;'
 			else
-				location = ' in deck'
+				location = indexText..' card in deck;'
 			end
 		end
 
 		-- if there is no card in this spot, return no details
 		if selectedCard == nil then
-			return 'No Card;'
+			return location..'No Card;'
+		end
+
+		-- if this is a modal card, and we haven't heard the instructions yet, read them
+		local modalInstructions = ''
+		if hasSeenInstructions == false then
+			local modalAction = actionDetails[modalActions[1]]
+			modalInstructions = modalAction.initialModalDescription..';'
+			hasSeenInstructions = true
+		end
+
+		local effect = cardDetails[selectedCard].effect
+		-- if this is a modal card, read the short effect label
+		if ui[selection].modal then
+			effect = cardDetails[selectedCard].effectShortLabel
+		end
+
+		local recipeText = ''
+		-- only include recipe text if we are in a modal
+		if ui[selection].modal then
+			local recipes = getRecipesForIngredient(selectedCard)
+			local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
+			recipeText = #undiscoveredRecipes.. ' undiscovered recipes.'
 		end
 
 		local label = cardDetails[selectedCard].label
-		local effect = cardDetails[selectedCard].effect
-		local recipes = getRecipesForIngredient(selectedCard)
-		local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
-		local cardSelectionText = label..location..'; '..effect..'\n'..#undiscoveredRecipes.. ' undiscovered recipes.'
+		local cardSelectionText = modalInstructions..location..label..'; '..effect..'\n'..recipeText
 
 		return cardSelectionText
 	end
@@ -651,6 +691,11 @@ function love.keypressed(rawKey)
 	key = remap(rawKey)
 	local navKey = getNavKey()
 
+	-- if we are animating don't allow other actions
+	local isAnimating = #routines > 0
+	if isAnimating then
+		return
+	end
 	-- if we are drawing or plating, don't allow other actions
 	if isDrawing or isPlating then
 		return

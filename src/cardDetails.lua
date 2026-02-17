@@ -7,23 +7,27 @@ cardDetails = {
 	},
 	[1] = {
 		label = 'Bread',
+		effectShortLabel = 'starts toast, causes sandwiches.',
 		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.',
 		points = 0,
 		onDraw = {'plate'}
 	},
 	[2] = {
 		label = 'Butter',
+		effectShortLabel = 'worth 2 points',
 		effect = 'worth an extra point.',
 		points = 2,
 	},
 	[3] = {
 		label = 'Avocado',
+		effectShortLabel = 'worth 2 points',
 		effect = 'worth an extra point.',
 		points = 2,
 	},
 	[4] = {
 		label = 'Strawberry',
-		effect = 'when played, preview the next 2 cards.',
+		effectShortLabel = 'on play, preview',
+		effect = 'when played preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -33,7 +37,8 @@ cardDetails = {
 	},
 	[5] = {
 		label = 'Whip Cream',
-		effect = 'when played, preview the next 2 cards.',
+		effectShortLabel = 'on play, preview',
+		effect = 'when played preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -43,7 +48,8 @@ cardDetails = {
 	},
 	[6] = {
 		label = 'Jam',
-		effect = 'when played, preview the next 2 cards.',
+		effectShortLabel = 'on play, preview',
+		effect = 'when played preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -53,7 +59,8 @@ cardDetails = {
 	},
 	[7] = {
 		label = 'Orange',
-		effect = 'when played, preview the next 2 cards.',
+		effectShortLabel = 'on play, preview',
+		effect = 'when played preview the next 2 cards.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -63,7 +70,8 @@ cardDetails = {
 	},
 	[8] = {
 		label = 'Egg',
-		effect = 'when played, preview the next two cards, you may add one to your hand.',
+		effectShortLabel = 'on play, draw',
+		effect = 'when played preview the next two cards and you may add one to your hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -73,7 +81,8 @@ cardDetails = {
 	},
 	[9] = {
 		label = 'Cheddar',
-		effect = 'when played, preview the next two cards, you may add one to your hand.',
+		effectShortLabel = 'on play, draw',
+		effect = 'when played preview the next two cards and you may add one to your hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -83,7 +92,8 @@ cardDetails = {
 	},
 	[10] = {
 		label = 'Garlic',
-		effect = 'when played, preview the next two cards, you may add one to your hand.',
+		effectShortLabel = 'on play, draw',
+		effect = 'when played preview the next two cards and you may add one to your hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -93,7 +103,8 @@ cardDetails = {
 	},
 	[11] = {
 		label = 'Onion',
-		effect = 'when played, preview the next two cards, you may add one to your hand.',
+		effectShortLabel = 'on play, draw',
+		effect = 'when played preview the next two cards and you may add one to your hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -103,7 +114,8 @@ cardDetails = {
 	},
 	[12] = {
 		label = 'Ricotta',
-		effect = 'when played, preview the next two cards, you may add one to your hand.',
+		effectShortLabel = 'on play, draw',
+		effect = 'when played preview the next two cards and you may add one to your hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -113,7 +125,8 @@ cardDetails = {
 	},
 	[13] = {
 		label = 'Sausage',
-		effect = 'when played, preview the next two cards, you may shuffle and guarantee a bread next hand.',
+		effectShortLabel = 'on play, shuffle',
+		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
@@ -123,7 +136,8 @@ cardDetails = {
 	},
 	[14] = {
 		label = 'Bacon',
-		effect = 'when played, preview the next two cards, you may shuffle and guarantee a bread next hand.',
+		effectShortLabel = 'on play, shuffle',
+		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
