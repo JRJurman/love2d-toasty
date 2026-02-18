@@ -21,7 +21,7 @@ ui = {
 				left = 'score',
 			},
 			withActions = {
-				down = 'actionNewPlate',
+				down = 'actionDraw',
 				left = 'score',
 			},
 			withModal = {},

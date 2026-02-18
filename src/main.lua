@@ -688,7 +688,11 @@ function getSelectionInstruction()
 
 	if selection == 'score' then
 		local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
-		return 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
+		local discoveredRecipesCount = getTotalDiscoveredRecipes()
+		local totalRecipeCount = #recipeDetails
+		local scoreLabel = 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
+		local recipeLabel = 'You have discovered '..discoveredRecipesCount..' out of '..totalRecipeCount..' total recipes.'
+		return scoreLabel..recipeLabel
 	end
 
 	if selection == 'actionDraw' then
@@ -738,6 +742,15 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			-- get handIndex based on selection
 			local handIndex = ui[selection].handIndex
+
+			-- confirm there is a card we can play (if not, do nothing)
+			if hand[handIndex] == nil then
+				-- reset the selection text
+				selectionText = 'No Card'
+				wait(0.5 * animationScale)
+				return
+			end
+
 			local playedCardDetails = cardDetails[hand[handIndex]]
 
 			-- if there is bread on the plate, plate this card

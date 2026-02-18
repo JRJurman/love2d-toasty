@@ -24,9 +24,9 @@ actionDetails = {
 		actionDescription = "Select to shuffle your draw pile, and guarantee a bread next hand.",
 	},
 	pick = {
-		modalTitle = "Draw a Card?",
+		modalTitle = "Pick a Card?",
 		label = "Select Card",
-		initialModalDescription = "Showing the next cards that you will draw, you may choose to add one to your hand now.",
+		initialModalDescription = "Showing the next cards that you will draw, you may pick one to add one to your hand now.",
 		actionDescription = "Select a card above to add to your hand.",
 	},
 	add = {
