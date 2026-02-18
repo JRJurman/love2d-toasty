@@ -36,11 +36,14 @@ local currentPlate = {}
 local completedPlates = {}
 
 local modalCards = {}
-local modalActions = {}
 local hasSeenInstructions = true
 
-local modalActive = false
-local isDrawing = true
+-- start the game with a start game modal
+local hasStarted = false
+local modalActive = true
+local modalActions = {'start'}
+
+local isDrawing = false
 local isPlating = false
 
 local selection = 'deck'
@@ -63,6 +66,10 @@ local drawnSelectionText = ''
 local navText = ''
 local drawnNavText = ''
 local intro, loop
+
+-- we only say what the nav instructions are when someone first lands on a control
+-- or when they've repeated the instruction
+local heardNavInstructions = {}
 
 gameSeed = 0
 seed = 0
@@ -212,6 +219,11 @@ function drawThree()
 end
 
 function checkToLoopMusic()
+	-- don't start looping until the game has started
+	if not hasStarted then
+		return
+	end
+
 	-- sometimes, if we've left the tab focus, we'll fail to start the loop
 	if intro == nil and not loop:isPlaying() then
 		loop:play()
@@ -247,9 +259,8 @@ function love.load()
 
 		-- shuffle the deck to make the start pile
 		drawPile = startingShuffle(deck)
-		print('deck size: '..#deck)
-		print('drawPile size: '..#drawPile)
-		drawThree()
+		expandModal()
+		updateSelection('modalAction1')
 	end)
 
 	-- music loading (and looping)
@@ -258,8 +269,7 @@ function love.load()
 	intro:setVolume(masterVolume * musicVolume)
 	loop:setVolume(masterVolume * musicVolume)
 	loop:setLooping(true)
-
-	intro:play()
+	-- we won't start the music until we hit start
 end
 
 function love.update(dt)
@@ -462,8 +472,12 @@ function love.draw()
 	-- (we don't do this every frame, because it would overwhelm the dev console)
 	-- only do this if we aren't animating right now
 	if not isAnimating and (drawnSelectionText ~= selectionText or drawnNavText ~= navText) then
-		-- local ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
 		local ttsText = string.gsub(selectionText..'. ', '\n', '; ')
+		-- if we haven't hear the nav instructions, include that and update
+		if heardNavInstructions[selection] == nil and hasStarted then
+			ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
+			heardNavInstructions[selection] = true
+		end
 		print('tts: '..ttsText)
 		drawnSelectionText = selectionText
 		drawnNavText = navText
@@ -472,7 +486,7 @@ end
 
 function expandModal()
 	local modalAction = actionDetails[modalActions[1]]
-	print('tts: opening '..modalAction.modalTitle)
+	print('tts: opening modal')
 	ui.modal.y = ui.offScreenModal.y
 	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
 end
@@ -567,8 +581,8 @@ function startModal()
 	modalActive = true
 
 	-- immediately set the modal as the selection
-	expandModal()
 	hasSeenInstructions = false
+	expandModal()
 	updateSelection('modalCard1')
 end
 
@@ -628,6 +642,9 @@ function getSelectionInstruction()
 
 	if selection == 'modalAction1' then
 		local selectedAction = actionDetails[modalActions[1]]
+		if modalActions[1] == 'start' then
+			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
+		end
 		if selectedAction then
 			return selectedAction.actionDescription
 		end
@@ -794,9 +811,16 @@ function love.keypressed(rawKey)
 	-- if we are choosing to skip or close the modal action...
 	local isSelectingModalAction = ui[selection].modal and ui[selection].action
 	local modalAction = isSelectingModalAction and modalActions[ui[selection].actionIndex]
-	local isSelectingSkip = isSelectingModalAction and modalAction == 'skip' or modalAction == 'close'
+	local isSelectingSkip = isSelectingModalAction and modalAction == 'skip' or modalAction == 'close' or modalAction == 'start'
 	if key == 'select' and isSelectingSkip then
+		print('modalAction: '..modalAction)
 		async(routines, function()
+			-- if the modal action was start, start the music
+			if modalActions[1] == 'start' then
+				hasStarted = true
+				intro:play()
+			end
+
 			-- if the modal action was add, we still need to shuffle here
 			if modalActions[1] == 'add' then
 				drawPile = startingShuffle(drawPile)
@@ -840,9 +864,10 @@ function love.keypressed(rawKey)
 	if key == "r" then
 		async(routines, function()
 			print('tts: repeating...')
+			-- unset nav instructions
+			heardNavInstructions[selection] = nil
 			wait(0.5 * animationScale)
-			local ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
-			print('tts: '..ttsText)
+
 		end)
 	end
 
