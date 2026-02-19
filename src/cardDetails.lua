@@ -14,14 +14,10 @@ cardDetails = {
 	},
 	[2] = {
 		label = 'Butter',
-		effectShortLabel = 'worth 2 points',
-		effect = 'worth an extra point.',
 		points = 2,
 	},
 	[3] = {
 		label = 'Avocado',
-		effectShortLabel = 'worth 2 points',
-		effect = 'worth an extra point.',
 		points = 2,
 	},
 	[4] = {

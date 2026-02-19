@@ -82,6 +82,20 @@ local drawAnimationSpeed = 1
 
 local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
 
+function getHandSize()
+	local currentHandSize = 0
+	if hand[1] then
+		currentHandSize = currentHandSize+1
+	end
+	if hand[2] then
+		currentHandSize = currentHandSize+1
+	end
+	if hand[3] then
+		currentHandSize = currentHandSize+1
+	end
+	return currentHandSize
+end
+
 function getNavKey()
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 
@@ -165,7 +179,7 @@ function plateCardFromHand(handIndex, startX, startY)
 end
 
 function updateSelectionAfterPlayOrDraw()
-	local handIsEmpty = hand[1] == nil and hand[2] == nil and hand[3] == nil
+	local handIsEmpty = getHandSize() == 0
 	local plateIsEmpty = #currentPlate == 0
 	-- if hand is empty, modal isn't active, and plate is empty,
 	-- just draw three cards (we can't start a new plate anyways)
@@ -591,21 +605,46 @@ function getSelectionInstruction()
 	-- and then return those details
 	if ui[selection].card then
 		local selectedCard = nil
-		local indexText = ''
 		local location = ''
+
+		-- determine what the selected card is
 		if ui[selection].hand then
 			selectedCard = hand[ui[selection].handIndex]
-			indexText = indexToString(ui[selection].handIndex)
-			location = indexText..' card in hand;'
 		elseif ui[selection].modal then
 			selectedCard = modalCards[ui[selection].drawIndex]
-			indexText = indexToString(ui[selection].drawIndex)
+		end
+
+		-- determine the location label
+		-- (if this is the first card, say how many total there are)
+		if ui[selection].hand then
+			local totalHandSize = 3
+			local currentHandSize = getHandSize()
+			local indexText = indexToString(ui[selection].handIndex)
+			location = indexText..' car, ;'
+			if ui[selection].handIndex == 1 then
+				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card, '
+			end
+		elseif ui[selection].modal then
+			local modalSize = #modalCards
+			local indexText = indexToString(ui[selection].drawIndex)
 			if modalActions[1] == 'add' then
 				location = indexText..' card;'
+				if ui[selection].drawIndex == 1 then
+					location = modalSize..' cards to choose from. '..indexText..' card, '
+				end
 			else
-				location = indexText..' card in deck;'
+				location = indexText..' card, '
+				if ui[selection].drawIndex == 1 then
+					if modalActions[1] == 'pick' then
+						location = modalSize..' cards from deck to choose from. '..indexText..' card, '
+					else
+						location = modalSize..' cards from deck to preview. '..indexText..' card, '
+					end
+				end
 			end
 		end
+
+
 
 		-- if there is no card in this spot, return no details
 		if selectedCard == nil then
@@ -620,9 +659,12 @@ function getSelectionInstruction()
 			hasSeenInstructions = true
 		end
 
-		local effect = cardDetails[selectedCard].effect
+		local effect = ''
+		if cardDetails[selectedCard].effect then
+			effect = cardDetails[selectedCard].effect
+		end
 		-- if this is a modal card, read the short effect label
-		if ui[selection].modal then
+		if ui[selection].modal and cardDetails[selectedCard].effectShortLabel then
 			effect = cardDetails[selectedCard].effectShortLabel
 		end
 
@@ -635,7 +677,8 @@ function getSelectionInstruction()
 		end
 
 		local label = cardDetails[selectedCard].label
-		local cardSelectionText = modalInstructions..location..label..'; '..effect..'\n'..recipeText
+		local points = cardDetails[selectedCard].points..' points; '
+		local cardSelectionText = modalInstructions..location..label..', '..points..effect..'\n'..recipeText
 
 		return cardSelectionText
 	end

@@ -19,6 +19,10 @@ function getNavInstructions(selection, navKey)
 	local dirLabel = ''
 
 	local selectedNavDetails = ui[selection].nav[navKey]
+	if selectedNavDetails.selectLabel then
+		dirLabel = selectedNavDetails.selectLabel
+		navDirections = navDirections..'SELECT: '..dirLabel..'\n'
+	end
 	if selectedNavDetails.left then
 		dirLabel = ui[selectedNavDetails.left].label
 		navDirections = navDirections..'LEFT: '..dirLabel..'\n'

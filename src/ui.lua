@@ -119,6 +119,7 @@ ui = {
 
 		nav = {
 			withHand = {
+				selectLabel = 'plate card',
 				left = 'deck',
 				right = 'card2',
 				up = 'plate',
@@ -145,6 +146,7 @@ ui = {
 
 		nav = {
 			withHand = {
+				selectLabel = 'plate card',
 				up = 'plate',
 				left = 'card1',
 				right = 'card3',
@@ -171,6 +173,7 @@ ui = {
 
 		nav = {
 			withHand = {
+				selectLabel = 'plate card',
 				up = 'plate',
 				left = 'card2',
 			},
