@@ -2,8 +2,14 @@ actionDetails = {
 	start = {
 		modalTitle = "Toasty!",
 		label = "Start",
-		initialModalDescription = "Toasty! Created by Jesse Jurman, a push your luck deck builder. Your goal is to make toast, starting with slices of bread, and plating ingredients on top. You must never make a sandwich though, sandwiches are forbidden. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions and hear navigation options.",
-		actionDescription = "Select to start the game.",
+		initialModalDescription = "Chef, your goal is to make toast, starting with slices of bread, and plating ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions and hear navigation options.",
+		actionDescription = "Select to start the game chef.",
+	},
+	restart = {
+		modalTitle = "Game Over!",
+		label = "Start Again",
+		initialModalDescription = "Chef, you ran out of bread! Start a new game?",
+		actionDescription = "Select to start the game again.",
 	},
 	-- close is for preview
 	close = {

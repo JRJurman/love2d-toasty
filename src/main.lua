@@ -1,5 +1,6 @@
 local json = require("json")
 require('shuffle')
+require('copy')
 
 require('save')
 require('animation')
@@ -22,8 +23,8 @@ DebuggingScreen = require('DebuggingScreen')
 
 love.graphics.setFont(getFont(30))
 
-local deck = {
-	1, 1, 1, 1,
+local startingDeck = {
+	1,
 	2, 2, 3, 3,
 	4, 5, 6, 7, 8, 9,
 	10, 11, 12, 13, 14
@@ -203,6 +204,13 @@ function plateCardFromHand(handIndex, startX, startY)
 	print('tts: '..typeOfPlateLabel..', '..scoreLabel)
 	wait(waitTime * animationScale)
 
+	-- if we have enough points, complete this plate, and start a new round
+	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
+	if roundScore >= roundGoal and not isDrawing then
+		completePlate()
+		return
+	end
+
 	-- update the selection text after plating (usually empty spot in hand)
 	selectionText = getSelectionInstruction()
 end
@@ -210,18 +218,29 @@ end
 function updateSelectionAfterPlayOrDraw()
 	local handIsEmpty = getHandSize() == 0
 	local plateIsEmpty = #currentPlate == 0
+
+	local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
+	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+	-- if we are out of bread, and have no plate, end the game
+	if breadInDeck == 0 and currentPlateRawScore == 0 then
+		modalActions = {'restart'}
+		modalCards = {}
+		startModal()
+		return
+	end
+
 	-- if hand is empty, modal isn't active, and plate is empty,
 	-- just draw three cards (we can't start a new plate anyways)
 	if handIsEmpty and not modalActive and plateIsEmpty then
 		drawThree()
-		return;
+		return
 	end
 
 	-- if we now have an empty hand (and the modal isn't active), change the selection to actions
 	-- (this can happen for draw if the last hand has all bread)
 	if handIsEmpty and not modalActive then
 		updateSelection('actionDraw')
-		return;
+		return
 	end
 
 	-- if we aren't already selecting a card, reset to card1
@@ -231,8 +250,6 @@ function updateSelectionAfterPlayOrDraw()
 end
 
 function discardCardFromHand(handIndex, startX, startY)
-	print('tts: No bread, discarding '..cardDetails[hand[handIndex]].label)
-	wait(0.75 * animationScale)
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
@@ -281,6 +298,27 @@ function checkToLoopMusic()
 
 end
 
+function startNewGame()
+	drawPile = copy(startingDeck)
+	-- add 5 random ingredients
+	for addIndex = 1, 5 do
+		table.insert(drawPile, math.random(13) + 1)
+	end
+
+	-- shuffle the deck to make the start pile
+	drawPile = startingShuffle(drawPile)
+	hand = {}
+	discardPile = {}
+	currentPlate = {}
+	completedPlates = {}
+	roundGoal = 6
+	roundNumber = 1
+	hasStarted = false
+	modalActions = {'start'}
+	modalCards = {}
+	startModal()
+end
+
 function love.load()
 	print('tts: Created by Jesse Jurman.')
 
@@ -296,15 +334,8 @@ function love.load()
 		end
 		print('seed: '..gameSeed)
 		math.randomseed(gameSeed)
-		-- add 5 random ingredients
-		for addIndex = 1, 5 do
-			table.insert(deck, math.random(13) + 1)
-		end
 
-		-- shuffle the deck to make the start pile
-		drawPile = startingShuffle(deck)
-		expandModal()
-		updateSelection('modalAction1')
+		startNewGame()
 	end)
 
 	-- music loading (and looping)
@@ -363,7 +394,8 @@ function love.draw()
 	love.graphics.setFont(getFont(80))
 	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/4, ui.drawPile.width, 'center')
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf(countValueInTopOfPile(drawPile, #drawPile, 1)..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height - 50, ui.drawPile.width, 'center')
+	local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
+	love.graphics.printf(breadInDeck..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height - 50, ui.drawPile.width, 'center')
 
 	love.graphics.setColor(0.43, 0.43, 0.47)
 	drawCard(-1, ui.discardPile.x, ui.discardPile.y)
@@ -533,7 +565,6 @@ function love.draw()
 end
 
 function expandModal()
-	local modalAction = actionDetails[modalActions[1]]
 	print('tts: opening modal')
 	ui.modal.y = ui.offScreenModal.y
 	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
@@ -568,7 +599,18 @@ function completePlate()
 			table.insert(drawPile, table.remove(discardPile, discardIndex))
 		end
 		print('tts: '..completedPlatesScore..' out of '..roundGoal..' points needed. Round Complete. Starting new round.')
-		wait(2 * animationScale)
+		wait(1 * animationScale)
+
+		-- discard any cards in hand we have any
+		if hand[1] then
+				discardCardFromHand(1, ui.card1.x, ui.card1.y)
+		end
+		if hand[2] then
+				discardCardFromHand(2, ui.card2.x, ui.card2.y)
+		end
+		if hand[3] then
+				discardCardFromHand(3, ui.card3.x, ui.card3.y)
+		end
 
 		-- for each plate, add each card in that plate back to the drawPile
 		for plateIndex = #completedPlates, 1, -1 do
@@ -632,10 +674,15 @@ end
 function startModal()
 	modalActive = true
 
-	-- immediately set the modal as the selection
 	hasSeenInstructions = false
 	expandModal()
-	updateSelection('modalCard1')
+
+	-- immediately set the modal as the selection
+	if modalCards[1] then
+		updateSelection('modalCard1')
+	else
+		updateSelection('modalAction1')
+	end
 end
 
 function getSelectionInstruction()
@@ -689,7 +736,7 @@ function getSelectionInstruction()
 
 		-- if this is a modal card, and we haven't heard the instructions yet, read them
 		local modalInstructions = ''
-		if hasSeenInstructions == false then
+		if ui[selection].modal and hasSeenInstructions == false then
 			local modalAction = actionDetails[modalActions[1]]
 			modalInstructions = modalAction.initialModalDescription..' '
 			hasSeenInstructions = true
@@ -718,6 +765,11 @@ function getSelectionInstruction()
 		local selectedAction = actionDetails[modalActions[1]]
 		if modalActions[1] == 'start' then
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
+		end
+		if modalActions[1] == 'restart' then
+			local discoveredRecipesCount = getTotalDiscoveredRecipes()
+			local roundScore = 'You made it to round '..roundNumber..'. You have discovered '..discoveredRecipesCount..' recipes.'
+			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
 		if selectedAction then
 			return selectedAction.actionDescription
@@ -833,7 +885,14 @@ function love.keypressed(rawKey)
 			if currentPlate[1] == 1 then
 				plateCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			else
+				print('tts: No bread, discarding '..cardDetails[hand[handIndex]].label)
+				wait(0.75 * animationScale)
 				discardCardFromHand(handIndex, ui[selection].x, ui[selection].y)
+			end
+
+			-- if modal is active because we completed a round, return early
+			if modalActive then
+				return
 			end
 
 			-- if there is a onPlay action, trigger that
@@ -906,7 +965,11 @@ function love.keypressed(rawKey)
 			-- if the modal action was start, start the music
 			if modalActions[1] == 'start' then
 				hasStarted = true
-				intro:play()
+				-- if we have the intro track, play it now
+				-- (if we restarted, this will be nil)
+				if intro then
+					intro:play()
+				end
 			end
 
 			-- if the modal action was add, we still need to shuffle here
@@ -918,6 +981,12 @@ function love.keypressed(rawKey)
 			modalActive = false
 
 			updateSelectionAfterPlayOrDraw()
+		end)
+	end
+
+	if modalAction == 'restart' then
+		async(routines, function()
+			startNewGame()
 		end)
 	end
 
