@@ -24,7 +24,7 @@ DebuggingScreen = require('DebuggingScreen')
 love.graphics.setFont(getFont(30))
 
 local startingDeck = {
-	1,
+	1, 1, 1, 1,
 	2, 2, 3, 3,
 	4, 5, 6, 7, 8, 9,
 	10, 11, 12, 13, 14
@@ -77,7 +77,7 @@ local repeating = false
 
 gameSeed = 0
 seed = 0
-masterVolume = 0.8
+masterVolume = 1
 musicVolume = 1
 
 local animationScale = 0.75
@@ -187,10 +187,6 @@ function plateCardFromHand(handIndex, startX, startY)
 
 	local scoreLabel = currentPlateRawScore..' points'
 	local waitTime = 1.75
-	-- wait less time if we are in the middle of drawing
-	if isDrawing then
-		waitTime = 0.50
-	end
 	if currentPlateRawScore == 1 then
 		scoreLabel = '1 point'
 	end
@@ -201,8 +197,12 @@ function plateCardFromHand(handIndex, startX, startY)
 		scoreLabel = scoreLabel..' times '..typeOfPlate
 		waitTime = waitTime + 0.75
 	end
-	print('tts: '..typeOfPlateLabel..', '..scoreLabel)
-	wait(waitTime * animationScale)
+	-- if we are drawing our first bread, don't read out (it interrupts the draw readout)
+	local isInitialBread = isDrawing and currentPlateRawScore == 1
+	if not isInitialBread then
+		print('tts: '..typeOfPlateLabel..', '..scoreLabel)
+		wait(waitTime * animationScale)
+	end
 
 	-- if we have enough points, complete this plate, and start a new round
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
@@ -243,8 +243,12 @@ function updateSelectionAfterPlayOrDraw()
 		return
 	end
 
-	-- if we aren't already selecting a card, reset to card1
-	if selection ~= 'card1' and selection ~= 'card2' and selection ~= 'card3' then
+	-- if we are already selecting a card, select that again, otherwise select card1
+	if selection == 'card2' then
+		updateSelection('card2')
+	elseif selection == 'card3' then
+		updateSelection('card3')
+	else
 		updateSelection('card1')
 	end
 end
@@ -772,7 +776,11 @@ function getSelectionInstruction()
 			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
 		if selectedAction then
-			return selectedAction.actionDescription
+			local totalActionsLabel = ''
+			if hasStarted and #modalActions > 1 then
+				totalActionsLabel = #modalActions..' actions, first action '
+			end
+			return totalActionsLabel..selectedAction.actionDescription
 		end
 	end
 
