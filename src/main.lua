@@ -54,7 +54,7 @@ local cursor = {
 	height = ui[selection].height,
 }
 
-local roundGoal = 15
+local roundGoal = 5
 local roundNumber = 1
 local roundMultiplier = 1.3
 local completingRound = false
@@ -70,6 +70,8 @@ local intro, loop
 -- we only say what the nav instructions are when someone first lands on a control
 -- or when they've repeated the instruction
 local heardNavInstructions = {}
+
+local repeating = false
 
 gameSeed = 0
 seed = 0
@@ -170,9 +172,26 @@ function plateCardFromHand(handIndex, startX, startY)
 
 	-- if this resolved in a discovered recipe, add that to our known recipes
 	local recipe = getCompletedRecipeOnPlate(currentPlate)
-	if recipe then
+	if recipe and discoveredRecipes[recipe] == nil then
+		print('tts: New Recipe Discovered: '..recipeDetails[recipe].label..', '..recipeDetails[recipe].points..' points')
 		discoveredRecipes[recipe] = true
+		wait(3 * animationScale)
 	end
+
+	-- print current score
+	local typeOfPlate = getTypeOfPlate(currentPlate)
+	local typeOfPlateLabel = typesOfPlates[typeOfPlate]
+	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+
+	local scoreLabel = currentPlateRawScore..' points'
+	-- if this is fat or ultimate toast, show the multiplier
+	if typeOfPlate < 1 then
+		scoreLabel = '0 points'
+	elseif (typeOfPlate > 1) then
+		scoreLabel = scoreLabel..' times '..typeOfPlate
+	end
+	print('tts: '..typeOfPlateLabel..', '..scoreLabel)
+	wait(2.5 * animationScale)
 
 	-- update the selection text after plating (usually empty spot in hand)
 	selectionText = getSelectionInstruction()
@@ -487,8 +506,12 @@ function love.draw()
 	-- only do this if we aren't animating right now
 	if not isAnimating and (drawnSelectionText ~= selectionText or drawnNavText ~= navText) then
 		local ttsText = string.gsub(selectionText..'. ', '\n', '; ')
-		-- if we haven't hear the nav instructions, include that and update
-		if heardNavInstructions[selection] == nil and hasStarted then
+		-- OLD: if we haven't hear the nav instructions, include that and update
+		-- local shouldIncludeNavText = heardNavInstructions[selection] == nil and hasStarted
+		-- NEW: if they are repeating, include nav text
+		local shouldIncludeNavText = repeating and hasStarted
+		if shouldIncludeNavText then
+			repeating = false
 			ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
 			heardNavInstructions[selection] = true
 		end
@@ -533,7 +556,8 @@ function completePlate()
 		for discardIndex = #discardPile, 1, -1 do
 			table.insert(drawPile, table.remove(discardPile, discardIndex))
 		end
-		wait(1)
+		print('tts: '..completedPlatesScore..' out of '..roundGoal..' points needed. Round Complete. Starting new round.')
+		wait(2 * animationScale)
 
 		-- for each plate, add each card in that plate back to the drawPile
 		for plateIndex = #completedPlates, 1, -1 do
@@ -542,7 +566,7 @@ function completePlate()
 				table.insert(drawPile, table.remove(completedPlate, ingredientIndex))
 			end
 			table.remove(completedPlates, plateIndex)
-			wait(1)
+			wait(0.5 * animationScale)
 		end
 		roundNumber = roundNumber + 1
 		roundGoal = math.floor(roundGoal * roundMultiplier)
@@ -620,7 +644,7 @@ function getSelectionInstruction()
 			local totalHandSize = 3
 			local currentHandSize = getHandSize()
 			local indexText = indexToString(ui[selection].handIndex)
-			location = indexText..' car, ;'
+			location = indexText..' card, ;'
 			if ui[selection].handIndex == 1 then
 				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card, '
 			end
@@ -655,7 +679,7 @@ function getSelectionInstruction()
 		local modalInstructions = ''
 		if hasSeenInstructions == false then
 			local modalAction = actionDetails[modalActions[1]]
-			modalInstructions = modalAction.initialModalDescription..';'
+			modalInstructions = modalAction.initialModalDescription..' '
 			hasSeenInstructions = true
 		end
 
@@ -678,6 +702,9 @@ function getSelectionInstruction()
 
 		local label = cardDetails[selectedCard].label
 		local points = cardDetails[selectedCard].points..' points; '
+		if cardDetails[selectedCard].points == 1 then
+			points = '1 point; '
+		end
 		local cardSelectionText = modalInstructions..location..label..', '..points..effect..'\n'..recipeText
 
 		return cardSelectionText
@@ -750,7 +777,7 @@ function getSelectionInstruction()
 end
 
 function love.keypressed(rawKey)
-	DebuggingScreen.keypressed(rawKey)
+	-- DebuggingScreen.keypressed(rawKey)
 
 	key = remap(rawKey)
 	local navKey = getNavKey()
@@ -921,6 +948,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			print('tts: repeating...')
 			-- unset nav instructions
+			repeating = true
 			heardNavInstructions[selection] = nil
 			wait(0.5 * animationScale)
 

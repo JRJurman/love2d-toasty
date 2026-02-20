@@ -111,7 +111,7 @@ ui = {
 		height = cardSize.height,
 	},
 	card1 = {
-		label = 'First Card',
+		label = 'First Card in Hand',
 		card = true,
 		handIndex = 1,
 		selectable = true,
