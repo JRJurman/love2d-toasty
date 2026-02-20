@@ -24,7 +24,6 @@ ui = {
 				down = 'actionDraw',
 				left = 'score',
 			},
-			withModal = {},
 		},
 
 		x = 550,
@@ -124,7 +123,6 @@ ui = {
 				right = 'card2',
 				up = 'plate',
 			},
-			withActions = {},
 			withModal = {
 				left = 'deck',
 				right = 'card2',
@@ -151,7 +149,6 @@ ui = {
 				left = 'card1',
 				right = 'card3',
 			},
-			withActions = {},
 			withModal = {
 				up = 'modalAction1',
 				left = 'card1',
@@ -177,7 +174,6 @@ ui = {
 				up = 'plate',
 				left = 'card2',
 			},
-			withActions = {},
 			withModal = {
 				up = 'modalAction1',
 				left = 'card2',
@@ -202,13 +198,11 @@ ui = {
 		hand = false,
 
 		nav = {
-			withHand = {},
 			withActions = {
 				up = 'plate',
 				left = 'deck',
 				right = 'actionNewPlate',
 			},
-			withModal = {},
 		},
 
 		x = 440,
@@ -223,12 +217,10 @@ ui = {
 		hand = false,
 
 		nav = {
-			withHand = {},
 			withActions = {
 				up = 'plate',
 				left = 'actionDraw',
 			},
-			withModal = {},
 		},
 
 		x = 825,
@@ -263,8 +255,6 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withHand = {},
-			withActions = {},
 			withModal = {
 				right = 'modalCard2',
 				down = 'modalAction1',
@@ -284,8 +274,6 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withHand = {},
-			withActions = {},
 			withModal = {
 				left = 'modalCard1',
 				right = 'modalCard3',
@@ -306,8 +294,6 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withHand = {},
-			withActions = {},
 			withModal = {
 				left = 'modalCard2',
 				down = 'modalAction1',
@@ -327,8 +313,6 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withHand = {},
-			withActions = {},
 			withModal = {
 				up = 'modalCard1',
 				down = 'card1',
@@ -349,8 +333,6 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withHand = {},
-			withActions = {},
 			withModal = {
 				up = 'modalCard1',
 				down = 'card1',

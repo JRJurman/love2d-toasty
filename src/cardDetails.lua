@@ -9,7 +9,7 @@ cardDetails = {
 		label = 'Bread',
 		effectShortLabel = 'starts toast, causes sandwiches.',
 		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.',
-		points = 0,
+		points = 1,
 		onDraw = {'plate'}
 	},
 	[2] = {
@@ -33,14 +33,7 @@ cardDetails = {
 	},
 	[5] = {
 		label = 'Whip Cream',
-		effectShortLabel = 'on play, preview',
-		effect = 'when played preview the next 2 cards.',
-		points = 1,
-		onPlay = {
-			name = 'preview',
-			previewCount = 2,
-			actions = {'close'}
-		}
+		points = 2,
 	},
 	[6] = {
 		label = 'Jam',
@@ -88,25 +81,11 @@ cardDetails = {
 	},
 	[10] = {
 		label = 'Garlic',
-		effectShortLabel = 'on play effect, pick',
-		effect = 'when played preview the next two cards and you may add one to your hand.',
-		points = 1,
-		onPlay = {
-			name = 'preview',
-			previewCount = 2,
-			actions = {'pick', 'skip'}
-		}
+		points = 2,
 	},
 	[11] = {
 		label = 'Onion',
-		effectShortLabel = 'on play effect, pick',
-		effect = 'when played preview the next two cards and you may add one to your hand.',
-		points = 1,
-		onPlay = {
-			name = 'preview',
-			previewCount = 2,
-			actions = {'pick', 'skip'}
-		}
+		points = 2,
 	},
 	[12] = {
 		label = 'Ricotta',

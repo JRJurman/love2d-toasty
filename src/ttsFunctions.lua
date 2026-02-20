@@ -1,7 +1,4 @@
 require('ui')
-require('cardDetails')
-require('recipeFunctions')
-require('actionDetails')
 
 function indexToString(index)
 	if index == 1 then

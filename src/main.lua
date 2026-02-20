@@ -15,6 +15,7 @@ require('recipeDetails')
 require('recipeFunctions')
 require('ttsFunctions')
 require('trackDetails')
+require('actionDetails')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -22,7 +23,7 @@ DebuggingScreen = require('DebuggingScreen')
 love.graphics.setFont(getFont(30))
 
 local deck = {
-	1, 1, 1, 1, 1,
+	1, 1, 1, 1,
 	2, 2, 3, 3,
 	4, 5, 6, 7, 8, 9,
 	10, 11, 12, 13, 14
@@ -54,9 +55,9 @@ local cursor = {
 	height = ui[selection].height,
 }
 
-local roundGoal = 5
+local roundGoal = 6
 local roundNumber = 1
-local roundMultiplier = 1.3
+local roundMultiplier = 1.5
 local completingRound = false
 
 local	routines = {}
@@ -184,14 +185,23 @@ function plateCardFromHand(handIndex, startX, startY)
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
 	local scoreLabel = currentPlateRawScore..' points'
+	local waitTime = 1.75
+	-- wait less time if we are in the middle of drawing
+	if isDrawing then
+		waitTime = 0.50
+	end
+	if currentPlateRawScore == 1 then
+		scoreLabel = '1 point'
+	end
 	-- if this is fat or ultimate toast, show the multiplier
 	if typeOfPlate < 1 then
 		scoreLabel = '0 points'
 	elseif (typeOfPlate > 1) then
 		scoreLabel = scoreLabel..' times '..typeOfPlate
+		waitTime = waitTime + 0.75
 	end
 	print('tts: '..typeOfPlateLabel..', '..scoreLabel)
-	wait(2.5 * animationScale)
+	wait(waitTime * animationScale)
 
 	-- update the selection text after plating (usually empty spot in hand)
 	selectionText = getSelectionInstruction()
@@ -222,6 +232,7 @@ end
 
 function discardCardFromHand(handIndex, startX, startY)
 	print('tts: No bread, discarding '..cardDetails[hand[handIndex]].label)
+	wait(0.75 * animationScale)
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
@@ -566,7 +577,7 @@ function completePlate()
 				table.insert(drawPile, table.remove(completedPlate, ingredientIndex))
 			end
 			table.remove(completedPlates, plateIndex)
-			wait(0.5 * animationScale)
+			wait(0.75 * animationScale)
 		end
 		roundNumber = roundNumber + 1
 		roundGoal = math.floor(roundGoal * roundMultiplier)
@@ -612,7 +623,10 @@ function updateSelection(target)
 	end
 
 	selectionText = getSelectionInstruction()
-	navText = getNavInstructions(selection, navKey)
+	navText = ''
+	if hasStarted then
+		navText = getNavInstructions(selection, navKey)
+	end
 end
 
 function startModal()
@@ -668,8 +682,6 @@ function getSelectionInstruction()
 			end
 		end
 
-
-
 		-- if there is no card in this spot, return no details
 		if selectedCard == nil then
 			return location..'No Card;'
@@ -692,20 +704,12 @@ function getSelectionInstruction()
 			effect = cardDetails[selectedCard].effectShortLabel
 		end
 
-		local recipeText = ''
-		-- only include recipe text if we are in a modal
-		if ui[selection].modal then
-			local recipes = getRecipesForIngredient(selectedCard)
-			local discoveredRecipes, undiscoveredRecipes = splitDiscoveredAndUndiscoveredRecipes(recipes)
-			recipeText = #undiscoveredRecipes.. ' undiscovered recipes.'
-		end
-
 		local label = cardDetails[selectedCard].label
 		local points = cardDetails[selectedCard].points..' points; '
 		if cardDetails[selectedCard].points == 1 then
 			points = '1 point; '
 		end
-		local cardSelectionText = modalInstructions..location..label..', '..points..effect..'\n'..recipeText
+		local cardSelectionText = modalInstructions..location..label..', '..points..effect
 
 		return cardSelectionText
 	end
@@ -756,8 +760,8 @@ function getSelectionInstruction()
 		return plateDescription
 	end
 
+	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	if selection == 'score' then
-		local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 		local discoveredRecipesCount = getTotalDiscoveredRecipes()
 		local totalRecipeCount = #recipeDetails
 		local scoreLabel = 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
@@ -766,11 +770,12 @@ function getSelectionInstruction()
 	end
 
 	if selection == 'actionDraw' then
-		return 'Draw Action: Select to draw 3 new cards.'
+		local scoreText = roundScore..' points out of '..roundGoal..' needed to complete the round. '
+		return scoreText..'Two actions, First action: Draw, Select to draw 3 new cards.'
 	end
 
 	if selection == 'actionNewPlate' then
-		return 'New Plate Action: Select to start a new plate.'
+		return 'Second Action: Score points and start a new plate.'
 	end
 
 	return ''
@@ -795,7 +800,7 @@ function love.keypressed(rawKey)
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
 		async(routines, function()
-			local nextSelection = ui[selection].nav[navKey][key]
+			local nextSelection = ui[selection].nav[navKey] and ui[selection].nav[navKey][key]
 
 			if nextSelection then
 				updateSelection(nextSelection)
