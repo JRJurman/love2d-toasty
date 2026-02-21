@@ -39,7 +39,7 @@ actionDetails = {
 		modalTitle = "Add a Card?",
 		modalSubtitle = "comes with free bread",
 		label = "Add Card",
-		initialModalDescription = "Showing new cards that you can add to your deck. Each comes with a free bread card.",
+		initialModalDescription = "Round Complete. Starting new round. Showing new cards that you can add to your deck. Each comes with a free bread card.",
 		actionDescription = "Select a card above to add this to your deck.",
 	}
 }

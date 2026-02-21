@@ -23,10 +23,9 @@ DebuggingScreen = require('DebuggingScreen')
 love.graphics.setFont(getFont(30))
 
 local startingDeck = {
-	1, 1, 1, 1,
-	2, 2, 3, 3,
-	4, 5, 6, 7, 8, 9,
-	10, 11, 12, 13, 14
+	1, 1, 1,
+	3, 4, 5, 6, 7,
+	10, 11, 12, 13,
 }
 
 local drawPile = {}
@@ -59,6 +58,7 @@ local roundGoal = 6
 local roundNumber = 1
 local roundMultiplier = 1.5
 local completingRound = false
+local fattestStack = 0
 
 local	routines = {}
 
@@ -172,15 +172,15 @@ function plateCardFromHand(handIndex, startX, startY)
 	movingCard.enabled = false
 
 	-- if this resolved in a new high stack, announce that
-	local fattestToastCount = 1
-	if fattestToastCount > 3 then
-		print('tts: New Fattest Stack reached '..fattestToastCount..' ingredients')
-		-- TODO record tallest stack
+	-- (only counts if this isn't a sandwich)
+	local typeOfPlate = getTypeOfPlate(currentPlate)
+	if #currentPlate > fattestStack and typeOfPlate > 1 then
+		print('tts: New Fattest Stack reached '..#currentPlate..' ingredients')
+		fattestStack = #currentPlate
 		wait(3 * animationScale)
 	end
 
 	-- print current score
-	local typeOfPlate = getTypeOfPlate(currentPlate)
 	local typeOfPlateLabel = typesOfPlates[typeOfPlate]
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
@@ -221,7 +221,7 @@ function updateSelectionAfterPlayOrDraw()
 	local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 	-- if we are out of bread, and have no plate, end the game
-	if breadInDeck == 0 and currentPlateRawScore == 0 then
+	if breadInDeck == 0 and #currentPlate == 0 then
 		modalActions = {'restart'}
 		modalCards = {}
 		startModal()
@@ -464,9 +464,7 @@ function love.draw()
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 15, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
 	love.graphics.setFont(getFont(30))
-	-- TODO print fattest stack
-	local fattestToastCount = 1
-	love.graphics.printf('FATTEST STACK: '..fattestToastCount..' ingredient', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
+	love.graphics.printf('Fattest Stack: '..fattestStack..' ingredient', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
 	-- always draw the modal (it is sometimes offscreen)
 	love.graphics.setColor( 0, 0, 0)
@@ -768,9 +766,7 @@ function getSelectionInstruction()
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' then
-			-- TODO FATTEST STACK
-			local fattestToastCount = 1
-			local roundScore = 'You made it to round '..roundNumber..'. Your fattest toast was '..fattestToastCount..' ingredient.'
+			local roundScore = 'You made it to round '..roundNumber..'. Your fattest toast was '..fattestStack..' ingredient.'
 			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
 		if selectedAction then
@@ -815,9 +811,8 @@ function getSelectionInstruction()
 
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	if selection == 'score' then
-		local fattestToastCount = 1
 		local scoreLabel = 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
-		local stackLabel = 'Your fattest stack is '..fattestToastCount..' ingredients.'
+		local stackLabel = 'Your fattest stack is '..fattestStack..' ingredients.'
 		return scoreLabel..stackLabel
 	end
 

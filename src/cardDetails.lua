@@ -9,7 +9,7 @@ cardDetails = {
 		label = 'Bread',
 		effectShortLabel = 'starts toast, causes sandwiches.',
 		effect = 'automatically played when drawn. Needed to start toast, but can cause sandwiches.',
-		points = 1,
+		points = 0,
 		onDraw = {'plate'}
 	},
 	[2] = {

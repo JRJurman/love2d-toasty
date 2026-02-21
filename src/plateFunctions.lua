@@ -27,7 +27,8 @@ typesOfPlates = {
 	[0] = 'Not Toast Yet',
 	[1] = 'Toast',
 	[2] = 'Fat Toast',
-	[3] = 'Ultimate Toast',
+	[3] = 'Stacked Toast',
+	[4] = 'Ultimate Toast'
 }
 function getTypeOfPlate(plate)
 	-- if we don't have anything on this plate, this isn't toast yet
@@ -46,18 +47,23 @@ function getTypeOfPlate(plate)
 		end
 	end
 
-	-- if the first 3 ingredients are bread (and it isn't a sandwich), this is ultimate toast
-	if plate[2] == 1 and plate[3] == 1 then
-		return 3
+	-- if we have less than 4, we have toast
+	if #plate < 4 then
+		return 1
 	end
 
-	-- if the first 2 ingredients are bread, this is fat toast
-	if plate[2] == 1 then
+	-- if we have less than 7 we have fat toast
+	if #plate < 7 then
 		return 2
 	end
 
-	-- otherwise, we just have one slice of bread, normal toast
-	return 1
+	-- if we have less than 9 we have stacked toast
+	if #plate < 9 then
+		return 3
+	end
+
+	-- otherwise, we have ultimate toast
+	return 4
 end
 
 function getRawScoreForPlate(plate)
