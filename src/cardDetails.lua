@@ -18,10 +18,6 @@ cardDetails = {
 	},
 	[3] = {
 		label = 'Avocado',
-		points = 2,
-	},
-	[4] = {
-		label = 'Strawberry',
 		effectShortLabel = 'on play, preview',
 		effect = 'when played preview the next 2 cards.',
 		points = 1,
@@ -29,22 +25,33 @@ cardDetails = {
 			name = 'preview',
 			previewCount = 2,
 			actions = {'close'}
+		}
+	},
+	[4] = {
+		label = 'Strawberry',
+		effectShortLabel = 'on play effect, shuffle',
+		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
+		points = 1,
+		onPlay = {
+			name = 'preview',
+			previewCount = 2,
+			actions = {'shuffle', 'skip'}
 		}
 	},
 	[5] = {
 		label = 'Whip Cream',
-		points = 2,
-	},
-	[6] = {
-		label = 'Jam',
-		effectShortLabel = 'on play, preview',
-		effect = 'when played preview the next 2 cards.',
+		effectShortLabel = 'on play effect, plate',
+		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
 			previewCount = 2,
-			actions = {'close'}
+			actions = {'plate', 'skip'}
 		}
+	},
+	[6] = {
+		label = 'Jam',
+		points = 2,
 	},
 	[7] = {
 		label = 'Orange',
@@ -59,13 +66,13 @@ cardDetails = {
 	},
 	[8] = {
 		label = 'Egg',
-		effectShortLabel = 'on play effect, plate',
-		effect = 'when played preview the next two cards and you may immediately plate one.',
+		effectShortLabel = 'on play effect, shuffle',
+		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
 			previewCount = 2,
-			actions = {'plate', 'skip'}
+			actions = {'shuffle', 'skip'}
 		}
 	},
 	[9] = {
@@ -85,10 +92,28 @@ cardDetails = {
 	},
 	[11] = {
 		label = 'Onion',
-		points = 2,
+		effectShortLabel = 'on play, preview',
+		effect = 'when played preview the next 2 cards.',
+		points = 1,
+		onPlay = {
+			name = 'preview',
+			previewCount = 2,
+			actions = {'close'}
+		}
 	},
 	[12] = {
 		label = 'Ricotta',
+		effectShortLabel = 'on play effect, shuffle',
+		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
+		points = 1,
+		onPlay = {
+			name = 'preview',
+			previewCount = 2,
+			actions = {'shuffle', 'skip'}
+		}
+	},
+	[13] = {
+		label = 'Sausage',
 		effectShortLabel = 'on play effect, plate',
 		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
@@ -98,26 +123,8 @@ cardDetails = {
 			actions = {'plate', 'skip'}
 		}
 	},
-	[13] = {
-		label = 'Sausage',
-		effectShortLabel = 'on play effect, shuffle',
-		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
-		points = 1,
-		onPlay = {
-			name = 'preview',
-			previewCount = 2,
-			actions = {'shuffle', 'skip'}
-		}
-	},
 	[14] = {
 		label = 'Bacon',
-		effectShortLabel = 'on play effect, shuffle',
-		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
-		points = 1,
-		onPlay = {
-			name = 'preview',
-			previewCount = 2,
-			actions = {'shuffle', 'skip'}
-		}
+		points = 2,
 	},
 }
