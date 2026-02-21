@@ -59,24 +59,24 @@ cardDetails = {
 	},
 	[8] = {
 		label = 'Egg',
-		effectShortLabel = 'on play effect, pick',
-		effect = 'when played preview the next two cards and you may add one to your hand.',
+		effectShortLabel = 'on play effect, plate',
+		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
 			previewCount = 2,
-			actions = {'pick', 'skip'}
+			actions = {'plate', 'skip'}
 		}
 	},
 	[9] = {
 		label = 'Cheddar',
-		effectShortLabel = 'on play effect, pick',
-		effect = 'when played preview the next two cards and you may add one to your hand.',
+		effectShortLabel = 'on play effect, plate',
+		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
 			previewCount = 2,
-			actions = {'pick', 'skip'}
+			actions = {'plate', 'skip'}
 		}
 	},
 	[10] = {
@@ -89,13 +89,13 @@ cardDetails = {
 	},
 	[12] = {
 		label = 'Ricotta',
-		effectShortLabel = 'on play effect, pick',
-		effect = 'when played preview the next two cards and you may add one to your hand.',
+		effectShortLabel = 'on play effect, plate',
+		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
 		onPlay = {
 			name = 'preview',
 			previewCount = 2,
-			actions = {'pick', 'skip'}
+			actions = {'plate', 'skip'}
 		}
 	},
 	[13] = {

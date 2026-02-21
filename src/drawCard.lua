@@ -6,7 +6,8 @@ local json = require('json')
 local abilityMapping = {
 	close = 'Preview',
 	shuffle = 'Shuffle',
-	pick = 'Pick'
+	pick = 'Pick',
+	plate = 'Plate'
 }
 
 function drawCard(card, x, y)

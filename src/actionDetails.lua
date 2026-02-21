@@ -35,11 +35,17 @@ actionDetails = {
 		initialModalDescription = "Showing the next cards that you will draw, you may pick one to add one to your hand now.",
 		actionDescription = "Select a card above to add to your hand.",
 	},
+	plate = {
+		modalTitle = "Plate a Card?",
+		label = "Select Card",
+		initialModalDescription = "Showing the next cards that you will draw, you may pick one to immediately plate now.",
+		actionDescription = "Select a card above to immediately plate.",
+	},
 	add = {
 		modalTitle = "Add a Card?",
 		modalSubtitle = "comes with free bread",
 		label = "Add Card",
 		initialModalDescription = "Round Complete. Starting new round. Showing new cards that you can add to your deck. Each comes with a free bread card.",
-		actionDescription = "Select a card above to add this to your deck.",
+		actionDescription = "Select a card above to add it to your deck.",
 	}
 }

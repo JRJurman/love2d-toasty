@@ -12,7 +12,7 @@ end
 
 function startingShuffle(source)
 	local target = {}
-	-- keep shuffling until the first three contain exactly 1 bread
+	-- keep shuffling until the first two contain exactly 1 bread
 	-- or until we hit like, 200 shuffles (give up at that point)
 	local totalShuffles = 0
 	repeat
@@ -26,7 +26,7 @@ end
 
 function safeShuffle(source)
 	local target = {}
-	-- keep shuffling until the first six contain exactly 1 bread
+	-- keep shuffling until the first three contain exactly 1 bread
 	local totalShuffles = 0
 	repeat
 		print('shuffling.. '..totalShuffles)

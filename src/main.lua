@@ -141,7 +141,55 @@ function drawFromDeck(handIndex, drawIndex)
 	end
 
 	isDrawing = false
+end
 
+function checkForNewHighestStack()
+	-- if this resolved in a new high stack, announce that
+	-- (only counts if this isn't a sandwich)
+	local typeOfPlate = getTypeOfPlate(currentPlate)
+	if #currentPlate > fattestStack and typeOfPlate > 1 then
+		print('tts: New Fattest Stack reached '..#currentPlate..' ingredients')
+		fattestStack = #currentPlate
+		wait(3 * animationScale)
+	end
+end
+
+function checkForEndOfRound()
+	-- if we have enough points, complete this plate, and start a new round
+	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
+	if roundScore >= roundGoal and not isDrawing then
+		completePlate()
+		return
+	end
+end
+
+function readoutCurrentScore()
+	-- print current score
+	local typeOfPlate = getTypeOfPlate(currentPlate)
+	local typeOfPlateLabel = typesOfPlates[typeOfPlate]
+	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+
+	local scoreLabel = currentPlateRawScore..' points'
+	local waitTime = 1.75
+	if currentPlateRawScore == 1 then
+		scoreLabel = '1 point'
+	end
+	-- if this is fat or ultimate toast, show the multiplier
+	if typeOfPlate < 1 then
+		scoreLabel = '0 points'
+	elseif (typeOfPlate > 1) then
+		scoreLabel = scoreLabel..' times '..typeOfPlate
+		waitTime = waitTime + 0.75
+	end
+	-- if we are drawing our first bread, don't read out (it interrupts the draw readout)
+	local isInitialBread = isDrawing and currentPlateRawScore == 0
+	if not isInitialBread then
+		print('tts: '..typeOfPlateLabel..', '..scoreLabel)
+		wait(waitTime * animationScale)
+	end
+end
+
+function checkForSandwich()
 	-- if we made a sandwich, immediately toss the plate
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if typeOfPlate == -1 then
@@ -171,44 +219,39 @@ function plateCardFromHand(handIndex, startX, startY)
 	isPlating = false
 	movingCard.enabled = false
 
-	-- if this resolved in a new high stack, announce that
-	-- (only counts if this isn't a sandwich)
-	local typeOfPlate = getTypeOfPlate(currentPlate)
-	if #currentPlate > fattestStack and typeOfPlate > 1 then
-		print('tts: New Fattest Stack reached '..#currentPlate..' ingredients')
-		fattestStack = #currentPlate
-		wait(3 * animationScale)
-	end
+	checkForNewHighestStack()
+	readoutCurrentScore()
+	checkForSandwich()
+	checkForEndOfRound()
 
-	-- print current score
-	local typeOfPlateLabel = typesOfPlates[typeOfPlate]
-	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+	-- update the selection text after plating (usually empty spot in hand)
+	selectionText = getSelectionInstruction()
+end
 
-	local scoreLabel = currentPlateRawScore..' points'
-	local waitTime = 1.75
-	if currentPlateRawScore == 1 then
-		scoreLabel = '1 point'
-	end
-	-- if this is fat or ultimate toast, show the multiplier
-	if typeOfPlate < 1 then
-		scoreLabel = '0 points'
-	elseif (typeOfPlate > 1) then
-		scoreLabel = scoreLabel..' times '..typeOfPlate
-		waitTime = waitTime + 0.75
-	end
-	-- if we are drawing our first bread, don't read out (it interrupts the draw readout)
-	local isInitialBread = isDrawing and currentPlateRawScore == 0
-	if not isInitialBread then
-		print('tts: '..typeOfPlateLabel..', '..scoreLabel)
-		wait(waitTime * animationScale)
-	end
+function plateCardFromDeck(drawIndex)
+	print('tts: plating '..cardDetails[drawPile[drawIndex]].label)
+	local movedCard = table.remove(drawPile, drawIndex)
 
-	-- if we have enough points, complete this plate, and start a new round
-	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
-	if roundScore >= roundGoal and not isDrawing then
-		completePlate()
-		return
-	end
+	isPlating = true
+	movingCard.enabled = true
+	movingCard.x = ui.drawPile.x
+	movingCard.y = ui.drawPile.y
+
+	animateMany(
+		movingCard,
+		{'x', 'y'},
+		{ui.plateCards.x, ui.plateCards.y},
+		drawAnimationSpeed * animationScale, ease.inovershoot
+	)
+
+	table.insert(currentPlate, movedCard)
+	isPlating = false
+	movingCard.enabled = false
+
+	checkForNewHighestStack()
+	readoutCurrentScore()
+	checkForSandwich()
+	checkForEndOfRound()
 
 	-- update the selection text after plating (usually empty spot in hand)
 	selectionText = getSelectionInstruction()
@@ -228,16 +271,20 @@ function updateSelectionAfterPlayOrDraw()
 		return
 	end
 
-	-- if hand is empty, modal isn't active, and plate is empty,
+	if modalActive then
+		return
+	end
+
+	-- if hand is empty, and plate is empty,
 	-- just draw three cards (we can't start a new plate anyways)
-	if handIsEmpty and not modalActive and plateIsEmpty then
+	if handIsEmpty and plateIsEmpty then
 		drawThree()
 		return
 	end
 
-	-- if we now have an empty hand (and the modal isn't active), change the selection to actions
+	-- if we now have an empty hand, change the selection to actions
 	-- (this can happen for draw if the last hand has all bread)
-	if handIsEmpty and not modalActive then
+	if handIsEmpty then
 		updateSelection('actionDraw')
 		return
 	end
@@ -270,6 +317,22 @@ function discardCardFromHand(handIndex, startX, startY)
 	local startingCard = 'card'..handIndex
 	movingCard.x = startX
 	movingCard.y = startY
+
+	animateMany(
+		movingCard,
+		{'x', 'y'},
+		{ui.discardPile.x, ui.discardPile.y},
+		drawAnimationSpeed * animationScale, ease.inovershoot
+	)
+	table.insert(discardPile, movedCard)
+	movingCard.enabled = false
+end
+
+function discardCardFromDeck(drawIndex)
+	local movedCard = table.remove(drawPile, drawIndex)
+	movingCard.enabled = true
+	movingCard.x = ui.drawPile.x
+	movingCard.y = ui.drawPile.y
 
 	animateMany(
 		movingCard,
@@ -320,7 +383,7 @@ function startNewGame()
 	end
 
 	-- shuffle the deck to make the start pile
-	drawPile = startingShuffle(drawPile)
+	drawPile = safeShuffle(drawPile)
 	hand = {}
 	discardPile = {}
 	currentPlate = {}
@@ -715,9 +778,9 @@ function getSelectionInstruction()
 			local totalHandSize = 3
 			local currentHandSize = getHandSize()
 			local indexText = indexToString(ui[selection].handIndex)
-			location = indexText..' card in hand,'
+			location = indexText..' card in hand, '
 			if ui[selection].handIndex == 1 then
-				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card in hand,'
+				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card in hand, '
 			end
 		elseif ui[selection].modal then
 			local modalSize = #modalCards
@@ -730,7 +793,7 @@ function getSelectionInstruction()
 			else
 				location = indexText..' card, '
 				if ui[selection].drawIndex == 1 then
-					if modalActions[1] == 'pick' then
+					if modalActions[1] == 'pick' or modalActions[1] == 'plate' then
 						location = modalSize..' cards from deck to choose from. '..indexText..' card, '
 					else
 						location = modalSize..' cards from deck to preview. '..indexText..' card, '
@@ -744,9 +807,9 @@ function getSelectionInstruction()
 			return location..'No Card;'
 		end
 
-		-- if this is a modal card, and we haven't heard the instructions yet, read them
+		-- if this is a modal card, and this is the first card, include the modal instructions
 		local modalInstructions = ''
-		if ui[selection].modal and hasSeenInstructions == false then
+		if ui[selection].modal and selection == 'modalCard1' then
 			local modalAction = actionDetails[modalActions[1]]
 			modalInstructions = modalAction.initialModalDescription..' '
 			hasSeenInstructions = true
@@ -777,7 +840,7 @@ function getSelectionInstruction()
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' then
-			local roundScore = 'You made it to round '..roundNumber..'. Your fattest toast was '..fattestStack..' ingredient.'
+			local roundScore = 'You made it to round '..roundNumber..'. Your fattest toast was '..fattestStack..' ingredients.'
 			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
 		if selectedAction then
@@ -923,9 +986,10 @@ function love.keypressed(rawKey)
 		end)
 	end
 
+	local isSelectingModalCard = ui[selection].modal and ui[selection].card and modalCards[ui[selection].drawIndex]
+
 	-- if we are selecting a card and the modal action is pick, draw it
 	local modalActionIsPick = modalActions[1] == 'pick'
-	local isSelectingModalCard = ui[selection].modal and ui[selection].card and modalCards[ui[selection].drawIndex]
 	if key == 'select' and isSelectingModalCard and modalActionIsPick then
 		async(routines, function()
 			local firstEmptyHandSlot = (hand[1] == nil and 1) or (hand[2] == nil and 2) or (hand[3] == nil and 3)
@@ -937,6 +1001,28 @@ function love.keypressed(rawKey)
 			-- first update to the target selection
 			-- but, if our hand is empty (it was bread), reset it
 			updateSelection(targetSelection)
+			updateSelectionAfterPlayOrDraw()
+		end)
+	end
+
+	-- if we are selecting a card and the modal action is plate, plate it
+	local modalActionIsPlate = modalActions[1] == 'plate'
+	if key == 'select' and isSelectingModalCard and modalActionIsPlate then
+		async(routines, function()
+			minimizeModal()
+			modalActive = false
+			print('tts: plating from deck')
+
+			-- only plate if this is bread or we already have bread
+			local canPlate = currentPlate[1] == 1  or drawPile[ui[selection].drawIndex] == 1
+			if canPlate then
+				plateCardFromDeck(ui[selection].drawIndex)
+			else
+				print('tts: No bread, discarding '..cardDetails[drawPile[ui[selection].drawIndex]].label)
+				wait(0.75 * animationScale)
+				discardCardFromDeck(ui[selection].drawIndex)
+			end
+
 			updateSelectionAfterPlayOrDraw()
 		end)
 	end
