@@ -197,7 +197,7 @@ function plateCardFromHand(handIndex, startX, startY)
 		waitTime = waitTime + 0.75
 	end
 	-- if we are drawing our first bread, don't read out (it interrupts the draw readout)
-	local isInitialBread = isDrawing and currentPlateRawScore == 1
+	local isInitialBread = isDrawing and currentPlateRawScore == 0
 	if not isInitialBread then
 		print('tts: '..typeOfPlateLabel..', '..scoreLabel)
 		wait(waitTime * animationScale)
@@ -242,13 +242,24 @@ function updateSelectionAfterPlayOrDraw()
 		return
 	end
 
-	-- if we are already selecting a card, select that again, otherwise select card1
-	if selection == 'card2' then
+	-- if we are already selecting a card in hand, and there is a card there, select that again,
+	-- otherwise select the next real card
+	if selection == 'card1' and hand[1] then
+		updateSelection('card1')
+	elseif selection == 'card2' and hand[2] then
 		updateSelection('card2')
-	elseif selection == 'card3' then
+	elseif selection == 'card3' and hand[3] then
 		updateSelection('card3')
 	else
-		updateSelection('card1')
+		if hand[1] then
+			updateSelection('card1')
+		elseif hand[2] then
+			updateSelection('card2')
+		elseif hand[3] then
+			updateSelection('card3')
+		else
+			updateSelection('card1')
+		end
 	end
 end
 
@@ -704,9 +715,9 @@ function getSelectionInstruction()
 			local totalHandSize = 3
 			local currentHandSize = getHandSize()
 			local indexText = indexToString(ui[selection].handIndex)
-			location = indexText..' card, ;'
+			location = indexText..' card in hand,'
 			if ui[selection].handIndex == 1 then
-				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card, '
+				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card in hand,'
 			end
 		elseif ui[selection].modal then
 			local modalSize = #modalCards
