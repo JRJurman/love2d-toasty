@@ -12,8 +12,7 @@ require('drawCard')
 require('drawFatRect')
 require('deckFunctions')
 require('remapFunctions')
-require('recipeDetails')
-require('recipeFunctions')
+require('plateFunctions')
 require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
@@ -172,11 +171,11 @@ function plateCardFromHand(handIndex, startX, startY)
 	isPlating = false
 	movingCard.enabled = false
 
-	-- if this resolved in a discovered recipe, add that to our known recipes
-	local recipe = getCompletedRecipeOnPlate(currentPlate)
-	if recipe and discoveredRecipes[recipe] == nil then
-		print('tts: New Recipe Discovered: '..recipeDetails[recipe].label..', '..recipeDetails[recipe].points..' points')
-		discoveredRecipes[recipe] = true
+	-- if this resolved in a new high stack, announce that
+	local fattestToastCount = 1
+	if fattestToastCount > 3 then
+		print('tts: New Fattest Stack reached '..fattestToastCount..' ingredients')
+		-- TODO record tallest stack
 		wait(3 * animationScale)
 	end
 
@@ -450,10 +449,6 @@ function love.draw()
 		-- print type of plate
 		love.graphics.setFont(getFont(50))
 		local scoreDescription = typesOfPlates[typeOfPlate]
-		local plateRecipe = getCompletedRecipeOnPlate(currentPlate)
-		if plateRecipe then
-			scoreDescription = recipeDetails[plateRecipe].label..' (+'..recipeDetails[plateRecipe].points..')'
-		end
 		love.graphics.printf(scoreDescription, ui.plateScore.x, ui.plateScore.y + 100, ui.plateScore.width, 'center')
 	else
 		love.graphics.setFont(getFont(90))
@@ -469,8 +464,9 @@ function love.draw()
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 15, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
 	love.graphics.setFont(getFont(30))
-	local totalDiscoveredRecipes = getTotalDiscoveredRecipes()
-	love.graphics.printf(totalDiscoveredRecipes..'/'..#recipeDetails..' Discovered Recipes', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
+	-- TODO print fattest stack
+	local fattestToastCount = 1
+	love.graphics.printf('FATTEST STACK: '..fattestToastCount..' ingredient', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
 	-- always draw the modal (it is sometimes offscreen)
 	love.graphics.setColor( 0, 0, 0)
@@ -598,10 +594,6 @@ function completePlate()
 	local completedPlatesScore = getScoreForCompletedPlates()
 	if completedPlatesScore >= roundGoal then
 		completingRound = true
-		-- add the discard to draw pile
-		for discardIndex = #discardPile, 1, -1 do
-			table.insert(drawPile, table.remove(discardPile, discardIndex))
-		end
 		print('tts: '..completedPlatesScore..' out of '..roundGoal..' points needed. Round Complete. Starting new round.')
 		wait(1 * animationScale)
 
@@ -614,6 +606,11 @@ function completePlate()
 		end
 		if hand[3] then
 				discardCardFromHand(3, ui.card3.x, ui.card3.y)
+		end
+
+		-- add the discard to draw pile
+		for discardIndex = #discardPile, 1, -1 do
+			table.insert(drawPile, table.remove(discardPile, discardIndex))
 		end
 
 		-- for each plate, add each card in that plate back to the drawPile
@@ -771,8 +768,9 @@ function getSelectionInstruction()
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' then
-			local discoveredRecipesCount = getTotalDiscoveredRecipes()
-			local roundScore = 'You made it to round '..roundNumber..'. You have discovered '..discoveredRecipesCount..' recipes.'
+			-- TODO FATTEST STACK
+			local fattestToastCount = 1
+			local roundScore = 'You made it to round '..roundNumber..'. Your fattest toast was '..fattestToastCount..' ingredient.'
 			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
 		if selectedAction then
@@ -804,11 +802,6 @@ function getSelectionInstruction()
 		local typeOfPlate = getTypeOfPlate(currentPlate)
 		local scoreDescription = typesOfPlates[typeOfPlate]
 		local currentPlateRawScore = getRawScoreForPlate(currentPlate)
-		local plateRecipe = getCompletedRecipeOnPlate(currentPlate)
-
-		if plateRecipe then
-			scoreDescription = recipeDetails[plateRecipe].label..' (additional '..recipeDetails[plateRecipe].points..' points)'
-		end
 
 		local plateDescription = 'Current Plate: '..scoreDescription..' worth '..currentPlateRawScore..' points'
 
@@ -822,11 +815,10 @@ function getSelectionInstruction()
 
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	if selection == 'score' then
-		local discoveredRecipesCount = getTotalDiscoveredRecipes()
-		local totalRecipeCount = #recipeDetails
+		local fattestToastCount = 1
 		local scoreLabel = 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
-		local recipeLabel = 'You have discovered '..discoveredRecipesCount..' out of '..totalRecipeCount..' total recipes.'
-		return scoreLabel..recipeLabel
+		local stackLabel = 'Your fattest stack is '..fattestToastCount..' ingredients.'
+		return scoreLabel..stackLabel
 	end
 
 	if selection == 'actionDraw' then
