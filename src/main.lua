@@ -77,14 +77,14 @@ local repeating = false
 
 gameSeed = 0
 seed = 0
-masterVolume = 1
+masterVolume = 0.8
 musicVolume = 1
 
 local animationScale = 0.75
 local navAnimationSpeed = 0.5
 local drawAnimationSpeed = 1
 
-local movingCard = {x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
 
 function getHandSize()
 	local currentHandSize = 0
