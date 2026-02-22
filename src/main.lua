@@ -214,7 +214,13 @@ function checkForSandwich()
 end
 
 function plateCardFromHand(handIndex, startX, startY)
-	print('tts: plating '..cardDetails[hand[handIndex]].label)
+	local hasOnDraw = cardDetails[hand[handIndex]].onDraw
+	if hasOnDraw and hasOnDraw[1] == 'plate' then
+		print('tts: auto plating '..cardDetails[hand[handIndex]].label)
+	else
+		print('tts: plating '..cardDetails[hand[handIndex]].label)
+	end
+
 	isPlating = true
 	movingCard.enabled = true
 	local movedCard = hand[handIndex]
@@ -676,8 +682,8 @@ function completePlate()
 	local completedPlatesScore = getScoreForCompletedPlates()
 	if completedPlatesScore >= roundGoal then
 		completingRound = true
-		print('tts: '..completedPlatesScore..' out of '..roundGoal..' points needed. Round Complete. Starting new round.')
-		wait(1 * animationScale)
+		print('tts: '..completedPlatesScore..' out of '..roundGoal..' points needed. Round '..roundNumber..' Complete.')
+		wait(1.25 * animationScale)
 
 		-- discard any cards in hand we have any
 		if hand[1] then
@@ -819,7 +825,7 @@ function getSelectionInstruction()
 
 		-- if this is a modal card, and this is the first card, include the modal instructions
 		local modalInstructions = ''
-		if ui[selection].modal and selection == 'modalCard1' then
+		if ui[selection].modal and hasSeenInstructions == false then
 			local modalAction = actionDetails[modalActions[1]]
 			modalInstructions = modalAction.initialModalDescription..' '
 			hasSeenInstructions = true
@@ -1106,6 +1112,8 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
+			print('tts: Shuffling Deck')
+			wait(0.5 * animationScale)
 			drawPile = safeShuffle(drawPile)
 
 			updateSelectionAfterPlayOrDraw()
