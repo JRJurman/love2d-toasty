@@ -23,9 +23,14 @@ DebuggingScreen = require('DebuggingScreen')
 love.graphics.setFont(getFont(30))
 
 local startingDeck = {
+	-- bread
 	1, 1, 1,
-	2, 3, 4, 5, 6,
-	7, 8, 9, 10,
+	-- two point cards
+	2, 2, 5, 5, 8, 8, 11, 11, 14, 14,
+	-- shuffle
+	3, 6,
+	-- plate
+	4, 7,
 }
 
 local drawPile = {}
@@ -128,7 +133,16 @@ function drawFromDeck(handIndex, drawIndex)
 	movingCard.y = ui.drawPile.y
 	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
 	hand[handIndex] = table.remove(drawPile, drawIndex)
-	print('tts: '..cardDetails[hand[handIndex]].label)
+	-- if the previous hand card this, change the print to acknowledge that (so the screen reader updates correctly)
+	if handIndex > 2 and hand[handIndex - 1] == hand[handIndex] and hand[handIndex - 2] == hand[handIndex] then
+		print('tts: and another '..cardDetails[hand[handIndex]].label)
+		wait(0.40 * animationScale)
+	elseif handIndex > 1 and hand[handIndex - 1] == hand[handIndex] then
+		print('tts: another '..cardDetails[hand[handIndex]].label)
+		wait(0.25 * animationScale)
+	else
+		print('tts: '..cardDetails[hand[handIndex]].label)
+	end
 	movingCard.enabled = false
 
 	-- if this is bread, play it immediately
@@ -278,6 +292,8 @@ function updateSelectionAfterPlayOrDraw()
 	-- if hand is empty, and plate is empty,
 	-- just draw three cards (we can't start a new plate anyways)
 	if handIsEmpty and plateIsEmpty then
+		-- set selection to card1, so we auto navigate there
+		selection = 'card1'
 		drawThree()
 		return
 	end
@@ -378,9 +394,9 @@ end
 function startNewGame()
 	drawPile = copy(startingDeck)
 	-- add 5 random ingredients
-	for addIndex = 1, 5 do
-		table.insert(drawPile, math.random(13) + 1)
-	end
+	-- for addIndex = 1, 5 do
+	-- 	table.insert(drawPile, math.random(13) + 1)
+	-- end
 
 	-- shuffle the deck to make the start pile
 	drawPile = safeShuffle(drawPile)
@@ -873,7 +889,7 @@ function getSelectionInstruction()
 		local scoreDescription = typesOfPlates[typeOfPlate]
 		local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
-		local plateDescription = 'Current Plate: '..scoreDescription..' worth '..currentPlateRawScore..' points'
+		local plateDescription = 'Current Plate: '..scoreDescription..' with '..#currentPlate..' ingredients, worth '..currentPlateRawScore..' points'
 
 		-- if this is fat or ultimate toast, show the multiplier
 		if (typeOfPlate > 1) then
@@ -891,12 +907,14 @@ function getSelectionInstruction()
 	end
 
 	if selection == 'actionDraw' then
-		local scoreText = roundScore..' points out of '..roundGoal..' needed to complete the round. '
-		return scoreText..'Two actions, First action: Draw, Select to draw 3 new cards.'
+		local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
+		local drawPileText = #drawPile..' cards remaining in deck, with '..breadInDeck..' bread slices.'
+		return 'Two actions, First action: Draw, Select to draw 3 new cards. '..drawPileText
 	end
 
 	if selection == 'actionNewPlate' then
-		return 'Second Action: Score points and start a new plate.'
+		local scoreText = 'You have '..roundScore..' points out of '..roundGoal..' needed to complete the round. '
+		return 'Second Action: Score points and start a new plate. '..scoreText
 	end
 
 	return ''
@@ -1052,7 +1070,6 @@ function love.keypressed(rawKey)
 	local modalAction = isSelectingModalAction and modalActions[ui[selection].actionIndex]
 	local isSelectingSkip = isSelectingModalAction and modalAction == 'skip' or modalAction == 'close' or modalAction == 'start'
 	if key == 'select' and isSelectingSkip then
-		print('modalAction: '..modalAction)
 		async(routines, function()
 			-- if the modal action was start, start the music
 			if modalActions[1] == 'start' then
