@@ -79,8 +79,8 @@ local heardNavInstructions = {}
 
 local repeating = false
 
-gameSeed = 0
-seed = 0
+gameSeed = nil
+waitingSeed = 0
 masterVolume = 0.8
 musicVolume = 1
 
@@ -184,7 +184,7 @@ function readoutCurrentScore()
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
 	local scoreLabel = currentPlateRawScore..' points'
-	local waitTime = 1.75
+	local waitTime = 1.5
 	if currentPlateRawScore == 1 then
 		scoreLabel = '1 point'
 	end
@@ -392,14 +392,8 @@ function checkToLoopMusic()
 end
 
 function startNewGame()
-	drawPile = copy(startingDeck)
-	-- add 5 random ingredients
-	-- for addIndex = 1, 5 do
-	-- 	table.insert(drawPile, math.random(13) + 1)
-	-- end
-
 	-- shuffle the deck to make the start pile
-	drawPile = safeShuffle(drawPile)
+	drawPile = safeShuffle(startingDeck)
 	hand = {}
 	discardPile = {}
 	currentPlate = {}
@@ -412,22 +406,19 @@ function startNewGame()
 	startModal()
 end
 
-function love.load()
-	print('tts: Created by Jesse Jurman.')
-
+function loadSeed()
 	local savedSeed = loadGameData('seed.json')
+	if savedSeed then
+		gameSeed = savedSeed.seed
+	else
+		gameSeed = waitingSeed
+	end
+	print('seed: '..gameSeed)
+	math.randomseed(gameSeed)
+end
 
-	-- seed loading and starting shuffle
+function love.load()
 	async(routines, function()
-		wait(1 * animationScale) -- wait one second to help generate a more random seed
-		if savedSeed then
-			gameSeed = savedSeed.seed
-		else
-			gameSeed = seed
-		end
-		print('seed: '..gameSeed)
-		math.randomseed(gameSeed)
-
 		startNewGame()
 	end)
 
@@ -441,7 +432,9 @@ function love.load()
 end
 
 function love.update(dt)
-	seed = seed + dt*10000
+	if gameSeed == nil then
+		waitingSeed = waitingSeed + dt*10000
+	end
 	updateAnimations(routines, dt)
 	checkToLoopMusic()
 end
@@ -660,6 +653,7 @@ end
 
 function minimizeModal()
 	print('tts: closing modal')
+	wait(0.5 * animationScale)
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
 end
@@ -908,7 +902,7 @@ function getSelectionInstruction()
 
 	if selection == 'actionDraw' then
 		local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
-		local drawPileText = #drawPile..' cards remaining in deck, with '..breadInDeck..' bread slices.'
+		local drawPileText = 'There are '..#drawPile..' cards remaining in deck, with '..breadInDeck..' bread slices.'
 		return 'Two actions, First action: Draw, Select to draw 3 new cards. '..drawPileText
 	end
 
@@ -1074,6 +1068,13 @@ function love.keypressed(rawKey)
 			-- if the modal action was start, start the music
 			if modalActions[1] == 'start' then
 				hasStarted = true
+				-- set the game seed now (if gameseed is nil)
+				if gameSeed == nil then
+					loadSeed()
+				end
+				-- now that we've loaded a seed, do a shuffle of the deck
+				drawPile = safeShuffle(drawPile)
+
 				-- if we have the intro track, play it now
 				-- (if we restarted, this will be nil)
 				if intro then
@@ -1118,6 +1119,9 @@ function love.keypressed(rawKey)
 				drawThree()
 			end
 			if selection == 'actionNewPlate' then
+				print('tts: Scoring Plate')
+				wait(1 * animationScale)
+
 				completePlate()
 				if not modalActive then
 					drawThree()
