@@ -283,8 +283,12 @@ function updateSelectionAfterPlayOrDraw()
 
 	local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+
 	-- if we are out of bread, and have no plate, end the game
-	if breadInDeck == 0 and #currentPlate == 0 then
+	-- also if we have no cards in deck, end the game
+	local outOfBread = breadInDeck == 0 and #currentPlate == 0
+
+	if outOfBread or #drawPile == 0 then
 		modalActions = {'restart'}
 		modalCards = {}
 		startModal()
