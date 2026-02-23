@@ -253,9 +253,6 @@ function plateCardFromHand(handIndex, startX, startY)
 	readoutCurrentScore()
 	checkForSandwich()
 	checkForEndOfRound()
-
-	-- update the selection text after plating (usually empty spot in hand)
-	selectionText = getSelectionInstruction()
 end
 
 function plateCardFromDeck(drawIndex)
@@ -282,9 +279,6 @@ function plateCardFromDeck(drawIndex)
 	readoutCurrentScore()
 	checkForSandwich()
 	checkForEndOfRound()
-
-	-- update the selection text after plating (usually empty spot in hand)
-	selectionText = getSelectionInstruction()
 end
 
 function updateSelectionAfterPlayOrDraw()
@@ -825,15 +819,15 @@ function getSelectionInstruction()
 			if modalActions[1] == 'add' then
 				location = indexText..' card;'
 				if ui[selection].drawIndex == 1 then
-					location = modalSize..' cards to choose from. '..indexText..' card, '
+					location = 'You have '..modalSize..' cards to choose from. '..indexText..' card, '
 				end
 			else
 				location = indexText..' card, '
 				if ui[selection].drawIndex == 1 then
 					if modalActions[1] == 'pick' or modalActions[1] == 'plate' then
-						location = modalSize..' cards from deck to choose from. '..indexText..' card, '
+						location = 'You have '..modalSize..' cards from deck to choose from. '..indexText..' card, '
 					else
-						location = modalSize..' cards from deck to preview. '..indexText..' card, '
+						location = 'You have '..modalSize..' cards from deck to preview. '..indexText..' card, '
 					end
 				end
 			end
@@ -862,11 +856,11 @@ function getSelectionInstruction()
 		end
 
 		local label = cardDetails[selectedCard].label
-		local points = cardDetails[selectedCard].points..' points; '
+		local pointsText = 'worth '..cardDetails[selectedCard].points..' points; '
 		if cardDetails[selectedCard].points == 1 then
-			points = '1 point; '
+			pointsText = 'worth 1 point; '
 		end
-		local cardSelectionText = modalInstructions..location..label..', '..points..effect
+		local cardSelectionText = modalInstructions..location..label..', '..pointsText..effect
 
 		return cardSelectionText
 	end
@@ -884,7 +878,9 @@ function getSelectionInstruction()
 		if selectedAction then
 			local totalActionsLabel = ''
 			if hasStarted and #modalActions > 1 then
-				totalActionsLabel = #modalActions..' actions, first action '
+				totalActionsLabel = 'You have '..#modalActions..' actions, first action, '
+			else
+				totalActionsLabel = indexToString(ui[selection].actionIndex).. ' action, '
 			end
 			return totalActionsLabel..selectedAction.actionDescription
 		end
