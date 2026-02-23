@@ -47,5 +47,11 @@ actionDetails = {
 		label = "Add Card",
 		initialModalDescription = "Round Complete. Starting new round. Showing new cards that you can add to your deck. Each comes with a free bread card.",
 		actionDescription = "Select a card above to add it to your deck.",
+	},
+	settings = {
+		modalTitle = "Settings",
+		label = "Settings",
+		initialModalDescription = "Change Settings",
+		actionDescription = "Select to change the settings for the game.",
 	}
 }

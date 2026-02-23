@@ -276,31 +276,11 @@ ui = {
 		nav = {
 			withModal = {
 				left = 'modalCard1',
-				right = 'modalCard3',
 				down = 'modalAction1',
 			},
 		},
 
 		x = 70 + cardSize.width + 10,
-		y = 220,
-		width = cardSize.width,
-		height = cardSize.height,
-	},
-	modalCard3 = {
-		label = 'Third Previewed Card',
-		modal = true,
-		card = true,
-		drawIndex = 3,
-		selectable = true,
-
-		nav = {
-			withModal = {
-				left = 'modalCard2',
-				down = 'modalAction1',
-			},
-		},
-
-		x = 70 + (cardSize.width * 2) + 20,
 		y = 220,
 		width = cardSize.width,
 		height = cardSize.height,

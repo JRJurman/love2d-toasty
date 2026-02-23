@@ -47,6 +47,7 @@ local hasSeenInstructions = true
 local hasStarted = false
 local modalActive = true
 local modalActions = {'start'}
+-- local modalActions = {'start', 'settings'}
 
 local isDrawing = false
 local isPlating = false
@@ -131,25 +132,25 @@ function drawFromDeck(handIndex, drawIndex)
 	movingCard.enabled = true
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
-	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
-	hand[handIndex] = table.remove(drawPile, drawIndex)
+	local movedCard = table.remove(drawPile, drawIndex)
 	-- if the previous hand card this, change the print to acknowledge that (so the screen reader updates correctly)
-	if handIndex > 2 and hand[handIndex - 1] == hand[handIndex] and hand[handIndex - 2] == hand[handIndex] then
-		print('tts: and another '..cardDetails[hand[handIndex]].label)
+	if handIndex == 3 and hand[2] == movedCard and hand[1] == movedCard then
+		print('tts: and another '..cardDetails[movedCard].label)
 		wait(0.40 * animationScale)
-	elseif handIndex > 1 and hand[handIndex - 1] == hand[handIndex] then
-		print('tts: another '..cardDetails[hand[handIndex]].label)
+	elseif handIndex > 1 and hand[handIndex - 1] == movedCard then
+		print('tts: another '..cardDetails[movedCard].label)
 		wait(0.25 * animationScale)
 	else
-		print('tts: '..cardDetails[hand[handIndex]].label)
+		print('tts: '..cardDetails[movedCard].label)
 	end
+	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
+	hand[handIndex] = movedCard
 	movingCard.enabled = false
 
 	-- if this is bread, play it immediately
 	local drawnCardDetails = cardDetails[hand[handIndex]]
 	if drawnCardDetails.onDraw then
 		if drawnCardDetails.onDraw[1] == 'plate' then
-			wait(0.5 * animationScale)
 			plateCardFromHand(handIndex, targetX, targetY)
 		end
 	end
@@ -164,7 +165,7 @@ function checkForNewHighestStack()
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
 		print('tts: New Fattest Stack reached '..#currentPlate..' ingredients')
 		fattestStack = #currentPlate
-		wait(3 * animationScale)
+		wait(2.5 * animationScale)
 	end
 end
 
@@ -178,29 +179,38 @@ function checkForEndOfRound()
 end
 
 function readoutCurrentScore()
-	-- print current score
+	-- if we are drawing our first bread, don't read out (it interrupts the draw readout)
+	local isInitialBread = isDrawing and currentPlateRawScore == nil
+	if isInitialBread then
+		return
+	end
+
 	local typeOfPlate = getTypeOfPlate(currentPlate)
+
+	-- if this is a sandwich, don't read out (we have special messaging for that)
+	if typeOfPlate == -1 then
+		return
+	end
+
 	local typeOfPlateLabel = typesOfPlates[typeOfPlate]
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
 	local scoreLabel = currentPlateRawScore..' points'
-	local waitTime = 1.5
+	local waitTime = 1.25
 	if currentPlateRawScore == 1 then
 		scoreLabel = '1 point'
 	end
+
 	-- if this is fat or ultimate toast, show the multiplier
 	if typeOfPlate < 1 then
 		scoreLabel = '0 points'
 	elseif (typeOfPlate > 1) then
 		scoreLabel = scoreLabel..' times '..typeOfPlate
-		waitTime = waitTime + 0.75
+		waitTime = waitTime + 1.20
 	end
-	-- if we are drawing our first bread, don't read out (it interrupts the draw readout)
-	local isInitialBread = isDrawing and currentPlateRawScore == 0
-	if not isInitialBread then
-		print('tts: '..typeOfPlateLabel..', '..scoreLabel)
-		wait(waitTime * animationScale)
-	end
+
+	print('tts: '..typeOfPlateLabel..', '..scoreLabel)
+	wait(waitTime * animationScale)
 end
 
 function checkForSandwich()
@@ -208,7 +218,7 @@ function checkForSandwich()
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if typeOfPlate == -1 then
 		print('tts: You made a Sandwich, no points! Tossing Plate.')
-		wait(2.5 * animationScale)
+		wait(2.65 * animationScale)
 		completePlate()
 	end
 end
@@ -412,6 +422,7 @@ function startNewGame()
 	roundNumber = 1
 	hasStarted = false
 	modalActions = {'start'}
+	-- modalActions = {'start', 'settings'}
 	modalCards = {}
 	startModal()
 end
@@ -587,11 +598,6 @@ function love.draw()
 		local cardY = ui.modal.y + ui.modalCard2.y
 		drawCard(modalCards[2], cardX, cardY)
 	end
-	if modalCards[3] then
-		local cardX = ui.modal.x + ui.modalCard3.x
-		local cardY = ui.modal.y + ui.modalCard3.y
-		drawCard(modalCards[3], cardX, cardY)
-	end
 
 	-- draw any actions on the modal
 	love.graphics.setFont(getFont(50))
@@ -646,7 +652,7 @@ function love.draw()
 		local shouldIncludeNavText = repeating and hasStarted
 		if shouldIncludeNavText then
 			repeating = false
-			ttsText = string.gsub(selectionText..'. '..navText, '\n', '; ')
+			ttsText = string.gsub(selectionText..'. Navigation Controls: '..navText, '\n', '; ')
 			heardNavInstructions[selection] = true
 		end
 		print('tts: '..ttsText)
@@ -686,18 +692,25 @@ function completePlate()
 	local completedPlatesScore = getScoreForCompletedPlates()
 	if completedPlatesScore >= roundGoal then
 		completingRound = true
-		print('tts: '..completedPlatesScore..' out of '..roundGoal..' points needed. Round '..roundNumber..' Complete.')
-		wait(1.25 * animationScale)
+		local nextRoundGoal = math.floor(roundGoal * roundMultiplier)
+		print('tts: Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Round '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.')
+		local waitTime = 4.65
+		if roundGoal > 9 then
+			waitTime = waitTime + 0.25
+		end
 
 		-- discard any cards in hand we have any
 		if hand[1] then
 				discardCardFromHand(1, ui.card1.x, ui.card1.y)
+				waitTime = waitTime - drawAnimationSpeed
 		end
 		if hand[2] then
 				discardCardFromHand(2, ui.card2.x, ui.card2.y)
+				waitTime = waitTime - drawAnimationSpeed
 		end
 		if hand[3] then
 				discardCardFromHand(3, ui.card3.x, ui.card3.y)
+				waitTime = waitTime - drawAnimationSpeed
 		end
 
 		-- add the discard to draw pile
@@ -713,15 +726,19 @@ function completePlate()
 			end
 			table.remove(completedPlates, plateIndex)
 			wait(0.75 * animationScale)
+			waitTime = waitTime - 0.75
 		end
 		roundNumber = roundNumber + 1
-		roundGoal = math.floor(roundGoal * roundMultiplier)
+		roundGoal = nextRoundGoal
+
+		-- based on how much time was already used, wait the remaining time to read the rest of the text
+		wait(waitTime * animationScale)
 
 		-- load modal for players to add a new card to the deck
 		modalActions = {'add', 'skip'}
 		-- make sure each number is unique by starting at a random number, and showing the next two
-		local firstRandomCard = math.random(2, #cardDetails - 2)
-		modalCards = { firstRandomCard, firstRandomCard + 1, firstRandomCard + 2 }
+		local firstRandomCard = math.random(2, #cardDetails - 1)
+		modalCards = { firstRandomCard, firstRandomCard + 1 }
 		startModal()
 
 		-- once the player has selected a card to add, we'll shuffle then
@@ -800,7 +817,7 @@ function getSelectionInstruction()
 			local indexText = indexToString(ui[selection].handIndex)
 			location = indexText..' card in hand, '
 			if ui[selection].handIndex == 1 then
-				location = currentHandSize..' out of '..totalHandSize..' cards in hand. '..indexText..' card in hand, '
+				location = 'You have '..currentHandSize..' out of '..totalHandSize..' cards. '..indexText..' card in hand, '
 			end
 		elseif ui[selection].modal then
 			local modalSize = #modalCards
@@ -856,7 +873,8 @@ function getSelectionInstruction()
 
 	if selection == 'modalAction1' then
 		local selectedAction = actionDetails[modalActions[1]]
-		if modalActions[1] == 'start' then
+		if modalActions[1] == 'start' and hasSeenInstructions == false then
+			hasSeenInstructions = true
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' then
@@ -1104,7 +1122,8 @@ function love.keypressed(rawKey)
 		end)
 	end
 
-	if modalAction == 'restart' then
+	local isSelectingRestart = isSelectingModalAction and modalActions[ui[selection].actionIndex] == 'restart'
+	if key == 'select' and isSelectingRestart then
 		async(routines, function()
 			startNewGame()
 		end)
@@ -1146,9 +1165,11 @@ function love.keypressed(rawKey)
 	if key == "r" then
 		async(routines, function()
 			print('tts: repeating...')
-			-- unset nav instructions
-			repeating = true
-			heardNavInstructions[selection] = nil
+			-- unset nav instructions (if we have started)
+			if hasStarted then
+				repeating = true
+				heardNavInstructions[selection] = nil
+			end
 			wait(0.5 * animationScale)
 
 		end)
