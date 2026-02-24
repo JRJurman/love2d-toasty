@@ -72,7 +72,8 @@ local selectionText = ''
 local drawnSelectionText = ''
 local navText = ''
 local drawnNavText = ''
-local readoutText = ''
+local animationText = ''
+local drawnAnimationText = ''
 local intro, loop
 
 -- we only say what the nav instructions are when someone first lands on a control
@@ -136,13 +137,13 @@ function drawFromDeck(handIndex, drawIndex)
 	local movedCard = table.remove(drawPile, drawIndex)
 	-- if the previous hand card this, change the print to acknowledge that (so the screen reader updates correctly)
 	if handIndex == 3 and hand[2] == movedCard and hand[1] == movedCard then
-		print('tts: and another '..cardDetails[movedCard].label)
+		animationText = 'and another '..cardDetails[movedCard].label
 		wait(0.40 * animationScale)
 	elseif handIndex > 1 and hand[handIndex - 1] == movedCard then
-		print('tts: another '..cardDetails[movedCard].label)
+		animationText = 'another '..cardDetails[movedCard].label
 		wait(0.25 * animationScale)
 	else
-		print('tts: '..cardDetails[movedCard].label)
+		animationText = cardDetails[movedCard].label
 	end
 	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
 	hand[handIndex] = movedCard
@@ -164,7 +165,7 @@ function checkForNewHighestStack()
 	-- (only counts if this isn't a sandwich)
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
-		print('tts: New Fattest Stack reached '..#currentPlate..' ingredients')
+		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients'
 		fattestStack = #currentPlate
 		wait(2.5 * animationScale)
 	end
@@ -210,7 +211,7 @@ function readoutCurrentScore()
 		waitTime = waitTime + 1.20
 	end
 
-	print('tts: '..typeOfPlateLabel..', '..scoreLabel)
+	animationText = typeOfPlateLabel..', '..scoreLabel
 	wait(waitTime * animationScale)
 end
 
@@ -218,7 +219,7 @@ function checkForSandwich()
 	-- if we made a sandwich, immediately toss the plate
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if typeOfPlate == -1 then
-		print('tts: You made a Sandwich, no points! Tossing Plate.')
+		animationText = 'You made a Sandwich, no points! Tossing Plate.'
 		wait(2.65 * animationScale)
 		completePlate()
 	end
@@ -227,9 +228,9 @@ end
 function plateCardFromHand(handIndex, startX, startY)
 	local hasOnDraw = cardDetails[hand[handIndex]].onDraw
 	if hasOnDraw and hasOnDraw[1] == 'plate' then
-		print('tts: auto plating '..cardDetails[hand[handIndex]].label)
+		animationText = 'auto plating '..cardDetails[hand[handIndex]].label
 	else
-		print('tts: plating '..cardDetails[hand[handIndex]].label)
+		animationText = 'plating '..cardDetails[hand[handIndex]].label
 	end
 
 	isPlating = true
@@ -257,7 +258,7 @@ function plateCardFromHand(handIndex, startX, startY)
 end
 
 function plateCardFromDeck(drawIndex)
-	print('tts: plating '..cardDetails[drawPile[drawIndex]].label)
+	animationText = 'plating '..cardDetails[drawPile[drawIndex]].label
 	local movedCard = table.remove(drawPile, drawIndex)
 
 	isPlating = true
@@ -313,7 +314,7 @@ function updateSelectionAfterPlayOrDraw()
 		-- check if we have started the round (if we have, then print that we are auto-drawing)
 		local hasStartedRound = #completedPlates > 0
 		if hasStartedRound then
-			print('tts: no plate to score, ')
+			animationText = 'no plate to score, '
 			wait(1 * animationScale)
 		end
 
@@ -386,7 +387,7 @@ end
 function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
-		print('tts: drawing from deck')
+		animationText = 'drawing from deck'
 		wait(1 * animationScale)
 		drawFromDeck(1)
 		drawFromDeck(2)
@@ -626,10 +627,16 @@ function love.draw()
 	end
 
 	-- draw the readout
+	local isAnimating = #routines > 0
+
 	love.graphics.setColor(0.87, 0.87, 0.97)
 	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
 	love.graphics.setFont(getFont(40))
-	love.graphics.printf(selectionText..'\n\n'..navText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
+	local readoutText = selectionText..'\n\n'..navText
+	if isAnimating then
+		readoutText = animationText
+	end
+	love.graphics.printf(readoutText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
 
 	-- draw the cursor
 	love.graphics.setColor(0.43, 0.47, 0.98)
@@ -640,19 +647,21 @@ function love.draw()
 
 	-- if we are animating, unset the selection and nav text
 	-- (these will almost always be set by the animating function)
-	local isAnimating = #routines > 0
-	if isAnimating then
+	-- and update the screen reader with the animation text
+	if isAnimating and (drawnAnimationText ~= animationText) then
 		drawnSelectionText = ''
 		drawnNavText = ''
+
+		drawnAnimationText = animationText
+		print('tts: '..animationText)
 	end
+
 	-- update the screen reader (if text changed)
 	-- (we don't do this every frame, because it would overwhelm the dev console)
 	-- only do this if we aren't animating right now
 	if not isAnimating and (drawnSelectionText ~= selectionText or drawnNavText ~= navText) then
 		local ttsText = string.gsub(selectionText..'. ', '\n', '; ')
-		-- OLD: if we haven't hear the nav instructions, include that and update
-		-- local shouldIncludeNavText = heardNavInstructions[selection] == nil and hasStarted
-		-- NEW: if they are repeating, include nav text
+		-- if they are repeating, include nav text
 		local shouldIncludeNavText = repeating and hasStarted
 		if shouldIncludeNavText then
 			repeating = false
@@ -666,13 +675,15 @@ function love.draw()
 end
 
 function expandModal()
-	print('tts: opening modal')
+	if hasStarted then
+		animationText = 'opening modal'
+	end
 	ui.modal.y = ui.offScreenModal.y
 	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
 end
 
 function minimizeModal()
-	print('tts: closing modal')
+	animationText = 'closing modal'
 	wait(0.5 * animationScale)
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
@@ -697,7 +708,7 @@ function completePlate()
 	if completedPlatesScore >= roundGoal then
 		completingRound = true
 		local nextRoundGoal = math.floor(roundGoal * roundMultiplier)
-		print('tts: Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Round '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.')
+		animationText = 'Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Round '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.'
 		local waitTime = 4.65
 		if roundGoal > 9 then
 			waitTime = waitTime + 0.25
@@ -1000,7 +1011,7 @@ function love.keypressed(rawKey)
 			if currentPlate[1] == 1 then
 				plateCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			else
-				print('tts: No bread, discarding '..cardDetails[hand[handIndex]].label)
+				animationText = 'No bread, discarding '..cardDetails[hand[handIndex]].label
 				wait(0.75 * animationScale)
 				discardCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			end
@@ -1042,7 +1053,7 @@ function love.keypressed(rawKey)
 			local targetSelection = 'card'..firstEmptyHandSlot
 			minimizeModal()
 			modalActive = false
-			print('tts: drawing from deck')
+			animationText = 'drawing from deck'
 			drawFromDeck(firstEmptyHandSlot, ui[selection].drawIndex)
 			-- first update to the target selection
 			-- but, if our hand is empty (it was bread), reset it
@@ -1057,14 +1068,14 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
-			print('tts: plating from deck')
+			animationText = 'plating from deck'
 
 			-- only plate if this is bread or we already have bread
 			local canPlate = currentPlate[1] == 1  or drawPile[ui[selection].drawIndex] == 1
 			if canPlate then
 				plateCardFromDeck(ui[selection].drawIndex)
 			else
-				print('tts: No bread, discarding '..cardDetails[drawPile[ui[selection].drawIndex]].label)
+				animationText = 'No bread, discarding '..cardDetails[drawPile[ui[selection].drawIndex]].label
 				wait(0.75 * animationScale)
 				discardCardFromDeck(ui[selection].drawIndex)
 			end
@@ -1141,7 +1152,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
-			print('tts: Shuffling Deck')
+			animationText = 'Shuffling Deck'
 			wait(0.5 * animationScale)
 			drawPile = safeShuffle(drawPile)
 
@@ -1156,7 +1167,7 @@ function love.keypressed(rawKey)
 				drawThree()
 			end
 			if selection == 'actionNewPlate' then
-				print('tts: Scoring Plate')
+				animationText = 'Scoring Plate'
 				wait(1 * animationScale)
 
 				completePlate()
@@ -1170,7 +1181,7 @@ function love.keypressed(rawKey)
 	-- repeat text if r was pressed
 	if key == "r" then
 		async(routines, function()
-			print('tts: repeating...')
+			animationText = 'repeating...'
 			-- unset nav instructions (if we have started)
 			if hasStarted then
 				repeating = true
