@@ -16,7 +16,7 @@ require('plateFunctions')
 require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
-require('mumble')
+-- require('mumble')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -665,6 +665,7 @@ function love.draw()
 	-- (we don't do this every frame, because it would overwhelm the dev console)
 	-- only do this if we aren't animating right now
 	if not isAnimating and (drawnSelectionText ~= selectionText or drawnNavText ~= navText) then
+		animationText = ''
 		local ttsText = string.gsub(selectionText..'. ', '\n', '; ')
 		-- if they are repeating, include nav text
 		local shouldIncludeNavText = repeating and hasStarted
