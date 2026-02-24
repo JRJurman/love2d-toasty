@@ -72,6 +72,7 @@ local selectionText = ''
 local drawnSelectionText = ''
 local navText = ''
 local drawnNavText = ''
+local readoutText = ''
 local intro, loop
 
 -- we only say what the nav instructions are when someone first lands on a control
@@ -308,6 +309,14 @@ function updateSelectionAfterPlayOrDraw()
 	if handIsEmpty and plateIsEmpty then
 		-- set selection to card1, so we auto navigate there
 		selection = 'card1'
+
+		-- check if we have started the round (if we have, then print that we are auto-drawing)
+		local hasStartedRound = #completedPlates > 0
+		if hasStartedRound then
+			print('tts: no plate to score, ')
+			wait(1 * animationScale)
+		end
+
 		drawThree()
 		return
 	end
@@ -378,6 +387,7 @@ function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
 		print('tts: drawing from deck')
+		wait(1 * animationScale)
 		drawFromDeck(1)
 		drawFromDeck(2)
 		drawFromDeck(3)
