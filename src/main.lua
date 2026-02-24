@@ -16,6 +16,7 @@ require('plateFunctions')
 require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
+require('mumble')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -67,6 +68,7 @@ local completingRound = false
 local fattestStack = 0
 
 local	routines = {}
+local voiceRoutines = {}
 
 local selectionText = ''
 local drawnSelectionText = ''
@@ -388,6 +390,7 @@ function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
 		animationText = 'drawing from deck'
+		-- mumble(voiceRoutines, 5*animationScale)
 		wait(1 * animationScale)
 		drawFromDeck(1)
 		drawFromDeck(2)
@@ -430,6 +433,7 @@ function startNewGame()
 	-- modalActions = {'start', 'settings'}
 	modalCards = {}
 	startModal()
+	-- mumble(voiceRoutines, 20*animationScale)
 end
 
 function loadSeed()
@@ -462,6 +466,7 @@ function love.update(dt)
 		waitingSeed = waitingSeed + dt*10000
 	end
 	updateAnimations(routines, dt)
+	updateAnimations(voiceRoutines, dt)
 	checkToLoopMusic()
 end
 
@@ -974,6 +979,9 @@ function love.keypressed(rawKey)
 	if isDrawing or isPlating then
 		return
 	end
+
+	-- if we are doing a valid action, stop mumbling
+	stopAnimations(voiceRoutines)
 
 	-- navigation
 	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
