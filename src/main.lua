@@ -17,7 +17,7 @@ require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
 -- require('mumble')
--- require('sfx')
+require('sfx')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -87,7 +87,7 @@ local repeating = false
 gameSeed = nil
 waitingSeed = 0
 masterVolume = 0.45
-musicVolume = 0.75
+musicVolume = 0.50
 
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
@@ -139,6 +139,8 @@ function drawFromDeck(handIndex, drawIndex)
 		return
 	end
 
+	playDealSFX()
+
 	movingCard.enabled = true
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
@@ -183,7 +185,7 @@ function checkForEndOfRound()
 	-- if we have enough points, complete this plate, and start a new round
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	if roundScore >= roundGoal and not isDrawing then
-		-- playStackSFX()
+		playStackSFX()
 		completePlate()
 		return
 	end
@@ -228,7 +230,7 @@ function checkForSandwich()
 	-- if we made a sandwich, immediately toss the plate
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if typeOfPlate == -1 then
-		-- playTossSFX()
+		playTossSFX()
 		animationText = 'You made a Sandwich, no points! Tossing Plate.'
 		wait(2.65 * animationScale)
 		completePlate()
@@ -257,7 +259,7 @@ function plateCardFromHand(handIndex, startX, startY)
 		{ui.plateCards.x, ui.plateCards.y},
 		drawAnimationSpeed * animationScale, ease.inovershoot
 	)
-	-- playDropSFX()
+	playDropSFX()
 	table.insert(currentPlate, movedCard)
 	isPlating = false
 	movingCard.enabled = false
@@ -283,7 +285,7 @@ function plateCardFromDeck(drawIndex)
 		{ui.plateCards.x, ui.plateCards.y},
 		drawAnimationSpeed * animationScale, ease.inovershoot
 	)
-	-- playDropSFX()
+	playDropSFX()
 
 	table.insert(currentPlate, movedCard)
 	isPlating = false
@@ -689,8 +691,8 @@ end
 
 function shuffleDrawPile(deep)
 	animationText = 'Shuffling Deck'
-	-- playShuffleSFX()
-	wait(0.5 * animationScale)
+	playShuffleSFX()
+	wait(0.75 * animationScale)
 	drawPile = safeShuffle(drawPile, deep)
 end
 
@@ -799,10 +801,7 @@ function updateSelection(target)
 			{targetX, targetY, ui[selection].width, ui[selection].height},
 			navAnimationSpeed * animationScale, ease.inovershoot
 		)
-
-		if ui[target].card then
-			-- playNavSFX()
-		end
+		playNavSFX()
 	end)
 
 	local navKey = getNavKey()
@@ -1196,7 +1195,7 @@ function love.keypressed(rawKey)
 				animationText = 'Scoring Plate'
 				wait(1 * animationScale)
 
-				playStack()
+				playStackSFX()
 				completePlate()
 				if not modalActive then
 					drawThree()

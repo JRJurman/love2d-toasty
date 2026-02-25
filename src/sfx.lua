@@ -38,3 +38,11 @@ function playStackSFX()
 	source:setVolume(sfxVolume * masterVolume)
 	source:play()
 end
+
+local dealSound = love.sound.newSoundData('Assets/deal.wav')
+
+function playDealSFX()
+	local source = love.audio.newSource(dealSound)
+	source:setVolume(sfxVolume * masterVolume)
+	source:play()
+end
