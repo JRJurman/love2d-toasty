@@ -17,6 +17,7 @@ require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
 -- require('mumble')
+-- require('sfx')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -76,7 +77,6 @@ local navText = ''
 local drawnNavText = ''
 local animationText = ''
 local drawnAnimationText = ''
-local intro, loop
 
 -- we only say what the nav instructions are when someone first lands on a control
 -- or when they've repeated the instruction
@@ -86,8 +86,14 @@ local repeating = false
 
 gameSeed = nil
 waitingSeed = 0
-masterVolume = 0.8
-musicVolume = 1
+masterVolume = 0.45
+musicVolume = 0.75
+
+local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
+local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
+intro:setVolume(masterVolume * musicVolume)
+loop:setVolume(masterVolume * musicVolume)
+loop:setLooping(true)
 
 local animationScale = 0.75
 local navAnimationSpeed = 0.5
@@ -177,6 +183,7 @@ function checkForEndOfRound()
 	-- if we have enough points, complete this plate, and start a new round
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	if roundScore >= roundGoal and not isDrawing then
+		-- playStackSFX()
 		completePlate()
 		return
 	end
@@ -221,6 +228,7 @@ function checkForSandwich()
 	-- if we made a sandwich, immediately toss the plate
 	local typeOfPlate = getTypeOfPlate(currentPlate)
 	if typeOfPlate == -1 then
+		-- playTossSFX()
 		animationText = 'You made a Sandwich, no points! Tossing Plate.'
 		wait(2.65 * animationScale)
 		completePlate()
@@ -249,6 +257,7 @@ function plateCardFromHand(handIndex, startX, startY)
 		{ui.plateCards.x, ui.plateCards.y},
 		drawAnimationSpeed * animationScale, ease.inovershoot
 	)
+	-- playDropSFX()
 	table.insert(currentPlate, movedCard)
 	isPlating = false
 	movingCard.enabled = false
@@ -274,6 +283,7 @@ function plateCardFromDeck(drawIndex)
 		{ui.plateCards.x, ui.plateCards.y},
 		drawAnimationSpeed * animationScale, ease.inovershoot
 	)
+	-- playDropSFX()
 
 	table.insert(currentPlate, movedCard)
 	isPlating = false
@@ -406,6 +416,11 @@ function checkToLoopMusic()
 		return
 	end
 
+	-- we don't need to check if the loop is already playing
+	if loop:isPlaying() then
+		return
+	end
+
 	-- sometimes, if we've left the tab focus, we'll fail to start the loop
 	if intro == nil and not loop:isPlaying() then
 		loop:play()
@@ -421,7 +436,7 @@ end
 
 function startNewGame()
 	-- shuffle the deck to make the start pile
-	drawPile = safeShuffle(startingDeck)
+	drawPile = safeShuffle(startingDeck, 3)
 	hand = {}
 	discardPile = {}
 	currentPlate = {}
@@ -451,14 +466,6 @@ function love.load()
 	async(routines, function()
 		startNewGame()
 	end)
-
-	-- music loading (and looping)
-	intro = love.audio.newSource("Assets/intro.ogg", "stream")
-	loop  = love.audio.newSource("Assets/loop.ogg", "stream")
-	intro:setVolume(masterVolume * musicVolume)
-	loop:setVolume(masterVolume * musicVolume)
-	loop:setLooping(true)
-	-- we won't start the music until we hit start
 end
 
 function love.update(dt)
@@ -680,6 +687,13 @@ function love.draw()
 	end
 end
 
+function shuffleDrawPile(deep)
+	animationText = 'Shuffling Deck'
+	-- playShuffleSFX()
+	wait(0.5 * animationScale)
+	drawPile = safeShuffle(drawPile, deep)
+end
+
 function expandModal()
 	if hasStarted then
 		animationText = 'opening modal'
@@ -771,6 +785,7 @@ end
 
 function updateSelection(target)
 	selection = target
+
 	async(routines, function()
 		local targetX = ui[selection].x
 		local targetY = ui[selection].y
@@ -784,6 +799,10 @@ function updateSelection(target)
 			{targetX, targetY, ui[selection].width, ui[selection].height},
 			navAnimationSpeed * animationScale, ease.inovershoot
 		)
+
+		if ui[target].card then
+			-- playNavSFX()
+		end
 	end)
 
 	local navKey = getNavKey()
@@ -1101,7 +1120,7 @@ function love.keypressed(rawKey)
 			table.insert(drawPile, 1, 1)
 
 			-- do starting shuffle
-			drawPile = startingShuffle(drawPile)
+			shuffleDrawPile(2)
 
 			-- insert selected card at top of draw pile
 			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
@@ -1121,24 +1140,24 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			-- if the modal action was start, start the music
 			if modalActions[1] == 'start' then
+				-- if we have the intro track, play it now
+				-- (if we restarted, this will be nil)
+				if intro then
+					intro:play()
+				end
+
 				hasStarted = true
 				-- set the game seed now (if gameseed is nil)
 				if gameSeed == nil then
 					loadSeed()
 				end
 				-- now that we've loaded a seed, do a shuffle of the deck
-				drawPile = safeShuffle(drawPile)
-
-				-- if we have the intro track, play it now
-				-- (if we restarted, this will be nil)
-				if intro then
-					intro:play()
-				end
+				shuffleDrawPile(3)
 			end
 
 			-- if the modal action was add, we still need to shuffle here
 			if modalActions[1] == 'add' then
-				drawPile = startingShuffle(drawPile)
+				shuffleDrawPile(2)
 			end
 
 			minimizeModal()
@@ -1161,9 +1180,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
-			animationText = 'Shuffling Deck'
-			wait(0.5 * animationScale)
-			drawPile = safeShuffle(drawPile)
+			shuffleDrawPile(3)
 
 			updateSelectionAfterPlayOrDraw()
 		end)
@@ -1179,6 +1196,7 @@ function love.keypressed(rawKey)
 				animationText = 'Scoring Plate'
 				wait(1 * animationScale)
 
+				playStack()
 				completePlate()
 				if not modalActive then
 					drawThree()

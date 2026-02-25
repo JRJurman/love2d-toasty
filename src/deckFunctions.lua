@@ -10,29 +10,16 @@ function countValueInTopOfPile(pile, count, value)
 	return totalCount
 end
 
-function startingShuffle(source)
+function safeShuffle(source, deep)
 	local target = {}
-	-- keep shuffling until the first two contain exactly 1 bread
-	-- or until we hit like, 200 shuffles (give up at that point)
+	local deep = deep or 3
+	-- keep shuffling until the first three (or however many deep we pass in) contain exactly 1 bread
 	local totalShuffles = 0
 	repeat
 		print('shuffling.. '..totalShuffles)
 		totalShuffles = totalShuffles + 1
 		target = shuffle(source)
-	until countValueInTopOfPile(target, 2, 1) == 1 or totalShuffles > 200
-
-	return target
-end
-
-function safeShuffle(source)
-	local target = {}
-	-- keep shuffling until the first three contain exactly 1 bread
-	local totalShuffles = 0
-	repeat
-		print('shuffling.. '..totalShuffles)
-		totalShuffles = totalShuffles + 1
-		target = shuffle(source)
-	until countValueInTopOfPile(target, 3, 1) == 1 or totalShuffles > 200
+	until countValueInTopOfPile(target, deep, 1) == 1 or totalShuffles > 200
 
 	return target
 end
