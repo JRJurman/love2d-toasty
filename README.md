@@ -6,12 +6,18 @@ Game for Games for Blind Gamers game jam
 
 Game Designed by Jesse Jurman. Play testing and design help from Ethan Jurman, Tina Howard,
 Music created using GarageBand by Jesse Jurman and Ethan Jurman.
+Sounds by Jesse Jurman.
 Art created using Affinity by Ethan Jurman.
 
 Inspired by Dogpile, Balatro, Ball x Pit, Flip 7
 
 - Color Palette: https://lospec.com/palette-list/apollo
 - Screen Reader Template: https://github.com/JRJurman/love2d-a11y-template
+
+## Attributions
+
+Font:
+Cherry Bomb One -- https://github.com/satsuyako/CherryBomb -- SIL OPEN FONT LICENSE Version 1.1
 
 ## Development
 
