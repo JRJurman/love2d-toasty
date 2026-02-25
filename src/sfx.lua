@@ -1,4 +1,4 @@
-local sfxVolume = 1.2
+local sfxVolume = 1
 local navSound = love.sound.newSoundData('Assets/nav.wav')
 
 function playNavSFX()
@@ -43,6 +43,22 @@ local dealSound = love.sound.newSoundData('Assets/deal.wav')
 
 function playDealSFX()
 	local source = love.audio.newSource(dealSound)
+	source:setVolume(sfxVolume * masterVolume)
+	source:play()
+end
+
+local pushSound = love.sound.newSoundData('Assets/push.wav')
+
+function playPushSFX()
+	local source = love.audio.newSource(pushSound)
+	source:setVolume(sfxVolume * masterVolume)
+	source:play()
+end
+
+local pullSound = love.sound.newSoundData('Assets/pull.wav')
+
+function playPullSFX()
+	local source = love.audio.newSource(pullSound)
 	source:setVolume(sfxVolume * masterVolume)
 	source:play()
 end

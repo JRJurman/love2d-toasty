@@ -2,7 +2,7 @@ actionDetails = {
 	start = {
 		modalTitle = "Toasty!",
 		label = "Start",
-		initialModalDescription = "Chef, your goal is to make toast, starting with slices of bread, and plating ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions and hear navigation options.",
+		initialModalDescription = "Chef, start plates with bread and then make fat stacks of ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Make it through 7 shifts. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions any time.",
 		actionDescription = "Select to start the game chef.",
 	},
 	restart = {
@@ -45,7 +45,7 @@ actionDetails = {
 		modalTitle = "Add a Card?",
 		modalSubtitle = "comes with free bread",
 		label = "Add Card",
-		initialModalDescription = "Starting new round. Showing new cards that you can add to your deck. Each comes with a free bread card.",
+		initialModalDescription = "Starting new shift. Showing new cards that you can add to your deck. Each comes with a free bread card.",
 		actionDescription = "Select a card above to add it to your deck.",
 	},
 	settings = {

@@ -32,7 +32,7 @@ ui = {
 		height = 800,
 	},
 	score = {
-		label = 'Round Score',
+		label = 'Score',
 		selectable = true,
 
 		nav = {

@@ -86,8 +86,8 @@ local repeating = false
 
 gameSeed = nil
 waitingSeed = 0
-masterVolume = 0.45
-musicVolume = 0.50
+masterVolume = 1
+musicVolume = 0.60
 
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
@@ -174,6 +174,10 @@ function checkForNewHighestStack()
 	-- if this resolved in a new high stack, announce that
 	-- (only counts if this isn't a sandwich)
 	local typeOfPlate = getTypeOfPlate(currentPlate)
+	if #currentPlate > fattestStack and typeOfPlate == 1 then
+		-- if this isn't quite a "fat stack" yet, silently update this value
+		fattestStack = #currentPlate
+	end
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
 		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients'
 		fattestStack = #currentPlate
@@ -575,13 +579,13 @@ function love.draw()
 		love.graphics.printf(scoreDescription, ui.plateScore.x, ui.plateScore.y + 100, ui.plateScore.width, 'center')
 	else
 		love.graphics.setFont(getFont(90))
-		love.graphics.printf('ROUND COMPLETE', ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, 'center')
+		love.graphics.printf('SHIFT COMPLETE', ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, 'center')
 	end
 
 	-- draw round score
 	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf('Round '..roundNumber, ui.score.x + 10, ui.score.y, ui.score.width - 20, 'center')
+	love.graphics.printf('Shift '..roundNumber, ui.score.x + 10, ui.score.y, ui.score.width - 20, 'center')
 	love.graphics.setFont(getFont(90))
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 15, ui.score.width - 20, 'center')
@@ -697,6 +701,7 @@ function shuffleDrawPile(deep)
 end
 
 function expandModal()
+	playPullSFX()
 	if hasStarted then
 		animationText = 'opening modal'
 	end
@@ -706,6 +711,7 @@ end
 
 function minimizeModal()
 	animationText = 'closing modal'
+	playPushSFX()
 	wait(0.5 * animationScale)
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
@@ -730,7 +736,7 @@ function completePlate()
 	if completedPlatesScore >= roundGoal then
 		completingRound = true
 		local nextRoundGoal = math.floor(roundGoal * roundMultiplier)
-		animationText = 'Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Round '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.'
+		animationText = 'Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Shift '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.'
 		local waitTime = 4.65
 		if roundGoal > 9 then
 			waitTime = waitTime + 0.25
@@ -917,7 +923,7 @@ function getSelectionInstruction()
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' then
-			local roundScore = 'You made it to round '..roundNumber..'. Your fattest toast was '..fattestStack..' ingredients.'
+			local roundScore = 'You made it to shift '..roundNumber..'. Your fattest toast was '..fattestStack..' ingredients.'
 			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
 		if selectedAction then
@@ -964,7 +970,7 @@ function getSelectionInstruction()
 
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	if selection == 'score' then
-		local scoreLabel = 'Round Score: '..roundScore..' points out of '..roundGoal..' needed to complete the round. There are '..#completedPlates..' completed plates.'
+		local scoreLabel = 'Score: '..roundScore..' points out of '..roundGoal..' needed to complete the shift. There are '..#completedPlates..' completed plates.'
 		local stackLabel = 'Your fattest stack is '..fattestStack..' ingredients.'
 		return scoreLabel..stackLabel
 	end
@@ -976,7 +982,7 @@ function getSelectionInstruction()
 	end
 
 	if selection == 'actionNewPlate' then
-		local scoreText = 'You have '..roundScore..' points out of '..roundGoal..' needed to complete the round. '
+		local scoreText = 'You have '..roundScore..' points out of '..roundGoal..' needed to complete the shift. '
 		return 'Second Action: Score points and start a new plate. '..scoreText
 	end
 
