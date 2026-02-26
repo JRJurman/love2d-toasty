@@ -334,15 +334,84 @@ ui = {
 	settingsMasterSlider = {
 		label = 'Master Audio Slider',
 		modal = true,
-		action = true,
-		actionIndex = 1,
 		selectable = true,
+		slider = true,
 
 		nav = {
-			withModal = {
-				up = 'modalCard1',
-				down = 'card1',
-				right = 'modalAction2',
+			withSettingsModal = {
+				down = 'settingsMusicSlider',
+			},
+		},
+
+		x = 90,
+		y = 570,
+		width = 700,
+		height = 100,
+	},
+	settingsMusicSlider = {
+		label = 'Music Audio Slider',
+		modal = true,
+		selectable = true,
+		slider = true,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsMasterSlider',
+				down = 'settingsSFXSlider',
+			},
+		},
+
+		x = 90,
+		y = 570,
+		width = 700,
+		height = 100,
+	},
+	settingsSFXSlider = {
+		label = 'Sound Audio Slider',
+		modal = true,
+		selectable = true,
+		slider = true,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsMusicSlider',
+				down = 'settingsAnimationSlider',
+			},
+		},
+
+		x = 90,
+		y = 570,
+		width = 700,
+		height = 100,
+	},
+	settingsAnimationSlider = {
+		label = 'Animation Speed Slider',
+		modal = true,
+		selectable = true,
+		slider = true,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsSFXSlider',
+				down = 'settingsCursorSlider',
+			},
+		},
+
+		x = 90,
+		y = 570,
+		width = 700,
+		height = 100,
+	},
+	settingsCursorSlider = {
+		label = 'Cursor Hue Slider',
+		modal = true,
+		selectable = true,
+		slider = true,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsAnimationSlider',
+				down = 'modalSettingsSaveAction',
 			},
 		},
 
@@ -359,9 +428,9 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withModal = {
-				up = 'settingsMasterSlider',
-				right = 'modalSettingsAction2',
+			withSettingsModal = {
+				up = 'settingsCursorSlider',
+				right = 'modalSettingsResetAction',
 			},
 		},
 
@@ -378,9 +447,9 @@ ui = {
 		selectable = true,
 
 		nav = {
-			withModal = {
-				up = 'settingsMasterSlider',
-				left = 'modalSettingsAction1',
+			withSettingsModal = {
+				up = 'settingsCursorSlider',
+				left = 'modalSettingsSaveAction',
 			},
 		},
 

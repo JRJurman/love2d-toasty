@@ -52,6 +52,7 @@ local modalActive = true
 local modalActions = {'start'}
 
 local settingsModalActive = false
+local lastSelection = nil
 
 local isDrawing = false
 local isPlating = false
@@ -86,25 +87,38 @@ local heardNavInstructions = {}
 
 local repeating = false
 
-cursorHue = 0.2
-
 gameSeed = nil
 waitingSeed = 0
-masterVolume = 1
-musicVolume = 0.1
-sfxVolume = 1
+
+defaultCursorHue = 0.2
+cursorHue = defaultCursorHue
+defaultMasterVolume = 1
+masterVolume = defaultMasterVolume
+defaultMusicVolume = 0.7
+musicVolume = defaultMusicVolume
+defaultSfxVolume = 1
+sfxVolume = defaultSfxVolume
+defaultAnimationScale = 0.75
+animationScale = defaultAnimationScale
 
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
-intro:setVolume(masterVolume * musicVolume)
-loop:setVolume(masterVolume * musicVolume)
+intro:setVolume(masterVolume * musicVolume * 0.2)
+loop:setVolume(masterVolume * musicVolume * 0.2)
 loop:setLooping(true)
 
-local animationScale = 0.75
 local navAnimationSpeed = 0.5
 local drawAnimationSpeed = 1
 
 local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+
+function updateMusicVolume()
+	-- update the volume for running music
+	if (intro) then
+		intro:setVolume(masterVolume * musicVolume * 0.143)
+	end
+	loop:setVolume(masterVolume * musicVolume * 0.143)
+end
 
 function getHandSize()
 	local currentHandSize = 0
@@ -123,7 +137,9 @@ end
 function getNavKey()
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 
-	if modalActive then
+	if settingsModalActive then
+		return 'withSettingsModal'
+	elseif modalActive then
 		return 'withModal'
 	elseif hasCardsInHand then
 		return 'withHand'
@@ -661,20 +677,18 @@ function love.draw()
 
 		-- draw the settings
 
-		-- draw any actions on the modal
+		-- draw actions on the modal
 		love.graphics.setFont(getFont(50))
-		if modalActions[1] then
-			local actionX = ui.settingsModal.x + ui.modalAction1.x
-			local actionY = ui.settingsModal.y + ui.modalAction1.y
-			love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
-			love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY + 20, ui.modalAction1.width, 'center')
-		end
-		if modalActions[2] then
-			local actionX = ui.settingsModal.x + ui.modalAction2.x
-			local actionY = ui.settingsModal.y + ui.modalAction2.y
-			love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
-			love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY + 20, ui.modalAction2.width, 'center')
-		end
+		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
+		local actionY = ui.settingsModal.y + ui.modalSettingsSaveAction.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsSaveAction.width, ui.modalSettingsSaveAction.height)
+		love.graphics.printf('Save', actionX, actionY + 20, ui.modalSettingsSaveAction.width, 'center')
+
+		local actionX = ui.settingsModal.x + ui.modalSettingsResetAction.x
+		local actionY = ui.settingsModal.y + ui.modalSettingsResetAction.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsResetAction.width, ui.modalSettingsResetAction.height)
+		love.graphics.printf('Reset', actionX, actionY + 20, ui.modalSettingsResetAction.width, 'center')
+
 		love.graphics.setFont(getFont(30))
 	end
 
@@ -899,10 +913,11 @@ end
 
 function startSettingsModal()
 	settingsModalActive = true
+	lastSelection = selection
 
 	expandSettingsModal()
 
-	updateSelection('modalSettingsSaveAction')
+	updateSelection('settingsMasterSlider')
 end
 
 function getSelectionInstruction()
@@ -1051,6 +1066,34 @@ function getSelectionInstruction()
 		return 'Second Action: Score points and start a new plate. '..scoreText
 	end
 
+	if selection == 'settingsMasterSlider' then
+		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings'
+	end
+
+	if selection == 'settingsMusicSlider' then
+		return 'Music Volume Slider, press left to decrease, right to increase'
+	end
+
+	if selection == 'settingsSFXSlider' then
+		return 'Sound Volume Slider, press left to decrease, right to increase'
+	end
+
+	if selection == 'settingsAnimationSlider' then
+		return 'Animation Speed Slider, press left to slow down, right to speed up'
+	end
+
+	if selection == 'settingsCursorSlider' then
+		return 'Cursor Hue Slider, press left and right to change cursor hue color'
+	end
+
+	if selection == 'modalSettingsSaveAction' then
+		return 'Save Settings and continue game'
+	end
+
+	if selection == 'modalSettingsResetAction' then
+		return 'Reset settings to default'
+	end
+
 	return ''
 end
 
@@ -1095,6 +1138,59 @@ function love.keypressed(rawKey)
 				updateSelection(nextSelection)
 			end
 		end)
+	end
+
+	-- if this is a settings slider, and we hit left or right, update those settings
+	if (key == 'left' or key == 'right') and ui[selection].slider then
+		playNavSFX()
+		if selection == 'settingsMasterSlider' then
+			local delta = (key == 'left' and -0.1) or 0.1
+			masterVolume = math.min(math.max(masterVolume + delta, 0), 1)
+			updateMusicVolume()
+		end
+		if selection == 'settingsMusicSlider' then
+			local delta = (key == 'left' and -0.1) or 0.1
+			musicVolume = math.min(math.max(musicVolume + delta, 0), 1)
+			updateMusicVolume()
+		end
+		if selection == 'settingsSFXSlider' then
+			local delta = (key == 'left' and -0.1) or 0.1
+			sfxVolume = math.min(math.max(sfxVolume + delta, 0), 1)
+		end
+		if selection == 'settingsAnimationSlider' then
+			local delta = (key == 'left' and 0.15) or -0.15
+			animationScale = math.min(math.max(animationScale + delta, 0.15), 2)
+		end
+		if selection == 'settingsCursorSlider' then
+			local delta = (key == 'left' and -0.1) or 0.1
+			cursorHue = math.min(math.max(cursorHue + delta, 0), 1)
+		end
+	end
+
+	-- if we reset, reset the default settings
+	if key == 'select' and selection == 'modalSettingsResetAction' then
+		cursorHue = defaultCursorHue
+		masterVolume = defaultMasterVolume
+		musicVolume = defaultMusicVolume
+		sfxVolume = defaultSfxVolume
+		animationScale = defaultAnimationScale
+		updateMusicVolume()
+		async(routines, function()
+			minimizeSettingsModal()
+			settingsModalActive = false
+			updateSelection(lastSelection)
+		end)
+		return
+	end
+
+	-- if we saved, then close the modal
+	if key == 'select' and selection == 'modalSettingsSaveAction' then
+		async(routines, function()
+			minimizeSettingsModal()
+			settingsModalActive = false
+			updateSelection(lastSelection)
+		end)
+		return
 	end
 
 	-- if we are selecting a non-modal card and modal is not active, trigger the onPlay
@@ -1216,7 +1312,7 @@ function love.keypressed(rawKey)
 	end
 
 	-- if we are choosing to skip or close the modal action...
-	local isSelectingModalAction = ui[selection].modal and ui[selection].action
+	local isSelectingModalAction = ui[selection].modal and ui[selection].action and not settingsModalActive
 	local modalAction = isSelectingModalAction and modalActions[ui[selection].actionIndex]
 	local isSelectingSkip = isSelectingModalAction and modalAction == 'skip' or modalAction == 'close' or modalAction == 'start'
 	if key == 'select' and isSelectingSkip then
@@ -1309,6 +1405,7 @@ function love.keypressed(rawKey)
 			else
 				minimizeSettingsModal()
 				settingsModalActive = false
+				updateSelection(lastSelection)
 			end
 		end)
 	end
