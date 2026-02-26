@@ -11,6 +11,7 @@ require('cardDetails')
 require('ui')
 require('drawCard')
 require('drawFatRect')
+require('drawSlider')
 require('deckFunctions')
 require('remapFunctions')
 require('plateFunctions')
@@ -104,6 +105,7 @@ animationScale = defaultAnimationScale
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
 intro:setVolume(masterVolume * musicVolume * 0.2)
+intro:setLooping(true)
 loop:setVolume(masterVolume * musicVolume * 0.2)
 loop:setLooping(true)
 
@@ -476,6 +478,10 @@ function startNewGame()
 	modalCards = {}
 	startModal()
 	-- mumble(voiceRoutines, 20*animationScale)
+
+	if intro then
+		intro:play()
+	end
 end
 
 function loadSeed()
@@ -676,6 +682,33 @@ function love.draw()
 		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y, ui.settingsModal.width - 20, 'center')
 
 		-- draw the settings
+		love.graphics.setFont(getFont(30))
+		local masterX = ui.settingsMasterSlider.x + ui.settingsModal.x + 10
+		local masterY = ui.settingsMasterSlider.y + ui.settingsModal.y
+		love.graphics.printf('Master Volume', masterX, masterY, ui.settingsMasterSlider.width, 'left')
+		drawSlider(masterX, masterY + 10 + (ui.settingsMasterSlider.height / 2), ui.settingsMasterSlider.width - 20, masterVolume, 0, 1)
+
+		local musicX = ui.settingsMusicSlider.x + ui.settingsModal.x + 10
+		local musicY = ui.settingsMusicSlider.y + ui.settingsModal.y
+		love.graphics.printf('Music Volume', ui.settingsMusicSlider.x + ui.settingsModal.x + 5, ui.settingsMusicSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(musicX, musicY + 10 + (ui.settingsMusicSlider.height / 2), ui.settingsMusicSlider.width - 20, musicVolume, 0, 1)
+
+		local sfxX = ui.settingsSFXSlider.x + ui.settingsModal.x + 10
+		local sfxY = ui.settingsSFXSlider.y + ui.settingsModal.y
+		love.graphics.printf('Sound Volume', ui.settingsSFXSlider.x + ui.settingsModal.x + 5, ui.settingsSFXSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(sfxX, sfxY + 10 + (ui.settingsSFXSlider.height / 2), ui.settingsSFXSlider.width - 20, sfxVolume, 0, 1)
+
+		local animationX = ui.settingsAnimationSlider.x + ui.settingsModal.x + 10
+		local animationY = ui.settingsAnimationSlider.y + ui.settingsModal.y
+		love.graphics.printf('Animation Speed', ui.settingsAnimationSlider.x + ui.settingsModal.x + 5, ui.settingsAnimationSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		local relativeAnimationValue = math.floor((0.75/animationScale) * 100) / 100
+		drawSlider(animationX, animationY + 10 + (ui.settingsAnimationSlider.height / 2), ui.settingsAnimationSlider.width - 20, relativeAnimationValue, 0.5, 5)
+
+		local cursorHueX = ui.settingsCursorSlider.x + ui.settingsModal.x + 10
+		local cursorHueY = ui.settingsCursorSlider.y + ui.settingsModal.y
+		love.graphics.printf('Cursor Hue', ui.settingsCursorSlider.x + ui.settingsModal.x + 5, ui.settingsCursorSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(cursorHueX, cursorHueY + 10 + (ui.settingsCursorSlider.height / 2), ui.settingsCursorSlider.width - 20, cursorHue, 0, 1)
+
 
 		-- draw actions on the modal
 		love.graphics.setFont(getFont(50))
@@ -773,9 +806,7 @@ end
 
 function expandSettingsModal()
 	playPullSFX()
-	if hasStarted then
-		animationText = 'opening settings'
-	end
+	animationText = 'opening settings'
 	ui.settingsModal.y = ui.offScreenModal.y
 	animate(ui.settingsModal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
 end
@@ -869,9 +900,13 @@ function updateSelection(target)
 		local targetX = ui[selection].x
 		local targetY = ui[selection].y
 		-- if we are in a modal, modify the target positions respectively
-		if (ui[selection].modal) then
+		if (modalActive and ui[selection].modal) then
 			targetX = targetX + ui.modal.x
 			targetY = targetY + ui.modal.y
+		end
+		if (settingsModalActive and ui[selection].modal) then
+			targetX = targetX + ui.settingsModal.x
+			targetY = targetY + ui.settingsModal.y
 		end
 		animateMany(cursor,
 			{"x", "y", "width", "height"},
@@ -1144,26 +1179,35 @@ function love.keypressed(rawKey)
 	if (key == 'left' or key == 'right') and ui[selection].slider then
 		playNavSFX()
 		if selection == 'settingsMasterSlider' then
-			local delta = (key == 'left' and -0.1) or 0.1
-			masterVolume = math.min(math.max(masterVolume + delta, 0), 1)
+			local delta = (key == 'left' and -1) or 1
+			masterVolume = math.floor((masterVolume*10) + delta) / 10
+			masterVolume = math.min(math.max(masterVolume, 0), 1)
+			selectionText = (math.floor(masterVolume * 100))..'%'
 			updateMusicVolume()
 		end
 		if selection == 'settingsMusicSlider' then
-			local delta = (key == 'left' and -0.1) or 0.1
-			musicVolume = math.min(math.max(musicVolume + delta, 0), 1)
+			local delta = (key == 'left' and -1) or 1
+			musicVolume = math.floor((musicVolume*10) + delta) / 10
+			musicVolume = math.min(math.max(musicVolume, 0), 1)
+			selectionText = (math.floor(musicVolume * 100))..'%'
 			updateMusicVolume()
 		end
 		if selection == 'settingsSFXSlider' then
-			local delta = (key == 'left' and -0.1) or 0.1
-			sfxVolume = math.min(math.max(sfxVolume + delta, 0), 1)
+			local delta = (key == 'left' and -1) or 1
+			sfxVolume = math.floor((sfxVolume*10) + delta) / 10
+			sfxVolume = math.min(math.max(sfxVolume, 0), 1)
+			selectionText = (math.floor(sfxVolume * 100))..'%'
 		end
 		if selection == 'settingsAnimationSlider' then
 			local delta = (key == 'left' and 0.15) or -0.15
-			animationScale = math.min(math.max(animationScale + delta, 0.15), 2)
+			animationScale = math.min(math.max(animationScale + delta, 0.15), 1.5)
+			selectionText = math.floor((0.75/animationScale) * 100) / 100
 		end
 		if selection == 'settingsCursorSlider' then
-			local delta = (key == 'left' and -0.1) or 0.1
-			cursorHue = math.min(math.max(cursorHue + delta, 0), 1)
+			local delta = (key == 'left' and -1) or 1
+			cursorHue = math.floor((cursorHue*10) + delta) / 10
+			cursorHue = math.min(math.max(cursorHue, 0), 1)
+			selectionText = hueToColor(cursorHue)
 		end
 	end
 
@@ -1322,7 +1366,7 @@ function love.keypressed(rawKey)
 				-- if we have the intro track, play it now
 				-- (if we restarted, this will be nil)
 				if intro then
-					intro:play()
+					intro:setLooping(false)
 				end
 
 				hasStarted = true

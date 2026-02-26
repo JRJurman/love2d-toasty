@@ -15,3 +15,30 @@ function HSL(h, s, l, a)
 	else              r,g,b = c,0,x
 	end return r+m, g+m, b+m, a
 end
+
+function hueToColor(hue)
+	local roughHue = math.floor(hue * 10)
+	if roughHue == 0 then
+		return 'red'
+	elseif roughHue == 1 then
+		return 'orange'
+	elseif roughHue == 2 then
+		return 'yellow'
+	elseif roughHue == 3 then
+		return 'bright green'
+	elseif roughHue == 4 then
+		return 'green'
+	elseif roughHue == 5 then
+		return 'teal'
+	elseif roughHue == 6 then
+		return 'blue'
+	elseif roughHue == 7 then
+		return 'purple'
+	elseif roughHue == 8 then
+		return 'magenta'
+	elseif roughHue == 9 then
+		return 'pink'
+	else
+		return 'red'
+	end
+end
