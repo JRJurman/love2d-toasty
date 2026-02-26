@@ -1,6 +1,7 @@
 local json = require("json")
 require('shuffle')
 require('copy')
+require('hsl')
 
 require('save')
 require('animation')
@@ -49,7 +50,8 @@ local hasSeenInstructions = true
 local hasStarted = false
 local modalActive = true
 local modalActions = {'start'}
--- local modalActions = {'start', 'settings'}
+
+local settingsModalActive = false
 
 local isDrawing = false
 local isPlating = false
@@ -83,6 +85,8 @@ local drawnAnimationText = ''
 local heardNavInstructions = {}
 
 local repeating = false
+
+cursorHue = 0.2
 
 gameSeed = nil
 waitingSeed = 0
@@ -459,7 +463,10 @@ function startNewGame()
 end
 
 function loadSeed()
-	local savedSeed = loadGameData('seed.json')
+	local savedSeed = nil
+	if love.keyboard.isDown( 'lctrl' ) then
+		savedSeed = loadGameData('seed.json')
+	end
 	if savedSeed then
 		gameSeed = savedSeed.seed
 	else
@@ -594,50 +601,82 @@ function love.draw()
 	love.graphics.setFont(getFont(30))
 	love.graphics.printf('Fattest Stack: '..fattestStack..' ingredient', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
-	-- always draw the modal (it is sometimes offscreen)
-	love.graphics.setColor( 0, 0, 0)
-	love.graphics.rectangle("fill", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
-	love.graphics.setColor(0.98, 0.47, 0.98)
-	love.graphics.rectangle("line", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
+	-- draw the modal if it is active
+	if modalActive then
+		love.graphics.setColor( 0, 0, 0)
+		love.graphics.rectangle("fill", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
+		love.graphics.setColor(0.98, 0.47, 0.98)
+		love.graphics.rectangle("line", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
 
-	-- draw modal title
-	if modalActions[1] then
-		love.graphics.setFont(getFont(90))
-		love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y, ui.modal.width - 20, 'center')
-		if actionDetails[modalActions[1]].modalSubtitle then
-			love.graphics.setFont(getFont(50))
-			love.graphics.printf(actionDetails[modalActions[1]].modalSubtitle, ui.modal.x + 10, ui.modal.y + 95, ui.modal.width - 20, 'center')
+		-- draw modal title
+		if modalActions[1] then
+			love.graphics.setFont(getFont(90))
+			love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y, ui.modal.width - 20, 'center')
+			if actionDetails[modalActions[1]].modalSubtitle then
+				love.graphics.setFont(getFont(50))
+				love.graphics.printf(actionDetails[modalActions[1]].modalSubtitle, ui.modal.x + 10, ui.modal.y + 95, ui.modal.width - 20, 'center')
+			end
+			love.graphics.setFont(getFont(30))
+		end
+
+		-- draw any cards on the modal
+		if modalCards[1] then
+			local cardX = ui.modal.x + ui.modalCard1.x
+			local cardY = ui.modal.y + ui.modalCard1.y
+			drawCard(modalCards[1], cardX, cardY)
+		end
+		if modalCards[2] then
+			local cardX = ui.modal.x + ui.modalCard2.x
+			local cardY = ui.modal.y + ui.modalCard2.y
+			drawCard(modalCards[2], cardX, cardY)
+		end
+
+		-- draw any actions on the modal
+		love.graphics.setFont(getFont(50))
+		if modalActions[1] then
+			local actionX = ui.modal.x + ui.modalAction1.x
+			local actionY = ui.modal.y + ui.modalAction1.y
+			love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
+			love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY + 20, ui.modalAction1.width, 'center')
+		end
+		if modalActions[2] then
+			local actionX = ui.modal.x + ui.modalAction2.x
+			local actionY = ui.modal.y + ui.modalAction2.y
+			love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
+			love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY + 20, ui.modalAction2.width, 'center')
 		end
 		love.graphics.setFont(getFont(30))
 	end
 
-	-- draw any cards on the modal
-	if modalCards[1] then
-		local cardX = ui.modal.x + ui.modalCard1.x
-		local cardY = ui.modal.y + ui.modalCard1.y
-		drawCard(modalCards[1], cardX, cardY)
-	end
-	if modalCards[2] then
-		local cardX = ui.modal.x + ui.modalCard2.x
-		local cardY = ui.modal.y + ui.modalCard2.y
-		drawCard(modalCards[2], cardX, cardY)
-	end
+	-- draw the settings modal
+	if settingsModalActive then
+		love.graphics.setColor( 0, 0, 0)
+		love.graphics.rectangle("fill", ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
+		love.graphics.setColor(0.98, 0.47, 0.98)
+		love.graphics.rectangle("line", ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
 
-	-- draw any actions on the modal
-	love.graphics.setFont(getFont(50))
-	if modalActions[1] then
-		local actionX = ui.modal.x + ui.modalAction1.x
-		local actionY = ui.modal.y + ui.modalAction1.y
-		love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
-		love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY + 20, ui.modalAction1.width, 'center')
+		-- draw modal title
+		love.graphics.setFont(getFont(50))
+		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y, ui.settingsModal.width - 20, 'center')
+
+		-- draw the settings
+
+		-- draw any actions on the modal
+		love.graphics.setFont(getFont(50))
+		if modalActions[1] then
+			local actionX = ui.settingsModal.x + ui.modalAction1.x
+			local actionY = ui.settingsModal.y + ui.modalAction1.y
+			love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
+			love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY + 20, ui.modalAction1.width, 'center')
+		end
+		if modalActions[2] then
+			local actionX = ui.settingsModal.x + ui.modalAction2.x
+			local actionY = ui.settingsModal.y + ui.modalAction2.y
+			love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
+			love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY + 20, ui.modalAction2.width, 'center')
+		end
+		love.graphics.setFont(getFont(30))
 	end
-	if modalActions[2] then
-		local actionX = ui.modal.x + ui.modalAction2.x
-		local actionY = ui.modal.y + ui.modalAction2.y
-		love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
-		love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY + 20, ui.modalAction2.width, 'center')
-	end
-	love.graphics.setFont(getFont(30))
 
 	-- draw any cards that are moving
 	if movingCard.enabled then
@@ -658,7 +697,7 @@ function love.draw()
 	love.graphics.printf(readoutText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
 
 	-- draw the cursor
-	love.graphics.setColor(0.43, 0.47, 0.98)
+	love.graphics.setColor(HSL(cursorHue, 1, 0.60))
 	drawFatRect('outset', 5, cursor.x, cursor.y, cursor.width, cursor.height)
 
 	DebuggingScreen.draw()
@@ -716,6 +755,23 @@ function minimizeModal()
 	wait(0.5 * animationScale)
 	ui.modal.y = ui.onScreenModal.y
 	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
+end
+
+function expandSettingsModal()
+	playPullSFX()
+	if hasStarted then
+		animationText = 'opening settings'
+	end
+	ui.settingsModal.y = ui.offScreenModal.y
+	animate(ui.settingsModal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
+end
+
+function minimizeSettingsModal()
+	animationText = 'closing settings'
+	playPushSFX()
+	wait(0.5 * animationScale)
+	ui.settingsModal.y = ui.onScreenModal.y
+	animate(ui.settingsModal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
 end
 
 function getScoreForCompletedPlates()
@@ -839,6 +895,14 @@ function startModal()
 	else
 		updateSelection('modalAction1')
 	end
+end
+
+function startSettingsModal()
+	settingsModalActive = true
+
+	expandSettingsModal()
+
+	updateSelection('modalSettingsSaveAction')
 end
 
 function getSelectionInstruction()
@@ -991,7 +1055,20 @@ function getSelectionInstruction()
 end
 
 function love.keypressed(rawKey)
-	-- DebuggingScreen.keypressed(rawKey)
+	-- special debugging keys, only if holding down lctrl
+	if love.keyboard.isDown( 'lctrl' ) then
+		DebuggingScreen.keypressed(rawKey)
+		--  saving / loading seeds
+		if key == 'v' and gameSeed ~= nil then
+			saveGameData('seed.json', { seed = gameSeed })
+		end
+
+		if key == 'c' then
+			clearGameData('seed.json')
+		end
+	end
+
+	-- print('rawKey: '..rawKey)
 
 	key = remap(rawKey)
 	local navKey = getNavKey()
@@ -1225,13 +1302,15 @@ function love.keypressed(rawKey)
 		end)
 	end
 
-	-- testing saving / loading
-	if key == 'v' then
-		saveGameData('seed.json', { seed = gameSeed })
-	end
-
-	if key == 'c' then
-		clearGameData('seed.json')
+	if key == 'escape' then
+		async(routines, function()
+			if not settingsModalActive then
+				startSettingsModal()
+			else
+				minimizeSettingsModal()
+				settingsModalActive = false
+			end
+		end)
 	end
 
 	-- if we need to figure out where we are

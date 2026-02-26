@@ -325,4 +325,68 @@ ui = {
 		width = 365,
 		height = 150,
 	},
+	settingsModal = {
+		x = 5,
+		y = -1200,
+		width = 1075,
+		height = 805,
+	},
+	settingsMasterSlider = {
+		label = 'Master Audio Slider',
+		modal = true,
+		action = true,
+		actionIndex = 1,
+		selectable = true,
+
+		nav = {
+			withModal = {
+				up = 'modalCard1',
+				down = 'card1',
+				right = 'modalAction2',
+			},
+		},
+
+		x = 90,
+		y = 570,
+		width = 700,
+		height = 100,
+	},
+	modalSettingsSaveAction = {
+		label = 'Save Action',
+		modal = true,
+		action = true,
+		actionIndex = 1,
+		selectable = true,
+
+		nav = {
+			withModal = {
+				up = 'settingsMasterSlider',
+				right = 'modalSettingsAction2',
+			},
+		},
+
+		x = 90,
+		y = 570,
+		width = 365,
+		height = 150,
+	},
+	modalSettingsResetAction = {
+		label = 'Reset Action',
+		modal = true,
+		action = true,
+		actionIndex = 2,
+		selectable = true,
+
+		nav = {
+			withModal = {
+				up = 'settingsMasterSlider',
+				left = 'modalSettingsAction1',
+			},
+		},
+
+		x = 510,
+		y = 570,
+		width = 365,
+		height = 150,
+	},
 }

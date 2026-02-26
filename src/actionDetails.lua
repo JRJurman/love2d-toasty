@@ -2,8 +2,8 @@ actionDetails = {
 	start = {
 		modalTitle = "Toasty!",
 		label = "Start",
-		initialModalDescription = "Chef, start plates with bread and then make fat stacks of ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Make it through 7 shifts. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions any time.",
-		actionDescription = "Select to start the game chef.",
+		initialModalDescription = "Chef, start plates with bread and then make fat stacks of ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Make it through 7 shifts. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions any time. Escape for settings.",
+		actionDescription = "Select to start the game",
 	},
 	restart = {
 		modalTitle = "Game Over!",
