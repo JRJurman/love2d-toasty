@@ -1,4 +1,3 @@
-local sfxVolume = 1
 local navSound = love.sound.newSoundData('Assets/nav.wav')
 
 function playNavSFX()

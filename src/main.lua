@@ -87,7 +87,8 @@ local repeating = false
 gameSeed = nil
 waitingSeed = 0
 masterVolume = 1
-musicVolume = 0.60
+musicVolume = 0.1
+sfxVolume = 1
 
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
