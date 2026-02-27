@@ -1,14 +1,26 @@
 require('cardDetails')
 require('ui')
 require('drawFatRect')
-local json = require('json')
 
-local abilityMapping = {
-	close = 'Preview',
-	shuffle = 'Shuffle',
-	pick = 'Pick',
-	plate = 'Plate'
-}
+-- actions
+local pickAsset = love.graphics.newImage('Assets/pick.png')
+local shuffleAsset = love.graphics.newImage('Assets/shuffle.png')
+
+-- ingredients
+local butterAsset = love.graphics.newImage('Ingredients/butter.png')
+local avocadoAsset = love.graphics.newImage('Ingredients/avocado.png')
+local strawberryAsset = love.graphics.newImage('Ingredients/strawberry.png')
+local whipCreamAsset = love.graphics.newImage('Ingredients/whip_cream.png')
+local jamAsset = love.graphics.newImage('Ingredients/jam.png')
+local orangeAsset = love.graphics.newImage('Ingredients/orange.png')
+local eggAsset = love.graphics.newImage('Ingredients/egg.png')
+local cheddarAsset = love.graphics.newImage('Ingredients/cheddar.png')
+local garlicAsset = love.graphics.newImage('Ingredients/garlic.png')
+local onionAsset = love.graphics.newImage('Ingredients/onion.png')
+local ricottaAsset = love.graphics.newImage('Ingredients/ricotta.png')
+local sausageAsset = love.graphics.newImage('Ingredients/sausage.png')
+local baconAsset = love.graphics.newImage('Ingredients/bacon.png')
+
 
 function drawSeed(x, y, rx, ry, rotation)
 	-- translate so that the origin is at the card center
@@ -48,6 +60,62 @@ end
 local cardFontSize = 50
 local titleFontSize = 80
 
+function drawIngredient(x, y, card)
+	love.graphics.setColor(1,1,1)
+	if card == 2 then
+		love.graphics.draw(butterAsset, x + 50, y + 85, 0, 0.80)
+	end
+	if card == 3 then
+		love.graphics.draw(avocadoAsset, x + 90, y + 65, 0, 0.75)
+	end
+	if card == 4 then
+		love.graphics.draw(strawberryAsset, x + 75, y + 65, 0, 0.78)
+	end
+	if card == 5 then
+		love.graphics.draw(whipCreamAsset, x + 65, y + 90, 0, 0.70)
+	end
+	if card == 6 then
+		love.graphics.draw(jamAsset, x + 110, y + 100, 0, 0.60)
+	end
+	if card == 7 then
+		love.graphics.draw(orangeAsset, x + 90, y + 80, 0, 0.75)
+	end
+	if card == 8 then
+		love.graphics.draw(eggAsset, x + 25, y + 60, 0, 0.85)
+	end
+	if card == 9 then
+		love.graphics.draw(cheddarAsset, x + 115, y + 65, 0, 0.60)
+	end
+	if card == 10 then
+		love.graphics.draw(garlicAsset, x + 110, y + 90, 0, 0.60)
+	end
+	if card == 11 then
+		love.graphics.draw(onionAsset, x + 75, y + 65, 0, 0.80)
+	end
+	if card == 12 then
+		love.graphics.draw(ricottaAsset, x + 75, y + 65, 0, 0.70)
+	end
+	if card == 13 then
+		love.graphics.draw(sausageAsset, x + 90, y + 70, 0, 0.70)
+	end
+	if card == 14 then
+		love.graphics.draw(baconAsset, x + 90, y + 90, 0, 0.65)
+	end
+end
+
+function drawAction(x, y, card)
+	love.graphics.setColor(1,1,1)
+	if cardDetails[card].onPlay then
+		local ability = cardDetails[card].onPlay.actions[1];
+		if ability == 'plate' then
+			love.graphics.draw(pickAsset, x + 5, y + 150, 0, 0.4)
+		end
+		if ability == 'shuffle' then
+			love.graphics.draw(shuffleAsset, x + 5, y + 150, 0, 0.4)
+		end
+	end
+end
+
 function drawCardFront(x, y, card)
 	-- draw background
 	love.graphics.setColor(228/256, 214/256, 183/256)
@@ -62,11 +130,19 @@ function drawCardFront(x, y, card)
 
 	love.graphics.setColor(35/256, 46/256, 53/256)
 
+	-- draw card title
 	love.graphics.setFont(getFont(cardFontSize))
 	love.graphics.printf(cardDetails[card].label, x, y - 10, cardSize.width, 'center')
 
+	-- draw card points
 	love.graphics.setFont(getFont(titleFontSize))
 	love.graphics.print('+'..cardDetails[card].points, x + 18, y + 45)
+
+	-- draw ingredient
+	drawIngredient(x, y, card)
+
+	-- draw the ability
+	drawAction(x, y, card)
 end
 
 function drawCard(card, x, y)
@@ -77,7 +153,8 @@ function drawCard(card, x, y)
 	local currentColor = { love.graphics.getColor() }
 
 	-- if this is the deck or discard, draw the card back
-	if card == 0 or card == -1 then
+	local isCardBack = card == 0 or card == -1
+	if isCardBack then
 		drawCardBack(x, y)
 
 		love.graphics.setColor(unpack(currentColor))
@@ -86,19 +163,8 @@ function drawCard(card, x, y)
 	end
 
 	-- if we have a face up card, draw the title, points, and ability
-	if card and card ~= 0 and card ~= -1 then
+	if card and not isCardBack then
 		drawCardFront(x, y, card)
-
-		-- write the number of points on the top left
-		if cardDetails[card].points then
-			-- love.graphics.print('+'..cardDetails[card].points, x + 8, titleLineY - 10)
-		end
-
-		-- write the ability under that (so cards can stack on the right side)
-		if cardDetails[card].onPlay then
-			local abilityLabel = abilityMapping[cardDetails[card].onPlay.actions[1]];
-			-- love.graphics.print(abilityLabel, x + 8, titleLineY + 35)
-		end
 	end
 
 	-- reset the font
