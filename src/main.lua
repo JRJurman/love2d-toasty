@@ -473,7 +473,7 @@ end
 function startNewGame()
 	-- shuffle the deck to make the start pile
 	drawPile = safeShuffle(startingDeck, 3)
-	hand = {}
+	hand = {1, nil, 3}
 	discardPile = {}
 	currentPlate = {}
 	completedPlates = {}

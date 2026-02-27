@@ -7,6 +7,7 @@ local pickAsset = love.graphics.newImage('Assets/pick.png')
 local shuffleAsset = love.graphics.newImage('Assets/shuffle.png')
 
 -- ingredients
+local breadAsset = love.graphics.newImage('Ingredients/bread.png')
 local butterAsset = love.graphics.newImage('Ingredients/butter.png')
 local avocadoAsset = love.graphics.newImage('Ingredients/avocado.png')
 local strawberryAsset = love.graphics.newImage('Ingredients/strawberry.png')
@@ -62,6 +63,9 @@ local titleFontSize = 80
 
 function drawIngredient(x, y, card)
 	love.graphics.setColor(1,1,1)
+	if card == 1 then
+		love.graphics.draw(breadAsset, x + 48, y + 75, 0, 0.70)
+	end
 	if card == 2 then
 		love.graphics.draw(butterAsset, x + 50, y + 85, 0, 0.80)
 	end
@@ -135,8 +139,10 @@ function drawCardFront(x, y, card)
 	love.graphics.printf(cardDetails[card].label, x, y - 10, cardSize.width, 'center')
 
 	-- draw card points
-	love.graphics.setFont(getFont(titleFontSize))
-	love.graphics.print('+'..cardDetails[card].points, x + 18, y + 45)
+	if cardDetails[card].points > 0 then
+		love.graphics.setFont(getFont(titleFontSize))
+		love.graphics.print('+'..cardDetails[card].points, x + 18, y + 45)
+	end
 
 	-- draw ingredient
 	drawIngredient(x, y, card)
