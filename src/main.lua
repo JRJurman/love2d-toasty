@@ -12,13 +12,13 @@ require('ui')
 require('drawCard')
 require('drawFatRect')
 require('drawSlider')
+require('drawPlate')
 require('deckFunctions')
 require('remapFunctions')
 require('plateFunctions')
 require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
--- require('mumble')
 require('sfx')
 
 require('FontFunctions')
@@ -112,7 +112,7 @@ loop:setLooping(true)
 local navAnimationSpeed = 0.5
 local drawAnimationSpeed = 1
 
-local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false }
+local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false, cardValue = nil }
 
 function updateMusicVolume()
 	-- update the volume for running music
@@ -164,10 +164,13 @@ function drawFromDeck(handIndex, drawIndex)
 
 	playDealSFX()
 
+	local movedCard = table.remove(drawPile, drawIndex)
+
 	movingCard.enabled = true
+	movingCard.cardValue = movedCard
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
-	local movedCard = table.remove(drawPile, drawIndex)
+
 	-- if the previous hand card this, change the print to acknowledge that (so the screen reader updates correctly)
 	if handIndex == 3 and hand[2] == movedCard and hand[1] == movedCard then
 		animationText = 'and another '..cardDetails[movedCard].label
@@ -277,6 +280,7 @@ function plateCardFromHand(handIndex, startX, startY)
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
 	local startingCard = 'card'..handIndex
+	movingCard.cardValue = movedCard
 	movingCard.x = startX
 	movingCard.y = startY
 
@@ -303,6 +307,7 @@ function plateCardFromDeck(drawIndex)
 
 	isPlating = true
 	movingCard.enabled = true
+	movingCard.cardValue = movedCard
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
 
@@ -396,6 +401,7 @@ function discardCardFromHand(handIndex, startX, startY)
 	local movedCard = hand[handIndex]
 	hand[handIndex] = nil
 	local startingCard = 'card'..handIndex
+	movingCard.cardValue = movedCard
 	movingCard.x = startX
 	movingCard.y = startY
 
@@ -412,6 +418,7 @@ end
 function discardCardFromDeck(drawIndex)
 	local movedCard = table.remove(drawPile, drawIndex)
 	movingCard.enabled = true
+	movingCard.cardValue = movedCard
 	movingCard.x = ui.drawPile.x
 	movingCard.y = ui.drawPile.y
 
@@ -557,13 +564,13 @@ function love.draw()
 	local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
 	love.graphics.printf(breadInDeck..' Bread Slices', ui.drawPile.x, ui.drawPile.y + ui.drawPile.height - 50, ui.drawPile.width, 'center')
 
-	love.graphics.setColor(0.43, 0.43, 0.47)
 	drawCard(-1, ui.discardPile.x, ui.discardPile.y)
 	love.graphics.setFont(getFont(80))
 	love.graphics.printf(#discardPile, ui.discardPile.x, ui.discardPile.y + ui.discardPile.height/4, ui.discardPile.width, 'center')
 
 	-- draw plated cards
 	-- (we only draw the top 5, since there can be rendering issues if we try to draw too many)
+	drawPlate(ui.plateCards.x + (ui.plateCards.width / 2), ui.plateCards.y + (ui.plateCards.height / 2))
 	love.graphics.setColor(0.98, 0.43, 0.47)
 	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
 	if #currentPlate > 0 then
@@ -728,7 +735,7 @@ function love.draw()
 	-- draw any cards that are moving
 	if movingCard.enabled then
 		love.graphics.setColor(0.43, 0.98, 0.47)
-		drawCard(nil, movingCard.x, movingCard.y)
+		drawCard(movingCard.cardValue, movingCard.x, movingCard.y)
 	end
 
 	-- draw the readout

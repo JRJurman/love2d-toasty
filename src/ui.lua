@@ -6,9 +6,9 @@ cardSize = {
 -- UI elements
 ui = {
 	readout = {
-		x = 1090,
+		x = 1070,
 		y = 10,
-		width = 510,
+		width = 530,
 		height = 800,
 	},
 	plate = {
@@ -26,7 +26,7 @@ ui = {
 			},
 		},
 
-		x = 550,
+		x = 530,
 		y = 10,
 		width = 530,
 		height = 800,
@@ -68,7 +68,7 @@ ui = {
 		height = 570,
 	},
 	plateScore = {
-		x = 550,
+		x = 530,
 		y = 10,
 		width = 520,
 		height = 280,
@@ -186,7 +186,7 @@ ui = {
 		height = cardSize.height,
 	},
 	plateCards = {
-		x = 675,
+		x = 655,
 		y = 400,
 		width = cardSize.width,
 		height = cardSize.height,
@@ -231,19 +231,19 @@ ui = {
 	offScreenModal = {
 		x = 5,
 		y = -1200,
-		width = 1075,
+		width = 1055,
 		height = 805,
 	},
 	onScreenModal = {
 		x = 5,
 		y = 5,
-		width = 1075,
+		width = 1055,
 		height = 805,
 	},
 	modal = {
 		x = 5,
 		y = -1200,
-		width = 1075,
+		width = 1055,
 		height = 805,
 	},
 	-- NOTE: modal ui is relative, because it moves with it
@@ -328,7 +328,7 @@ ui = {
 	settingsModal = {
 		x = 5,
 		y = -1200,
-		width = 1075,
+		width = 1055,
 		height = 805,
 	},
 	settingsMasterSlider = {
