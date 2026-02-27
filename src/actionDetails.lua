@@ -9,7 +9,7 @@ actionDetails = {
 		modalTitle = "Game Over!",
 		label = "Start Again",
 		initialModalDescription = "Chef, you ran out of bread! Start a new game?",
-		actionDescription = "Select to start the game again.",
+		actionDescription = "Select to start the game again from the beginning.",
 	},
 	-- close is for preview
 	close = {
@@ -48,10 +48,10 @@ actionDetails = {
 		initialModalDescription = "Starting new shift. Showing new cards that you can add to your deck. Each comes with a free bread card.",
 		actionDescription = "Select a card above to add it to your deck.",
 	},
-	settings = {
-		modalTitle = "Settings",
-		label = "Settings",
-		initialModalDescription = "Change Settings",
-		actionDescription = "Select to change the settings for the game.",
-	}
+	endless = {
+		modalTitle = "Shifts Complete!",
+		label = "Continue",
+		initialModalDescription = "You completed the beginning shifts!",
+		actionDescription = "Select to keep going and complete as many shifts as you can.",
+	},
 }

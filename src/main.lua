@@ -482,10 +482,8 @@ function startNewGame()
 	roundNumber = 1
 	hasStarted = false
 	modalActions = {'start'}
-	-- modalActions = {'start', 'settings'}
 	modalCards = {}
 	startModal()
-	-- mumble(voiceRoutines, 20*animationScale)
 
 	if intro then
 		intro:play()
@@ -778,7 +776,6 @@ function love.draw()
 
 	DebuggingScreen.draw()
 
-
 	-- if we are animating, unset the selection and nav text
 	-- (these will almost always be set by the animating function)
 	-- and update the screen reader with the animation text
@@ -856,6 +853,24 @@ function getScoreForCompletedPlates()
 	return completedPlatesScore
 end
 
+function startGameEndModal()
+	modalActions = {'endless', 'restart'}
+	modalCards = {}
+	startModal()
+end
+
+function startNextRoundModal()
+	-- load modal for players to add a new card to the deck
+	modalActions = {'add', 'skip'}
+	-- make sure each number is unique by starting at a random number, and showing the next one
+	local firstRandomCard = math.random(2, #cardDetails - 1)
+	modalCards = { firstRandomCard, firstRandomCard + 1 }
+	startModal()
+
+	-- once the player has selected a card to add, we'll shuffle then
+	-- (see love.keypressed)
+end
+
 function completePlate()
 	local completedPlate = currentPlate
 	currentPlate = {}
@@ -908,15 +923,11 @@ function completePlate()
 		-- based on how much time was already used, wait the remaining time to read the rest of the text
 		wait(waitTime * animationScale)
 
-		-- load modal for players to add a new card to the deck
-		modalActions = {'add', 'skip'}
-		-- make sure each number is unique by starting at a random number, and showing the next two
-		local firstRandomCard = math.random(2, #cardDetails - 1)
-		modalCards = { firstRandomCard, firstRandomCard + 1 }
-		startModal()
-
-		-- once the player has selected a card to add, we'll shuffle then
-		-- (see love.keypressed)
+		if roundNumber == 6 then
+			startGameEndModal()
+		else
+			startNextRoundModal()
+		end
 
 		completingRound = false
 	end
@@ -1066,7 +1077,7 @@ function getSelectionInstruction()
 			hasSeenInstructions = true
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
-		if modalActions[1] == 'restart' then
+		if modalActions[1] == 'restart' or modalActions[1] == 'endless' then
 			local roundScore = 'You made it to shift '..roundNumber..'. Your fattest toast was '..fattestStack..' ingredients.'
 			return selectedAction.initialModalDescription..' '..roundScore..' '..selectedAction.actionDescription
 		end
@@ -1416,6 +1427,16 @@ function love.keypressed(rawKey)
 			modalActive = false
 
 			updateSelectionAfterPlayOrDraw()
+		end)
+	end
+
+	local isSelectingEndless = isSelectingModalAction and modalActions[ui[selection].actionIndex] == 'endless'
+	if key == 'select' and isSelectingEndless then
+		async(routines, function()
+			minimizeModal()
+			modalActive = false
+
+			startNextRoundModal()
 		end)
 	end
 
