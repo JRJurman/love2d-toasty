@@ -13,6 +13,7 @@ require('drawCard')
 require('drawFatRect')
 require('drawSlider')
 require('drawPlate')
+require('drawChef')
 require('deckFunctions')
 require('remapFunctions')
 require('plateFunctions')
@@ -741,14 +742,35 @@ function love.draw()
 	-- draw the readout
 	local isAnimating = #routines > 0
 
-	love.graphics.setColor(0.87, 0.87, 0.97)
-	love.graphics.rectangle("line", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
+	-- readout border
+	love.graphics.setColor(175/256, 201/256, 104/256)
+	love.graphics.rectangle("fill", ui.readout.x, ui.readout.y, ui.readout.width, ui.readout.height)
+
+	-- readout center
+	love.graphics.setColor(210/256, 218/256, 153/256)
+	love.graphics.rectangle("fill", ui.readout.x + 10, ui.readout.y + 10, ui.readout.width - 20, ui.readout.height - 40)
+
+	-- readout arrow
+	love.graphics.setColor(175/256, 201/256, 104/256)
+	love.graphics.polygon('fill',
+		ui.chef.x + 45, ui.chef.y + 20,
+		ui.chef.x + 85, ui.chef.y + 20,
+		ui.chef.x + 90, ui.chef.y + 65
+	)
+
+
+	-- readout text
+	love.graphics.setColor(35/256, 46/256, 53/256)
+
 	love.graphics.setFont(getFont(40))
 	local readoutText = selectionText..'\n\n'..navText
 	if isAnimating then
 		readoutText = animationText
 	end
 	love.graphics.printf(readoutText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
+
+	-- draw the chef
+	drawChef(ui.chef.x, ui.chef.y)
 
 	-- draw the cursor
 	love.graphics.setColor(HSL(cursorHue, 1, 0.60))
@@ -1051,9 +1073,9 @@ function getSelectionInstruction()
 		if selectedAction then
 			local totalActionsLabel = ''
 			if hasStarted and #modalActions > 1 then
-				totalActionsLabel = 'You have '..#modalActions..' actions, first action, '
+				totalActionsLabel = 'You have '..#modalActions..' options, first option, '
 			else
-				totalActionsLabel = indexToString(ui[selection].actionIndex).. ' action, '
+				totalActionsLabel = indexToString(ui[selection].actionIndex).. ' option, '
 			end
 			return totalActionsLabel..selectedAction.actionDescription
 		end
@@ -1062,7 +1084,7 @@ function getSelectionInstruction()
 	if selection == 'modalAction2' then
 		local selectedAction = actionDetails[modalActions[2]]
 		if selectedAction then
-			return selectedAction.actionDescription
+			return indexToString(ui[selection].actionIndex).. ' option, '..selectedAction.actionDescription
 		else
 			return 'No Action'
 		end

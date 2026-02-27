@@ -9,7 +9,7 @@ ui = {
 		x = 1070,
 		y = 10,
 		width = 530,
-		height = 800,
+		height = 700,
 	},
 	plate = {
 		label = 'Current Plate',
@@ -457,5 +457,9 @@ ui = {
 		y = 570,
 		width = 365,
 		height = 150,
+	},
+	chef = {
+		x = 1360,
+		y = 687,
 	},
 }
