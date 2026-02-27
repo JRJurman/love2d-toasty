@@ -68,7 +68,7 @@ local cursor = {
 
 local roundGoal = 6
 local roundNumber = 1
-local roundMultiplier = 1.5
+local roundMultiplier = 1.4
 local completingRound = false
 local fattestStack = 0
 
@@ -473,7 +473,7 @@ end
 function startNewGame()
 	-- shuffle the deck to make the start pile
 	drawPile = safeShuffle(startingDeck, 3)
-	hand = {1, nil, 3}
+	hand = {}
 	discardPile = {}
 	currentPlate = {}
 	completedPlates = {}
