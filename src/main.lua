@@ -14,6 +14,7 @@ require('drawFatRect')
 require('drawSlider')
 require('drawPlate')
 require('drawChef')
+require('drawReceipt')
 require('deckFunctions')
 require('remapFunctions')
 require('plateFunctions')
@@ -580,16 +581,13 @@ function love.draw()
 
 	-- draw completed plates as receipts
 	love.graphics.setColor(0.43, 0.43, 0.47)
-	love.graphics.rectangle("line", ui.served.x, ui.served.y, ui.served.width, ui.served.height)
 	for plateIndex, completedPlate in ipairs(completedPlates) do
-		love.graphics.setColor(0.98, 0.47, 0.98)
-		local receiptWidth = 200
-		local receiptHeight = 150
-		local receiptX = ui.served.x + 60
-		local receiptY = ui.served.y + ((plateIndex-1) * (receiptHeight*0.8))
+		local receiptWidth = 215
+		local receiptHeight = 165
+		local receiptX = ui.served.x + (((plateIndex-1) % 2) * receiptWidth)
+		local receiptY = ui.served.y + (math.floor((plateIndex-1) / 2) * receiptHeight)
 		local plateScore = getScoreForPlate(completedPlate)
-		love.graphics.rectangle("line", receiptX, receiptY, receiptWidth, receiptHeight)
-		love.graphics.printf('+'..plateScore, receiptX, receiptY, receiptWidth, 'center')
+		drawReceipt(receiptX, receiptY, '+'..plateScore)
 	end
 
 	-- draw the current plate score (if we aren't completing a round)

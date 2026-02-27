@@ -62,7 +62,7 @@ ui = {
 		height = 375,
 	},
 	served = {
-		x = 60,
+		x = 40,
 		y = 215,
 		width = 400,
 		height = 570,

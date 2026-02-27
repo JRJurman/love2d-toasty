@@ -42,19 +42,12 @@ function drawCardBack(x, y)
 
 	-- draw left seeds
 	love.graphics.setColor(190/256, 162/256, 132/256)
-	-- love.graphics.ellipse('fill', x + 40, y + 30, 15, 7)
 	drawSeed(x + 40, y + 30, 15, 7, 0.25)
-
-	-- love.graphics.ellipse('fill', x + 24, y + 142, 18, 12)
 	drawSeed(x + 24, y + 142, 18, 12, 0.25)
-
-	-- love.graphics.ellipse('fill', x + 29, y + 247, 18, 8)
 	drawSeed(x + 29, y + 247, 18, 8, 0.27)
 
 	-- draw right seeds
-	-- love.graphics.ellipse('fill', x + 255, y + 38, 15, 9)
 	drawSeed(x + 255, y + 38, 15, 9, -0.27)
-	-- love.graphics.ellipse('fill', x + 270, y + 220, 18, 8)
 	drawSeed(x + 270, y + 220, 18, 8, -0.30)
 end
 
@@ -132,9 +125,8 @@ function drawCardFront(x, y, card)
 	love.graphics.setColor(235/256, 237/256, 233/256)
 	love.graphics.rectangle("fill", x + 10, y + 70, cardSize.width - 20, 220, 20, 20)
 
-	love.graphics.setColor(35/256, 46/256, 53/256)
-
 	-- draw card title
+	love.graphics.setColor(35/256, 46/256, 53/256)
 	love.graphics.setFont(getFont(cardFontSize))
 	love.graphics.printf(cardDetails[card].label, x, y - 10, cardSize.width, 'center')
 
