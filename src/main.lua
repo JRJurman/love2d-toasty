@@ -758,12 +758,17 @@ function love.draw()
 	-- readout text
 	love.graphics.setColor(16/256, 20/256, 31/256)
 
-	love.graphics.setFont(getFont(40))
-	local readoutText = selectionText..'\n\n'..navText
+	-- change font size based on has started (the first modal needs a lot of space)
+	if hasStarted == false then
+		love.graphics.setFont(getFont(39))
+	else
+		love.graphics.setFont(getFont(46))
+	end
+	local readoutText = selectionText
 	if isAnimating then
 		readoutText = animationText
 	end
-	love.graphics.printf(readoutText, ui.readout.x + 10, ui.readout.y, ui.readout.width - 20, 'center')
+	love.graphics.printf(readoutText, ui.readout.x + 15, ui.readout.y, ui.readout.width - 30, 'center')
 
 	-- draw the chef
 	drawChef(ui.chef.x, ui.chef.y)
