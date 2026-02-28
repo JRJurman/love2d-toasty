@@ -26,9 +26,8 @@ typesOfPlates = {
 	[-1] = 'Sandwich!' ,
 	[0] = 'Not Toast Yet',
 	[1] = 'Toast',
-	[2] = 'Fat Toast',
-	[3] = 'Stacked Toast',
-	[4] = 'Ultimate Toast'
+	[2] = 'Fat Toast (+8)',
+	[3] = 'Ultimate Toast (+12)'
 }
 function getTypeOfPlate(plate)
 	-- if we don't have anything on this plate, this isn't toast yet
@@ -47,23 +46,18 @@ function getTypeOfPlate(plate)
 		end
 	end
 
-	-- if we have less than 4, we have toast
-	if #plate < 4 then
+	-- if we have less than 5, we have toast
+	if #plate < 5 then
 		return 1
 	end
 
-	-- if we have less than 7 we have fat toast
-	if #plate < 7 then
+	-- if we have less than 8 we have fat toast
+	if #plate < 8 then
 		return 2
 	end
 
-	-- if we have less than 9 we have stacked toast
-	if #plate < 9 then
-		return 3
-	end
-
 	-- otherwise, we have ultimate toast
-	return 4
+	return 3
 end
 
 function getRawScoreForPlate(plate)
@@ -80,5 +74,10 @@ function getScoreForPlate(plate)
 	local plateScore = getRawScoreForPlate(plate)
 	local typeOfPlate = getTypeOfPlate(plate)
 
-	return math.max(plateScore * typeOfPlate, 0)
+	local extraPoints = typeOfPlate * 4
+	if typeOfPlate > 1 then
+		plateScore = plateScore + extraPoints
+	end
+
+	return math.max(plateScore, 0)
 end

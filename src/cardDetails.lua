@@ -14,7 +14,7 @@ cardDetails = {
 	},
 	[2] = {
 		label = 'Butter',
-		points = 2,
+		points = 1,
 	},
 	[3] = {
 		label = 'Avocado',

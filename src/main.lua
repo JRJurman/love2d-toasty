@@ -30,9 +30,11 @@ love.graphics.setFont(getFont(30))
 
 local startingDeck = {
 	-- bread
-	1, 1, 1,
+	1, 1, 1, 1,
+	-- one point cards
+	2, 2, 2, 2,
 	-- two point cards
-	2, 2, 5, 5, 8, 8, 11, 11, 14, 14,
+	5, 5, 8, 8, 11, 11, 14, 14,
 	-- shuffle
 	3, 6,
 	-- plate
@@ -47,7 +49,10 @@ local currentPlate = {}
 local completedPlates = {}
 
 local modalCards = {}
-local hasSeenInstructions = true
+local hasSeenModalInstructions = true
+local hasSeenCardInstructions = false
+local hasSeenModalActionInstructions = false
+local hasSeenHandActionInstructions = false
 
 -- start the game with a start game modal
 local hasStarted = false
@@ -93,7 +98,7 @@ local repeating = false
 gameSeed = nil
 waitingSeed = 0
 
-defaultCursorHue = 0.2
+defaultCursorHue = 0.3
 cursorHue = defaultCursorHue
 defaultMasterVolume = 1
 masterVolume = defaultMasterVolume
@@ -207,7 +212,7 @@ function checkForNewHighestStack()
 		fattestStack = #currentPlate
 	end
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
-		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients'
+		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients.'
 		fattestStack = #currentPlate
 		wait(2.5 * animationScale)
 	end
@@ -238,7 +243,7 @@ function readoutCurrentScore()
 	end
 
 	local typeOfPlateLabel = typesOfPlates[typeOfPlate]
-	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
+	local currentPlateRawScore = getScoreForPlate(currentPlate)
 
 	local scoreLabel = currentPlateRawScore..' points'
 	local waitTime = 1.25
@@ -250,7 +255,9 @@ function readoutCurrentScore()
 	if typeOfPlate < 1 then
 		scoreLabel = '0 points'
 	elseif (typeOfPlate > 1) then
-		scoreLabel = scoreLabel..' times '..typeOfPlate
+		-- add "total to the end to clarify the score"
+		-- read out as "Fat Toast (+6), 13 points total"
+		scoreLabel = scoreLabel..' total'
 		waitTime = waitTime + 1.20
 	end
 
@@ -599,11 +606,8 @@ function love.draw()
 		love.graphics.setFont(getFont(90))
 
 		local scoreLabel = '+'..currentPlateRawScore
-		-- if this is fat or ultimate toast, show the multiplier
 		if typeOfPlate < 1 then
 			scoreLabel = '0'
-		elseif (typeOfPlate > 1) then
-			scoreLabel = scoreLabel..' x'..typeOfPlate
 		end
 		love.graphics.printf(scoreLabel, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
 
@@ -770,7 +774,7 @@ function love.draw()
 
 	-- draw the cursor
 	love.graphics.setColor(HSL(cursorHue, 1, 0.60))
-	drawFatRect('outset', 5, cursor.x, cursor.y, cursor.width, cursor.height)
+	drawFatRect('outset', 10, cursor.x, cursor.y, cursor.width, cursor.height)
 
 	DebuggingScreen.draw()
 
@@ -861,7 +865,7 @@ function startNextRoundModal()
 	-- load modal for players to add a new card to the deck
 	modalActions = {'add', 'skip'}
 	-- make sure each number is unique by starting at a random number, and showing the next one
-	local firstRandomCard = math.random(2, #cardDetails - 1)
+	local firstRandomCard = math.random(3, #cardDetails - 1)
 	modalCards = { firstRandomCard, firstRandomCard + 1 }
 	startModal()
 
@@ -956,13 +960,6 @@ function updateSelection(target)
 
 	local navKey = getNavKey()
 
-	if selection == 'deck' then
-		-- for debugging, just print all cards remaining in deck
-		for drawIndex, ingredient in ipairs(drawPile) do
-			print(drawIndex..': '..cardDetails[ingredient].label..' ('..ingredient..')')
-		end
-	end
-
 	selectionText = getSelectionInstruction()
 	navText = ''
 	if hasStarted then
@@ -973,7 +970,7 @@ end
 function startModal()
 	modalActive = true
 
-	hasSeenInstructions = false
+	hasSeenModalInstructions = false
 	expandModal()
 
 	-- immediately set the modal as the selection
@@ -1044,10 +1041,10 @@ function getSelectionInstruction()
 
 		-- if this is a modal card, and this is the first card, include the modal instructions
 		local modalInstructions = ''
-		if ui[selection].modal and hasSeenInstructions == false then
+		if ui[selection].modal and hasSeenModalInstructions == false then
 			local modalAction = actionDetails[modalActions[1]]
 			modalInstructions = modalAction.initialModalDescription..' '
-			hasSeenInstructions = true
+			hasSeenModalInstructions = true
 		end
 
 		local effect = ''
@@ -1064,15 +1061,21 @@ function getSelectionInstruction()
 		if cardDetails[selectedCard].points == 1 then
 			pointsText = 'worth 1 point; '
 		end
-		local cardSelectionText = modalInstructions..location..label..', '..pointsText..effect
+
+		local firstNavInstructions = ''
+		if ui[selection].hand and hasSeenCardInstructions == false then
+			hasSeenCardInstructions = true
+			firstNavInstructions = 'Use left and right to move between cards, select a card to plate it. '
+		end
+		local cardSelectionText = modalInstructions..location..label..', '..pointsText..effect..' '..firstNavInstructions
 
 		return cardSelectionText
 	end
 
 	if selection == 'modalAction1' then
 		local selectedAction = actionDetails[modalActions[1]]
-		if modalActions[1] == 'start' and hasSeenInstructions == false then
-			hasSeenInstructions = true
+		if modalActions[1] == 'start' and hasSeenModalInstructions == false then
+			hasSeenModalInstructions = true
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' or modalActions[1] == 'endless' then
@@ -1081,12 +1084,17 @@ function getSelectionInstruction()
 		end
 		if selectedAction then
 			local totalActionsLabel = ''
+			local firstModalInstructions = ''
 			if hasStarted and #modalActions > 1 then
 				totalActionsLabel = 'You have '..#modalActions..' options, first option, '
 			else
 				totalActionsLabel = indexToString(ui[selection].actionIndex).. ' option, '
 			end
-			return totalActionsLabel..selectedAction.actionDescription
+			if hasStarted and #modalActions > 1 and hasSeenModalActionInstructions == false then
+				hasSeenModalActionInstructions = true
+				firstModalInstructions = 'Press right to see other option.'
+			end
+			return totalActionsLabel..selectedAction.actionDescription..' '..firstModalInstructions
 		end
 	end
 
@@ -1115,7 +1123,7 @@ function getSelectionInstruction()
 
 		-- if this is fat or ultimate toast, show the multiplier
 		if (typeOfPlate > 1) then
-			plateDescription = plateDescription..' times '..typeOfPlate
+			plateDescription = plateDescription..' plus '..(typeOfPlate * 4)..' points'
 		end
 
 		return plateDescription
@@ -1131,7 +1139,13 @@ function getSelectionInstruction()
 	if selection == 'actionDraw' then
 		local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
 		local drawPileText = 'There are '..#drawPile..' cards remaining in deck, with '..breadInDeck..' bread slices.'
-		return 'Two actions, First action: Draw, Select to draw 3 new cards. '..drawPileText
+		local firstHandInstructions = ''
+		if hasSeenHandActionInstructions == false then
+			hasSeenHandActionInstructions = true
+			firstHandInstructions = 'Press right to see other action.'
+		end
+
+		return 'Two actions, First action: Draw, Select to draw 3 new cards. '..drawPileText..' '..firstHandInstructions
 	end
 
 	if selection == 'actionNewPlate' then
