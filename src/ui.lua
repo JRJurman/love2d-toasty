@@ -51,7 +51,7 @@ ui = {
 		},
 
 		x = 10,
-		y = 10,
+		y = 45,
 		width = 510,
 		height = 800,
 	},
@@ -62,14 +62,14 @@ ui = {
 		height = 375,
 	},
 	served = {
-		x = 40,
-		y = 215,
+		x = 20,
+		y = 280,
 		width = 400,
 		height = 570,
 	},
 	plateScore = {
-		x = 530,
-		y = 10,
+		x = 510,
+		y = 15,
 		width = 520,
 		height = 280,
 	},
@@ -461,5 +461,11 @@ ui = {
 	chef = {
 		x = 1360,
 		y = 687,
+	},
+	scoreBoard = {
+		x = 0,
+		y = 0,
+		width = 1060,
+		height = 320,
 	},
 }

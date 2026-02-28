@@ -81,7 +81,7 @@ function drawIngredient(x, y, card)
 		love.graphics.draw(eggAsset, x + 25, y + 60, 0, 0.85)
 	end
 	if card == 9 then
-		love.graphics.draw(cheddarAsset, x + 115, y + 65, 0, 0.60)
+		love.graphics.draw(cheddarAsset, x + 105, y + 90, 0, 0.65)
 	end
 	if card == 10 then
 		love.graphics.draw(garlicAsset, x + 110, y + 90, 0, 0.60)

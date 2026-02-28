@@ -15,6 +15,7 @@ require('drawSlider')
 require('drawPlate')
 require('drawChef')
 require('drawReceipt')
+require('drawChalkBoard')
 require('deckFunctions')
 require('remapFunctions')
 require('plateFunctions')
@@ -587,11 +588,14 @@ function love.draw()
 		end
 	end
 
+	-- draw board for shift / round score, and the current plate score
+	drawChalkBoard('black', ui.scoreBoard.x, ui.scoreBoard.y, ui.scoreBoard.width, ui.scoreBoard.height)
+
 	-- draw completed plates as receipts
 	love.graphics.setColor(0.43, 0.43, 0.47)
 	for plateIndex, completedPlate in ipairs(completedPlates) do
 		local receiptWidth = 215
-		local receiptHeight = 165
+		local receiptHeight = 150
 		local receiptX = ui.served.x + (((plateIndex-1) % 2) * receiptWidth)
 		local receiptY = ui.served.y + (math.floor((plateIndex-1) / 2) * receiptHeight)
 		local plateScore = getScoreForPlate(completedPlate)
@@ -600,7 +604,6 @@ function love.draw()
 
 	-- draw the current plate score (if we aren't completing a round)
 	love.graphics.setColor(0.98, 0.98, 0.98)
-	love.graphics.rectangle("line", ui.plateScore.x, ui.plateScore.y, ui.plateScore.width, ui.plateScore.height)
 	if not completingRound then
 		local typeOfPlate = getTypeOfPlate(currentPlate)
 		local currentPlateRawScore = getRawScoreForPlate(currentPlate)
@@ -622,7 +625,6 @@ function love.draw()
 	end
 
 	-- draw round score
-	love.graphics.rectangle("line", ui.score.x, ui.score.y, ui.score.width, ui.score.height)
 	love.graphics.setFont(getFont(30))
 	love.graphics.printf('Shift '..roundNumber, ui.score.x + 10, ui.score.y, ui.score.width - 20, 'center')
 	love.graphics.setFont(getFont(90))
@@ -634,18 +636,16 @@ function love.draw()
 
 	-- draw the modal if it is active
 	if modalActive then
-		love.graphics.setColor( 0, 0, 0)
-		love.graphics.rectangle("fill", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
-		love.graphics.setColor(0.98, 0.47, 0.98)
-		love.graphics.rectangle("line", ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
+		drawChalkBoard('black', ui.modal.x, ui.modal.y, ui.modal.width, ui.modal.height)
 
 		-- draw modal title
+		love.graphics.setColor(235/256, 237/256, 233/256)
 		if modalActions[1] then
 			love.graphics.setFont(getFont(90))
-			love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y, ui.modal.width - 20, 'center')
+			love.graphics.printf(actionDetails[modalActions[1]].modalTitle, ui.modal.x + 10, ui.modal.y + 15, ui.modal.width - 20, 'center')
 			if actionDetails[modalActions[1]].modalSubtitle then
 				love.graphics.setFont(getFont(50))
-				love.graphics.printf(actionDetails[modalActions[1]].modalSubtitle, ui.modal.x + 10, ui.modal.y + 95, ui.modal.width - 20, 'center')
+				love.graphics.printf(actionDetails[modalActions[1]].modalSubtitle, ui.modal.x + 10, ui.modal.y + 120, ui.modal.width - 20, 'center')
 			end
 			love.graphics.setFont(getFont(30))
 		end
@@ -761,7 +761,7 @@ function love.draw()
 
 
 	-- readout text
-	love.graphics.setColor(35/256, 46/256, 53/256)
+	love.graphics.setColor(16/256, 20/256, 31/256)
 
 	love.graphics.setFont(getFont(40))
 	local readoutText = selectionText..'\n\n'..navText
