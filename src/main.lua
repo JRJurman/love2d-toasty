@@ -258,7 +258,7 @@ function readoutCurrentScore()
 		-- add "total to the end to clarify the score"
 		-- read out as "Fat Toast (+6), 13 points total"
 		scoreLabel = scoreLabel..' total'
-		waitTime = waitTime + 1.20
+		waitTime = waitTime + 1.35
 	end
 
 	animationText = typeOfPlateLabel..', '..scoreLabel

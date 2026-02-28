@@ -52,6 +52,6 @@ actionDetails = {
 		modalTitle = "Shifts Complete!",
 		label = "Continue",
 		initialModalDescription = "You completed the beginning shifts!",
-		actionDescription = "Select to keep going and complete as many shifts as you can.",
+		actionDescription = "Select to keep going and complete as many shifts as you can, or press right and start over.",
 	},
 }

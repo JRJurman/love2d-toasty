@@ -74,6 +74,10 @@ function getScoreForPlate(plate)
 	local plateScore = getRawScoreForPlate(plate)
 	local typeOfPlate = getTypeOfPlate(plate)
 
+	if typeOfPlate == 0 or typeOfPlate == -1 then
+		return 0
+	end
+
 	local extraPoints = typeOfPlate * 4
 	if typeOfPlate > 1 then
 		plateScore = plateScore + extraPoints
