@@ -1212,8 +1212,9 @@ function love.keypressed(rawKey)
 	end
 
 	-- navigation
-	-- don't navigate if we haven't started (unless we are in settings)
-	local canNavigate = hasStarted == true or settingsModalActive
+	-- don't navigate if we are in the start or restart modal (unless we are in settings)
+	local noNavModals = modalActions[1] == 'start' or modalActions[1] == 'restart'
+	local canNavigate = settingsModalActive or not noNavModals
 	if canNavigate and (key == 'down' or key == 'up' or key == 'left' or key == 'right') then
 		async(routines, function()
 			local nextSelection = ui[selection].nav[navKey] and ui[selection].nav[navKey][key]
