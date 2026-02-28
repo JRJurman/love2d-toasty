@@ -108,8 +108,8 @@ defaultMusicVolume = 0.7
 musicVolume = defaultMusicVolume
 defaultSfxVolume = 0.7
 sfxVolume = defaultSfxVolume
-defaultAnimationScale = 0.75
-animationScale = defaultAnimationScale
+defaultUserAnimationScale = 1
+userAnimationScale = defaultUserAnimationScale
 
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
@@ -118,6 +118,7 @@ intro:setLooping(true)
 loop:setVolume(masterVolume * musicVolume * 0.2)
 loop:setLooping(true)
 
+local animationScale = 0.75
 local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 1
 
@@ -183,14 +184,14 @@ function drawFromDeck(handIndex, drawIndex)
 	-- if the previous hand card this, change the print to acknowledge that (so the screen reader updates correctly)
 	if handIndex == 3 and hand[2] == movedCard and hand[1] == movedCard then
 		animationText = 'and another '..cardDetails[movedCard].label
-		wait(0.40 * animationScale)
+		wait(0.40 * animationScale * (1/userAnimationScale))
 	elseif handIndex > 1 and hand[handIndex - 1] == movedCard then
 		animationText = 'another '..cardDetails[movedCard].label
-		wait(0.25 * animationScale)
+		wait(0.25 * animationScale * (1/userAnimationScale))
 	else
 		animationText = cardDetails[movedCard].label
 	end
-	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale, ease.inovershoot)
+	animateMany(movingCard, {"x", "y"}, {targetX, targetY}, drawAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot)
 	hand[handIndex] = movedCard
 	movingCard.enabled = false
 
@@ -216,7 +217,7 @@ function checkForNewHighestStack()
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
 		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients.'
 		fattestStack = #currentPlate
-		wait(2.5 * animationScale)
+		wait(2.5 * animationScale * (1/userAnimationScale))
 	end
 end
 
@@ -264,7 +265,7 @@ function readoutCurrentScore()
 	end
 
 	animationText = typeOfPlateLabel..', '..scoreLabel
-	wait(waitTime * animationScale)
+	wait(waitTime * animationScale * (1/userAnimationScale))
 end
 
 function checkForSandwich()
@@ -273,7 +274,7 @@ function checkForSandwich()
 	if typeOfPlate == -1 then
 		playTossSFX()
 		animationText = 'You made a Sandwich, no points! Tossing Plate.'
-		wait(2.65 * animationScale)
+		wait(2.65 * animationScale * (1/userAnimationScale))
 		completePlate()
 	end
 end
@@ -299,7 +300,7 @@ function plateCardFromHand(handIndex, startX, startY)
 		movingCard,
 		{'x', 'y'},
 		{ui.plateCards.x, ui.plateCards.y},
-		drawAnimationSpeed * animationScale, ease.inovershoot
+		drawAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
 	)
 	playDropSFX()
 	table.insert(currentPlate, movedCard)
@@ -326,7 +327,7 @@ function plateCardFromDeck(drawIndex)
 		movingCard,
 		{'x', 'y'},
 		{ui.plateCards.x, ui.plateCards.y},
-		drawAnimationSpeed * animationScale, ease.inovershoot
+		drawAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
 	)
 	playDropSFX()
 
@@ -372,7 +373,7 @@ function updateSelectionAfterPlayOrDraw()
 		local hasStartedRound = #completedPlates > 0
 		if hasStartedRound then
 			animationText = 'no plate to score, '
-			wait(1 * animationScale)
+			wait(1 * animationScale * (1/userAnimationScale))
 		end
 
 		drawThree()
@@ -421,7 +422,7 @@ function discardCardFromHand(handIndex, startX, startY)
 		movingCard,
 		{'x', 'y'},
 		{ui.discardPile.x, ui.discardPile.y},
-		drawAnimationSpeed * animationScale, ease.inovershoot
+		drawAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
 	)
 	table.insert(discardPile, movedCard)
 	movingCard.enabled = false
@@ -438,7 +439,7 @@ function discardCardFromDeck(drawIndex)
 		movingCard,
 		{'x', 'y'},
 		{ui.discardPile.x, ui.discardPile.y},
-		drawAnimationSpeed * animationScale, ease.inovershoot
+		drawAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
 	)
 	table.insert(discardPile, movedCard)
 	movingCard.enabled = false
@@ -448,7 +449,7 @@ function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
 		animationText = 'drawing from deck'
-		wait(1 * animationScale)
+		wait(1 * animationScale * (1/userAnimationScale))
 		drawFromDeck(1)
 		drawFromDeck(2)
 		drawFromDeck(3)
@@ -705,8 +706,7 @@ function love.draw()
 		local animationX = ui.settingsAnimationSlider.x + ui.settingsModal.x + 10
 		local animationY = ui.settingsAnimationSlider.y + ui.settingsModal.y
 		love.graphics.printf('Animation Speed', ui.settingsAnimationSlider.x + ui.settingsModal.x + 5, ui.settingsAnimationSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		local relativeAnimationValue = math.floor((0.75/animationScale) * 100) / 100
-		drawSlider(animationX, animationY + 10 + (ui.settingsAnimationSlider.height / 2), ui.settingsAnimationSlider.width - 20, relativeAnimationValue, 0.5, 5)
+		drawSlider(animationX, animationY + 10 + (ui.settingsAnimationSlider.height / 2), ui.settingsAnimationSlider.width - 20, userAnimationScale, 0.25, 4)
 
 		local cursorHueX = ui.settingsCursorSlider.x + ui.settingsModal.x + 10
 		local cursorHueY = ui.settingsCursorSlider.y + ui.settingsModal.y
@@ -812,7 +812,7 @@ end
 function shuffleDrawPile(deep)
 	animationText = 'Shuffling Deck'
 	playShuffleSFX()
-	wait(0.75 * animationScale)
+	wait(0.75 * animationScale * (1/userAnimationScale))
 	drawPile = safeShuffle(drawPile, deep)
 end
 
@@ -822,30 +822,30 @@ function expandModal()
 		animationText = 'opening modal'
 	end
 	ui.modal.y = ui.offScreenModal.y
-	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
+	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.outovershoot)
 end
 
 function minimizeModal()
 	animationText = 'closing modal'
 	playPushSFX()
-	wait(0.5 * animationScale)
+	wait(0.5 * animationScale * (1/userAnimationScale))
 	ui.modal.y = ui.onScreenModal.y
-	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
+	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot)
 end
 
 function expandSettingsModal()
 	playPullSFX()
 	animationText = 'opening settings'
 	ui.settingsModal.y = ui.offScreenModal.y
-	animate(ui.settingsModal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale, ease.outovershoot)
+	animate(ui.settingsModal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.outovershoot)
 end
 
 function minimizeSettingsModal()
 	animationText = 'closing settings'
 	playPushSFX()
-	wait(0.5 * animationScale)
+	wait(0.5 * animationScale * (1/userAnimationScale))
 	ui.settingsModal.y = ui.onScreenModal.y
-	animate(ui.settingsModal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale, ease.inovershoot)
+	animate(ui.settingsModal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot)
 end
 
 function getScoreForCompletedPlates()
@@ -917,14 +917,14 @@ function completePlate()
 				table.insert(drawPile, table.remove(completedPlate, ingredientIndex))
 			end
 			table.remove(completedPlates, plateIndex)
-			wait(0.75 * animationScale)
+			wait(0.75 * animationScale * (1/userAnimationScale))
 			waitTime = waitTime - 0.75
 		end
 		roundNumber = roundNumber + 1
 		roundGoal = nextRoundGoal
 
 		-- based on how much time was already used, wait the remaining time to read the rest of the text
-		wait(waitTime * animationScale)
+		wait(waitTime * animationScale * (1/userAnimationScale))
 
 		if roundNumber == 6 then
 			startGameEndModal()
@@ -954,7 +954,7 @@ function updateSelection(target)
 		animateMany(cursor,
 			{"x", "y", "width", "height"},
 			{targetX, targetY, ui[selection].width, ui[selection].height},
-			navAnimationSpeed * animationScale, ease.inovershoot
+			navAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
 		)
 		playNavSFX()
 	end)
@@ -1216,7 +1216,7 @@ function love.keypressed(rawKey)
 
 	-- navigation
 	-- don't navigate if we are in the start or restart modal (unless we are in settings)
-	local noNavModals = modalActions[1] == 'start' or modalActions[1] == 'restart'
+	local noNavModals = modalActive and (modalActions[1] == 'start' or modalActions[1] == 'restart')
 	local canNavigate = settingsModalActive or not noNavModals
 	if canNavigate and (key == 'down' or key == 'up' or key == 'left' or key == 'right') then
 		async(routines, function()
@@ -1252,9 +1252,13 @@ function love.keypressed(rawKey)
 			selectionText = (math.floor(sfxVolume * 100))..'%'
 		end
 		if selection == 'settingsAnimationSlider' then
-			local delta = (key == 'left' and 0.15) or -0.15
-			animationScale = math.min(math.max(animationScale + delta, 0.15), 1.5)
-			selectionText = math.floor((0.75/animationScale) * 100) / 100
+			if key == 'left' then
+				userAnimationScale = userAnimationScale / 2
+			else
+				userAnimationScale = userAnimationScale * 2
+			end
+			userAnimationScale = math.min(math.max(userAnimationScale, 0.25), 4)
+			selectionText = userAnimationScale
 		end
 		if selection == 'settingsCursorSlider' then
 			local delta = (key == 'left' and -1) or 1
@@ -1270,7 +1274,7 @@ function love.keypressed(rawKey)
 		masterVolume = defaultMasterVolume
 		musicVolume = defaultMusicVolume
 		sfxVolume = defaultSfxVolume
-		animationScale = defaultAnimationScale
+		userAnimationScale = defaultUserAnimationScale
 		updateMusicVolume()
 		async(routines, function()
 			minimizeSettingsModal()
@@ -1304,7 +1308,7 @@ function love.keypressed(rawKey)
 			if hand[handIndex] == nil then
 				-- reset the selection text
 				selectionText = 'No Card'
-				wait(0.5 * animationScale)
+				wait(0.5 * animationScale * (1/userAnimationScale))
 				return
 			end
 
@@ -1316,7 +1320,7 @@ function love.keypressed(rawKey)
 				plateCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			else
 				animationText = 'No bread, discarding '..cardDetails[hand[handIndex]].label
-				wait(0.75 * animationScale)
+				wait(0.75 * animationScale * (1/userAnimationScale))
 				discardCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			end
 
@@ -1380,7 +1384,7 @@ function love.keypressed(rawKey)
 				plateCardFromDeck(ui[selection].drawIndex)
 			else
 				animationText = 'No bread, discarding '..cardDetails[drawPile[ui[selection].drawIndex]].label
-				wait(0.75 * animationScale)
+				wait(0.75 * animationScale * (1/userAnimationScale))
 				discardCardFromDeck(ui[selection].drawIndex)
 			end
 
@@ -1481,7 +1485,7 @@ function love.keypressed(rawKey)
 			if selection == 'actionNewPlate' then
 				animationText = 'Scoring Plate'
 				playStackSFX()
-				wait(1 * animationScale)
+				wait(1 * animationScale * (1/userAnimationScale))
 
 				completePlate()
 				if not modalActive then
@@ -1500,7 +1504,7 @@ function love.keypressed(rawKey)
 				repeating = true
 				heardNavInstructions[selection] = nil
 			end
-			wait(0.5 * animationScale)
+			wait(0.5 * animationScale * (1/userAnimationScale))
 
 		end)
 	end
