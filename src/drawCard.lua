@@ -63,7 +63,7 @@ function drawIngredient(x, y, card)
 		love.graphics.draw(butterAsset, x + 50, y + 85, 0, 0.80)
 	end
 	if card == 3 then
-		love.graphics.draw(avocadoAsset, x + 90, y + 65, 0, 0.75)
+		love.graphics.draw(avocadoAsset, x + 93, y + 68, 0, 0.75)
 	end
 	if card == 4 then
 		love.graphics.draw(strawberryAsset, x + 75, y + 65, 0, 0.78)
