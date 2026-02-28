@@ -16,6 +16,8 @@ require('drawPlate')
 require('drawChef')
 require('drawReceipt')
 require('drawChalkBoard')
+require('drawChalkToast')
+require('drawCuttingBoard')
 require('deckFunctions')
 require('remapFunctions')
 require('plateFunctions')
@@ -81,7 +83,6 @@ local completingRound = false
 local fattestStack = 0
 
 local	routines = {}
-local voiceRoutines = {}
 
 local selectionText = ''
 local drawnSelectionText = ''
@@ -447,7 +448,6 @@ function drawThree()
 	-- draw three cards from drawPile to hand
 	async(routines, function()
 		animationText = 'drawing from deck'
-		-- mumble(voiceRoutines, 5*animationScale)
 		wait(1 * animationScale)
 		drawFromDeck(1)
 		drawFromDeck(2)
@@ -525,7 +525,6 @@ function love.update(dt)
 		waitingSeed = waitingSeed + dt*10000
 	end
 	updateAnimations(routines, dt)
-	updateAnimations(voiceRoutines, dt)
 	checkToLoopMusic()
 end
 
@@ -534,8 +533,7 @@ function love.draw()
 	love.graphics.setFont(getFont(30))
 
 	-- draw cards in hand
-	love.graphics.setColor(0.98, 0.43, 0.47)
-	love.graphics.rectangle("line", ui.hand.x, ui.hand.y, ui.hand.width, ui.hand.height)
+	drawCuttingBoard(ui.hand.x, ui.hand.y)
 	local hasCardsInHand = hand[1] or hand[2] or hand[3]
 	if hasCardsInHand then
 		love.graphics.setColor(0.43, 0.98, 0.47)
@@ -552,20 +550,17 @@ function love.draw()
 
 	-- draw actions if we don't have cards or an active modal, and we aren't drawing or plating
 	if not hasCardsInHand and not modalActive and not isDrawing and not isPlating then
-		love.graphics.setColor(0.98, 0.98, 0.47)
-		love.graphics.setFont(getFont(50))
+		love.graphics.setColor(16/256, 20/256, 31/256)
+		love.graphics.setFont(getFont(90))
 		love.graphics.rectangle("line", ui.actionDraw.x, ui.actionDraw.y, ui.actionDraw.width, ui.actionDraw.height)
-		love.graphics.printf("Draw Cards", ui.actionDraw.x, ui.actionDraw.y + 20, ui.actionDraw.width, 'center')
+		love.graphics.printf("Draw Cards", ui.actionDraw.x, ui.actionDraw.y - 18, ui.actionDraw.width, 'center')
 
 		love.graphics.rectangle("line", ui.actionNewPlate.x, ui.actionNewPlate.y, ui.actionNewPlate.width, ui.actionNewPlate.height)
-		love.graphics.printf("New Plate", ui.actionNewPlate.x, ui.actionNewPlate.y + 20, ui.actionNewPlate.width, 'center')
+		love.graphics.printf("New Plate", ui.actionNewPlate.x, ui.actionNewPlate.y - 18, ui.actionNewPlate.width, 'center')
 	end
 
 	-- draw drawPile and discardPile
-	love.graphics.setColor(0.98, 0.43, 0.47)
-	love.graphics.rectangle("line", ui.deck.x, ui.deck.y, ui.deck.width, ui.deck.height)
-
-	love.graphics.setColor(0.83, 0.83, 0.87)
+	love.graphics.setColor(235/256, 237/256, 233/256)
 	drawCard(0, ui.drawPile.x, ui.drawPile.y)
 	love.graphics.setFont(getFont(80))
 	love.graphics.printf(#drawPile, ui.drawPile.x, ui.drawPile.y + ui.drawPile.height/4, ui.drawPile.width, 'center')
@@ -580,8 +575,6 @@ function love.draw()
 	-- draw plated cards
 	-- (we only draw the top 5, since there can be rendering issues if we try to draw too many)
 	drawPlate(ui.plateCards.x + (ui.plateCards.width / 2), ui.plateCards.y + (ui.plateCards.height / 2))
-	love.graphics.setColor(0.98, 0.43, 0.47)
-	love.graphics.rectangle("line", ui.plate.x, ui.plate.y, ui.plate.width, ui.plate.height)
 	if #currentPlate > 0 then
 		for cardIndex=math.max(#currentPlate - 5, 1), #currentPlate do
 			drawRotatedCard(currentPlate[cardIndex], ui.plateCards.x, ui.plateCards.y, cardIndex)
@@ -647,7 +640,11 @@ function love.draw()
 				love.graphics.setFont(getFont(50))
 				love.graphics.printf(actionDetails[modalActions[1]].modalSubtitle, ui.modal.x + 10, ui.modal.y + 120, ui.modal.width - 20, 'center')
 			end
-			love.graphics.setFont(getFont(30))
+		end
+
+		-- if this is the start modal, show the toast graphic
+		if hasStarted == false then
+			drawChalkToast(ui.modal.x + 315, ui.modal.y + 125)
 		end
 
 		-- draw any cards on the modal
@@ -663,18 +660,18 @@ function love.draw()
 		end
 
 		-- draw any actions on the modal
-		love.graphics.setFont(getFont(50))
+		love.graphics.setFont(getFont(70))
 		if modalActions[1] then
 			local actionX = ui.modal.x + ui.modalAction1.x
 			local actionY = ui.modal.y + ui.modalAction1.y
 			love.graphics.rectangle("line", actionX, actionY, ui.modalAction1.width, ui.modalAction1.height)
-			love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY + 20, ui.modalAction1.width, 'center')
+			love.graphics.printf(actionDetails[modalActions[1]].label, actionX, actionY - 25, ui.modalAction1.width, 'center')
 		end
 		if modalActions[2] then
 			local actionX = ui.modal.x + ui.modalAction2.x
 			local actionY = ui.modal.y + ui.modalAction2.y
 			love.graphics.rectangle("line", actionX, actionY, ui.modalAction2.width, ui.modalAction2.height)
-			love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY + 20, ui.modalAction2.width, 'center')
+			love.graphics.printf(actionDetails[modalActions[2]].label, actionX, actionY - 25, ui.modalAction2.width, 'center')
 		end
 		love.graphics.setFont(getFont(30))
 	end
@@ -1214,11 +1211,10 @@ function love.keypressed(rawKey)
 		return
 	end
 
-	-- if we are doing a valid action, stop mumbling
-	stopAnimations(voiceRoutines)
-
 	-- navigation
-	if key == 'down' or key == 'up' or key == 'left' or key == 'right' then
+	-- don't navigate if we haven't started (unless we are in settings)
+	local canNavigate = hasStarted == true or settingsModalActive
+	if canNavigate and (key == 'down' or key == 'up' or key == 'left' or key == 'right') then
 		async(routines, function()
 			local nextSelection = ui[selection].nav[navKey] and ui[selection].nav[navKey][key]
 

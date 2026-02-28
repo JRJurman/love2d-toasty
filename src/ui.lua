@@ -56,7 +56,7 @@ ui = {
 		height = 800,
 	},
 	hand = {
-		x = 380,
+		x = 365,
 		y = 820,
 		width = 880,
 		height = 375,
