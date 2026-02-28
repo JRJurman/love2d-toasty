@@ -458,8 +458,9 @@ function drawThree()
 end
 
 function checkToLoopMusic()
-	-- don't start looping until the game has started
-	if not hasStarted then
+	-- if we haven't started, and the intro didn't kick off yet, try playing it
+	if hasStarted == false and intro and not intro:isPlaying() then
+		intro:play()
 		return
 	end
 
@@ -678,14 +679,11 @@ function love.draw()
 
 	-- draw the settings modal
 	if settingsModalActive then
-		love.graphics.setColor( 0, 0, 0)
-		love.graphics.rectangle("fill", ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
-		love.graphics.setColor(0.98, 0.47, 0.98)
-		love.graphics.rectangle("line", ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
+		drawChalkBoard('green', ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
 
 		-- draw modal title
 		love.graphics.setFont(getFont(50))
-		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y, ui.settingsModal.width - 20, 'center')
+		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y + 30, ui.settingsModal.width - 20, 'center')
 
 		-- draw the settings
 		love.graphics.setFont(getFont(30))
@@ -717,16 +715,16 @@ function love.draw()
 
 
 		-- draw actions on the modal
-		love.graphics.setFont(getFont(50))
+		love.graphics.setFont(getFont(60))
 		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
 		local actionY = ui.settingsModal.y + ui.modalSettingsSaveAction.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsSaveAction.width, ui.modalSettingsSaveAction.height)
-		love.graphics.printf('Save', actionX, actionY + 20, ui.modalSettingsSaveAction.width, 'center')
+		love.graphics.printf('Save', actionX, actionY, ui.modalSettingsSaveAction.width, 'center')
 
 		local actionX = ui.settingsModal.x + ui.modalSettingsResetAction.x
 		local actionY = ui.settingsModal.y + ui.modalSettingsResetAction.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsResetAction.width, ui.modalSettingsResetAction.height)
-		love.graphics.printf('Reset', actionX, actionY + 20, ui.modalSettingsResetAction.width, 'center')
+		love.graphics.printf('Reset', actionX, actionY, ui.modalSettingsResetAction.width, 'center')
 
 		love.graphics.setFont(getFont(30))
 	end

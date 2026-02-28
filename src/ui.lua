@@ -344,7 +344,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 70,
+		y = 90,
 		width = 700,
 		height = 100,
 	},
@@ -362,7 +362,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 170,
+		y = 190,
 		width = 700,
 		height = 100,
 	},
@@ -380,7 +380,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 270,
+		y = 290,
 		width = 700,
 		height = 100,
 	},
@@ -398,7 +398,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 370,
+		y = 390,
 		width = 700,
 		height = 100,
 	},
@@ -416,7 +416,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 470,
+		y = 490,
 		width = 700,
 		height = 100,
 	},
@@ -435,9 +435,9 @@ ui = {
 		},
 
 		x = 90,
-		y = 570,
+		y = 630,
 		width = 365,
-		height = 150,
+		height = 90,
 	},
 	modalSettingsResetAction = {
 		label = 'Reset Action',
@@ -454,9 +454,9 @@ ui = {
 		},
 
 		x = 510,
-		y = 570,
+		y = 630,
 		width = 365,
-		height = 150,
+		height = 90,
 	},
 	chef = {
 		x = 1360,
