@@ -1,63 +1,71 @@
 local navSound = love.sound.newSoundData('Assets/nav.wav')
+local navSource = love.audio.newSource(navSound)
 
 function playNavSFX()
-	local source = love.audio.newSource(navSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	navSource:setVolume(sfxVolume * masterVolume)
+	navSource:play()
 end
 
 local dropSound = love.sound.newSoundData('Assets/drop.wav')
+local dropSource = love.audio.newSource(dropSound)
 
 function playDropSFX()
-	local source = love.audio.newSource(dropSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	dropSource:setVolume(sfxVolume * masterVolume)
+	dropSource:play()
 end
 
 local shuffleSound = love.sound.newSoundData('Assets/shuffle.wav')
+local shuffleSource = love.audio.newSource(shuffleSound)
 
 function playShuffleSFX()
-	local source = love.audio.newSource(shuffleSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	shuffleSource:setVolume(sfxVolume * masterVolume)
+	shuffleSource:play()
 end
 
 local tossSound = love.sound.newSoundData('Assets/toss.wav')
+local tossSource = love.audio.newSource(tossSound)
 
 function playTossSFX()
-	local source = love.audio.newSource(tossSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	tossSource:setVolume(sfxVolume * masterVolume)
+	tossSource:play()
 end
 
 local stackSound = love.sound.newSoundData('Assets/stack.wav')
+local stackSource = love.audio.newSource(stackSound)
 
 function playStackSFX()
-	local source = love.audio.newSource(stackSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	stackSource:setVolume(sfxVolume * masterVolume)
+	stackSource:play()
 end
 
 local dealSound = love.sound.newSoundData('Assets/deal.wav')
+local dealSource = love.audio.newSource(dealSound)
 
 function playDealSFX()
-	local source = love.audio.newSource(dealSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	dealSource:setVolume(sfxVolume * masterVolume)
+	dealSource:play()
 end
 
 local pushSound = love.sound.newSoundData('Assets/push.wav')
+local pushSource = love.audio.newSource(pushSound)
 
 function playPushSFX()
-	local source = love.audio.newSource(pushSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	pushSource:setVolume(sfxVolume * masterVolume)
+	pushSource:play()
 end
 
 local pullSound = love.sound.newSoundData('Assets/pull.wav')
+local pullSource = love.audio.newSource(pullSound)
 
 function playPullSFX()
-	local source = love.audio.newSource(pullSound)
-	source:setVolume(sfxVolume * masterVolume)
-	source:play()
+	pullSource:setVolume(sfxVolume * masterVolume)
+	pullSource:play()
+end
+
+local discardSound = love.sound.newSoundData('Assets/discard.wav')
+local discardSource = love.audio.newSource(discardSound)
+
+function playDiscardSFX()
+	discardSource:setVolume(sfxVolume * masterVolume)
+	discardSource:play()
 end

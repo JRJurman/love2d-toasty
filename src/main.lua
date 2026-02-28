@@ -104,7 +104,7 @@ defaultMasterVolume = 1
 masterVolume = defaultMasterVolume
 defaultMusicVolume = 0.7
 musicVolume = defaultMusicVolume
-defaultSfxVolume = 1
+defaultSfxVolume = 0.7
 sfxVolume = defaultSfxVolume
 defaultAnimationScale = 0.75
 animationScale = defaultAnimationScale
@@ -414,6 +414,7 @@ function discardCardFromHand(handIndex, startX, startY)
 	movingCard.x = startX
 	movingCard.y = startY
 
+	playDiscardSFX()
 	animateMany(
 		movingCard,
 		{'x', 'y'},
@@ -1479,9 +1480,9 @@ function love.keypressed(rawKey)
 			end
 			if selection == 'actionNewPlate' then
 				animationText = 'Scoring Plate'
+				playStackSFX()
 				wait(1 * animationScale)
 
-				playStackSFX()
 				completePlate()
 				if not modalActive then
 					drawThree()
