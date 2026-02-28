@@ -117,7 +117,7 @@ intro:setLooping(true)
 loop:setVolume(masterVolume * musicVolume * 0.2)
 loop:setLooping(true)
 
-local navAnimationSpeed = 0.5
+local navAnimationSpeed = 0.35
 local drawAnimationSpeed = 1
 
 local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false, cardValue = nil }
