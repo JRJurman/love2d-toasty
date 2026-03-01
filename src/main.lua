@@ -91,10 +91,6 @@ local drawnNavText = ''
 local animationText = ''
 local drawnAnimationText = ''
 
--- we only say what the nav instructions are when someone first lands on a control
--- or when they've repeated the instruction
-local heardNavInstructions = {}
-
 local repeating = false
 
 gameSeed = nil
@@ -835,7 +831,6 @@ function love.draw()
 		if shouldIncludeNavText then
 			repeating = false
 			ttsText = string.gsub(selectionText..'. Navigation Controls: '..navText, '\n', '; ')
-			heardNavInstructions[selection] = true
 		end
 		print('tts: '..ttsText)
 		drawnSelectionText = selectionText
@@ -1219,6 +1214,15 @@ function getSelectionInstruction()
 	return ''
 end
 
+function repeatText()
+	animationText = 'repeating...'
+	if hasStarted then
+		repeating = true
+	end
+	wait(0.5 * animationScale * (1/userAnimationScale))
+	animationText = ''
+end
+
 function love.keypressed(rawKey)
 	-- DebuggingScreen.keypressed(rawKey)
 
@@ -1240,14 +1244,22 @@ function love.keypressed(rawKey)
 	-- navigation
 	-- don't navigate if we are in the start or restart modal (unless we are in settings)
 	local noNavModals = modalActive and (modalActions[1] == 'start' or modalActions[1] == 'restart')
-	local canNavigate = settingsModalActive or not noNavModals
-	if canNavigate and (key == 'down' or key == 'up' or key == 'left' or key == 'right') then
+	local isPressingNavKey = (key == 'down' or key == 'up' or key == 'left' or key == 'right')
+	if isPressingNavKey and (not noNavModals or settingsModalActive) then
 		async(routines, function()
 			local nextSelection = ui[selection].nav[navKey] and ui[selection].nav[navKey][key]
 
 			if nextSelection then
 				updateSelection(nextSelection)
 			end
+		end)
+	end
+
+	-- if we are in a non nav modal, but they did press a nav key, repeat text
+	-- this can be important if they missed the intro text
+	if noNavModals and not settingsModalActive and isPressingNavKey then
+		async(routines, function()
+			repeatText()
 		end)
 	end
 
@@ -1514,14 +1526,7 @@ function love.keypressed(rawKey)
 	-- repeat text if r was pressed
 	if key == "r" then
 		async(routines, function()
-			animationText = 'repeating...'
-			-- unset nav instructions (if we have started)
-			if hasStarted then
-				repeating = true
-				heardNavInstructions[selection] = nil
-			end
-			wait(0.5 * animationScale * (1/userAnimationScale))
-
+			repeatText()
 		end)
 	end
 
