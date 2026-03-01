@@ -29,7 +29,7 @@ actionDetails = {
 		modalSubtitle = "guarantees a bread next hand",
 		label = "Shuffle",
 		initialModalDescription = "Showing the next cards that you will draw, you may shuffle them back into your draw pile, and guarantee a bread next hand.",
-		actionDescription = "Select to shuffle your draw pile, and guarantee a bread next hand.",
+		actionDescription = "Select this option to shuffle your draw pile, and guarantee a bread next hand.",
 	},
 	pick = {
 		modalTitle = "Pick a Card?",
@@ -55,6 +55,6 @@ actionDetails = {
 		modalSubtitle = "great job",
 		label = "Continue",
 		initialModalDescription = "You completed the beginning shifts!",
-		actionDescription = "Select to keep going and complete as many shifts as you can, or press right and start over.",
+		actionDescription = "Select this option to keep going and complete as many shifts as you can, or press right and start over.",
 	},
 }

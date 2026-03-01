@@ -119,7 +119,7 @@ loop:setVolume(masterVolume * musicVolume * 0.2)
 loop:setLooping(true)
 
 local animationScale = 0.75
-local navAnimationSpeed = 0.35
+local navAnimationSpeed = 0.30
 local drawAnimationSpeed = 1
 
 local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false, cardValue = nil }
@@ -628,7 +628,7 @@ function love.draw()
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 15, ui.score.width - 20, 'center')
 	-- draw the number of discovered vs undiscovered in the round score
 	love.graphics.setFont(getFont(30))
-	love.graphics.printf('Fattest Stack: '..fattestStack..' ingredient', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
+	love.graphics.printf('Fattest Stack: '..fattestStack..' ingredients', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
 	-- draw the modal if it is active
 	if modalActive then
