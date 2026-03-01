@@ -124,6 +124,38 @@ local drawAnimationSpeed = 1
 
 local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false, cardValue = nil }
 
+local settingsFileName = 'settings.v1.json'
+function saveSettingsJSON()
+	saveGameData(settingsFileName, {
+		cursorHue = cursorHue,
+		masterVolume = masterVolume,
+		musicVolume = musicVolume,
+		sfxVolume = sfxVolume,
+		userAnimationScale = userAnimationScale
+	})
+end
+
+function loadSettingsJSON()
+	local savedSettings = loadGameData(settingsFileName)
+	if savedSettings then
+		cursorHue = savedSettings.cursorHue
+		masterVolume = savedSettings.masterVolume
+		musicVolume = savedSettings.musicVolume
+		sfxVolume = savedSettings.sfxVolume
+		userAnimationScale = savedSettings.userAnimationScale
+	end
+end
+
+function resetSettings()
+	clearGameData(settingsFileName)
+	cursorHue = defaultCursorHue
+	masterVolume = defaultMasterVolume
+	musicVolume = defaultMusicVolume
+	sfxVolume = defaultSfxVolume
+	userAnimationScale = defaultUserAnimationScale
+	updateMusicVolume()
+end
+
 function updateMusicVolume()
 	-- update the volume for running music
 	if (intro) then
@@ -504,15 +536,7 @@ function startNewGame()
 end
 
 function loadSeed()
-	local savedSeed = nil
-	if love.keyboard.isDown( 'lctrl' ) then
-		savedSeed = loadGameData('seed.json')
-	end
-	if savedSeed then
-		gameSeed = savedSeed.seed
-	else
-		gameSeed = waitingSeed
-	end
+	gameSeed = waitingSeed
 	print('seed: '..gameSeed)
 	math.randomseed(gameSeed)
 end
@@ -520,6 +544,15 @@ end
 function love.load()
 	async(routines, function()
 		startNewGame()
+	end)
+	async(routines, function()
+		-- wait one second before loading (that way someone can hold lctrl to reset)
+		wait(1)
+		if love.keyboard.isDown( 'q' ) then
+			resetSettings()
+		else
+			loadSettingsJSON()
+		end
 	end)
 end
 
@@ -1187,18 +1220,7 @@ function getSelectionInstruction()
 end
 
 function love.keypressed(rawKey)
-	-- special debugging keys, only if holding down lctrl
-	if love.keyboard.isDown( 'lctrl' ) then
-		DebuggingScreen.keypressed(rawKey)
-		--  saving / loading seeds
-		if key == 'v' and gameSeed ~= nil then
-			saveGameData('seed.json', { seed = gameSeed })
-		end
-
-		if key == 'c' then
-			clearGameData('seed.json')
-		end
-	end
+	-- DebuggingScreen.keypressed(rawKey)
 
 	-- print('rawKey: '..rawKey)
 
@@ -1268,12 +1290,7 @@ function love.keypressed(rawKey)
 
 	-- if we reset, reset the default settings
 	if key == 'select' and selection == 'modalSettingsResetAction' then
-		cursorHue = defaultCursorHue
-		masterVolume = defaultMasterVolume
-		musicVolume = defaultMusicVolume
-		sfxVolume = defaultSfxVolume
-		userAnimationScale = defaultUserAnimationScale
-		updateMusicVolume()
+		resetSettings()
 		async(routines, function()
 			minimizeSettingsModal()
 			settingsModalActive = false
@@ -1284,6 +1301,7 @@ function love.keypressed(rawKey)
 
 	-- if we saved, then close the modal
 	if key == 'select' and selection == 'modalSettingsSaveAction' then
+		saveSettingsJSON()
 		async(routines, function()
 			minimizeSettingsModal()
 			settingsModalActive = false

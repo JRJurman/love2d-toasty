@@ -5,7 +5,8 @@
   "scripts": {
     "start": "serve docs",
     "prestart": "npm run build",
-    "build": "./build.sh"
+    "build": "./build.sh",
+    "postbuild": "cd docs && zip ../WebExport.zip game.data game.js index.html love.js love.wasm"
   },
   "keywords": [],
   "author": "Jesse Jurman",
