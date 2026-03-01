@@ -69,3 +69,11 @@ function playDiscardSFX()
 	discardSource:setVolume(sfxVolume * masterVolume)
 	discardSource:play()
 end
+
+local highSound = love.sound.newSoundData('Assets/high.wav')
+local highSource = love.audio.newSource(highSound)
+
+function playhighSFX()
+	highSource:setVolume(sfxVolume * masterVolume)
+	highSource:play()
+end

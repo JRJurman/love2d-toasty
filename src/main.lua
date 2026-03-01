@@ -216,8 +216,9 @@ function checkForNewHighestStack()
 	end
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
 		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients.'
+		playhighSFX()
 		fattestStack = #currentPlate
-		wait(2.5 * animationScale * (1/userAnimationScale))
+		wait(2.3 * animationScale * (1/userAnimationScale))
 	end
 end
 
@@ -1252,12 +1253,9 @@ function love.keypressed(rawKey)
 			selectionText = (math.floor(sfxVolume * 100))..'%'
 		end
 		if selection == 'settingsAnimationSlider' then
-			if key == 'left' then
-				userAnimationScale = userAnimationScale / 2
-			else
-				userAnimationScale = userAnimationScale * 2
-			end
-			userAnimationScale = math.min(math.max(userAnimationScale, 0.25), 4)
+			local delta = (key == 'left' and -.5) or .5
+			userAnimationScale = userAnimationScale + delta
+			userAnimationScale = math.min(math.max(userAnimationScale, 0.5), 4)
 			selectionText = userAnimationScale
 		end
 		if selection == 'settingsCursorSlider' then
