@@ -675,7 +675,7 @@ function love.draw()
 		end
 
 		-- if this is the start modal, show the toast graphic
-		if hasStarted == false then
+		if modalActions[1] == 'start' then
 			drawChalkToast(ui.modal.x + 315, ui.modal.y + 125)
 		end
 
@@ -851,7 +851,7 @@ function expandModal()
 		animationText = 'opening modal'
 	end
 	ui.modal.y = ui.offScreenModal.y
-	animate(ui.modal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.outovershoot)
+	animate(ui.modal, 'y', ui.onScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.outovershoot)
 end
 
 function minimizeModal()
@@ -859,14 +859,14 @@ function minimizeModal()
 	playPushSFX()
 	wait(0.5 * animationScale * (1/userAnimationScale))
 	ui.modal.y = ui.onScreenModal.y
-	animate(ui.modal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot)
+	animate(ui.modal, 'y', ui.offScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.inovershoot)
 end
 
 function expandSettingsModal()
 	playPullSFX()
 	animationText = 'opening settings'
 	ui.settingsModal.y = ui.offScreenModal.y
-	animate(ui.settingsModal, 'y', ui.onScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.outovershoot)
+	animate(ui.settingsModal, 'y', ui.onScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.outovershoot)
 end
 
 function minimizeSettingsModal()
@@ -874,7 +874,7 @@ function minimizeSettingsModal()
 	playPushSFX()
 	wait(0.5 * animationScale * (1/userAnimationScale))
 	ui.settingsModal.y = ui.onScreenModal.y
-	animate(ui.settingsModal, 'y', ui.offScreenModal.y, navAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot)
+	animate(ui.settingsModal, 'y', ui.offScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.inovershoot)
 end
 
 function getScoreForCompletedPlates()
@@ -965,7 +965,12 @@ function completePlate()
 	end
 end
 
-function updateSelection(target)
+function updateSelection(target, skipNavAnimation)
+	local navSpeed = navAnimationSpeed
+	if skipNavAnimation then
+		navSpeed = 0
+	end
+
 	selection = target
 
 	async(routines, function()
@@ -983,7 +988,7 @@ function updateSelection(target)
 		animateMany(cursor,
 			{"x", "y", "width", "height"},
 			{targetX, targetY, ui[selection].width, ui[selection].height},
-			navAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
+			navSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
 		)
 		playNavSFX()
 	end)
@@ -1548,8 +1553,60 @@ function love.keypressed(rawKey)
 	end
 end
 
-function love.mousepressed(x, y)
+
+function love.mousemoved(x, y)
+	local handIsEmpty = getHandSize() == 0
+
+	-- if we are animating, don't do anything
+	local isAnimating = #routines > 0
+	if isAnimating then
+		return
+	end
+
+	for selectionKey, uiElement in pairs(ui) do
+		if selectionKey ~= selection then
+			if uiElement.selectable then
+				local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
+				local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
+				if isWithinX and isWithinY then
+					if settingsModalActive then
+						if uiElement.settingsModal then
+							updateSelection(selectionKey, true)
+						end
+					elseif modalActive then
+						if uiElement.modal and not uiElement.settingsModal then
+							updateSelection(selectionKey, true)
+						end
+					else
+						if uiElement.hand and not handIsEmpty then
+							updateSelection(selectionKey, true)
+						end
+						if uiElement.action and handIsEmpty and not uiElement.modal then
+							updateSelection(selectionKey, true)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function love.mousepressed(x, y, button, istouch, presses)
 	DebuggingScreen.mousepressed(x, y)
+
+	-- if this is a double click, always accept it as a valid press, regardless of selection hover
+	-- (this mimics accessible interfaces)
+	-- otherwise, check if we are within the x and y of the selected element
+	if presses > 1 then
+		love.keypressed('select')
+	else
+		local uiElement = ui[selection]
+		local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
+		local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
+		if isWithinX and isWithinY then
+			love.keypressed('select')
+		end
+	end
 end
 
 function love.mousereleased(x, y)

@@ -334,6 +334,7 @@ ui = {
 	settingsMasterSlider = {
 		label = 'Master Audio Slider',
 		modal = true,
+		settingsModal = true,
 		selectable = true,
 		slider = true,
 
@@ -351,6 +352,7 @@ ui = {
 	settingsMusicSlider = {
 		label = 'Music Audio Slider',
 		modal = true,
+		settingsModal = true,
 		selectable = true,
 		slider = true,
 
@@ -369,6 +371,7 @@ ui = {
 	settingsSFXSlider = {
 		label = 'Sound Audio Slider',
 		modal = true,
+		settingsModal = true,
 		selectable = true,
 		slider = true,
 
@@ -387,6 +390,7 @@ ui = {
 	settingsAnimationSlider = {
 		label = 'Animation Speed Slider',
 		modal = true,
+		settingsModal = true,
 		selectable = true,
 		slider = true,
 
@@ -405,6 +409,7 @@ ui = {
 	settingsCursorSlider = {
 		label = 'Cursor Hue Slider',
 		modal = true,
+		settingsModal = true,
 		selectable = true,
 		slider = true,
 
@@ -423,6 +428,7 @@ ui = {
 	modalSettingsSaveAction = {
 		label = 'Save Action',
 		modal = true,
+		settingsModal = true,
 		action = true,
 		actionIndex = 1,
 		selectable = true,
@@ -442,6 +448,7 @@ ui = {
 	modalSettingsResetAction = {
 		label = 'Reset Action',
 		modal = true,
+		settingsModal = true,
 		action = true,
 		actionIndex = 2,
 		selectable = true,
