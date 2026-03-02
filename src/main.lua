@@ -971,6 +971,16 @@ function updateSelection(target, skipNavAnimation)
 		navSpeed = 0
 	end
 
+	-- if we are on the start / restart modal, and you try to navigate to some other modal control, don't
+	-- (this is common trip up for mouse controls)
+	if selection == 'modalAction1' and (modalActions[1] == 'start' or modalActions[1] == 'restart') then
+		if ui[target].modal and not ui[target].settingsModal then
+			-- if we are swapping from restart to start though, do update the selection text
+			selectionText = getSelectionInstruction()
+			return
+		end
+	end
+
 	selection = target
 
 	async(routines, function()
@@ -1109,8 +1119,7 @@ function getSelectionInstruction()
 
 	if selection == 'modalAction1' then
 		local selectedAction = actionDetails[modalActions[1]]
-		if modalActions[1] == 'start' and hasSeenModalInstructions == false then
-			hasSeenModalInstructions = true
+		if modalActions[1] == 'start' then
 			return selectedAction.initialModalDescription..' '..selectedAction.actionDescription
 		end
 		if modalActions[1] == 'restart' or modalActions[1] == 'endless' then
