@@ -378,10 +378,11 @@ function updateSelectionAfterPlayOrDraw()
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
 	-- if we are out of bread, and have no plate, end the game
-	-- also if we have no cards in deck, end the game
+	-- alternatively if we have no cards in deck (and the hand is empty), end the game
 	local outOfBread = breadInDeck == 0 and #currentPlate == 0
+	local outOfCards = #drawPile == 0 and handIsEmpty
 
-	if outOfBread or #drawPile == 0 then
+	if outOfBread or outOfCards then
 		modalActions = {'restart'}
 		modalCards = {}
 		startModal()

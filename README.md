@@ -4,7 +4,7 @@ Game for Games for Blind Gamers game jam
 
 ## Resources
 
-Game Designed by Jesse Jurman. Play testing and design help from Ethan Jurman, Tina Howard,
+Game Designed by Jesse Jurman. Play testing and design help from Ethan Jurman, Tina Howard, and Katie Walker
 Music created using GarageBand by Jesse Jurman and Ethan Jurman.
 Sounds by Jesse Jurman.
 Art created using Affinity by Ethan Jurman.
