@@ -1580,6 +1580,7 @@ end
 
 
 function love.mousemoved(x, y)
+	x, y = push:toGame(x, y)
 	local handIsEmpty = getHandSize() == 0
 
 	-- if we are animating, don't do anything
@@ -1617,6 +1618,7 @@ function love.mousemoved(x, y)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
+	x, y = push:toGame(x, y)
 	DebuggingScreen.mousepressed(x, y)
 
 	-- if this is a double click, always accept it as a valid press, regardless of selection hover
@@ -1635,5 +1637,6 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function love.mousereleased(x, y)
+	x, y = push:toGame(x, y)
 	DebuggingScreen.mousereleased(x, y)
 end
