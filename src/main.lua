@@ -6,6 +6,7 @@ require('hsl')
 require('save')
 require('animation')
 local ease = require('ease')
+local push = require "push"
 
 require('cardDetails')
 require('ui')
@@ -30,6 +31,11 @@ require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
 
 love.graphics.setFont(getFont(30))
+
+-- setup for push.lua, library to preserve aspect ratio
+local gameWidth, gameHeight = 1600, 1200 --fixed game resolution
+local windowWidth, windowHeight = love.graphics.getDimensions()
+push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {fullscreen = false, resizable = true})
 
 local startingDeck = {
 	-- bread
@@ -562,6 +568,8 @@ function love.update(dt)
 end
 
 function love.draw()
+	push:start()
+
 	love.graphics.clear()
 	love.graphics.setFont(getFont(30))
 
@@ -837,6 +845,12 @@ function love.draw()
 		drawnSelectionText = selectionText
 		drawnNavText = navText
 	end
+
+	push:finish()
+end
+
+function love.resize(width, height)
+	push:resize(width, height)
 end
 
 function shuffleDrawPile(deep)
