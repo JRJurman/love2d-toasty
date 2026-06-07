@@ -26,6 +26,7 @@ require('ttsFunctions')
 require('trackDetails')
 require('actionDetails')
 require('sfx')
+require('tts')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
@@ -826,7 +827,7 @@ function love.draw()
 		drawnNavText = ''
 
 		drawnAnimationText = animationText
-		print('tts: '..animationText)
+		speak(animationText)
 	end
 
 	-- update the screen reader (if text changed)
@@ -841,7 +842,7 @@ function love.draw()
 			repeating = false
 			ttsText = string.gsub(selectionText..'. Navigation Controls: '..navText, '\n', '; ')
 		end
-		print('tts: '..ttsText)
+		speak(ttsText)
 		drawnSelectionText = selectionText
 		drawnNavText = navText
 	end
