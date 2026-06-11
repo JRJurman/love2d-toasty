@@ -17,23 +17,34 @@ if not isWeb then
 		int SRAL_GetCurrentEngine(void);
 	]]
 
-	local ok, err = pcall(function()
-		sral_lib = ffi.load("SRAL")
+	local os_name = love.system.getOS()
+	local base = love.filesystem.getSourceBaseDirectory()
+
+	-- How SRAL is linked differs per platform:
+	--   * Desktop ships it as a shared library next to the executable.
+	--   * Android loads libSRAL.so by name (already loaded via System.loadLibrary).
+	--   * iOS statically links it into the app binary, so symbols resolve from the
+	--     main program (ffi.C) rather than a separate library.
+	local libname = ({
+		["OS X"]  = base .. "/sral/libSRAL.dylib",
+		Windows   = base .. "\\sral\\SRAL.dll",
+		Linux     = base .. "/sral/libSRAL.so",
+		Android   = "SRAL",
+	})[os_name]
+
+	local ok, lib_or_err = pcall(function()
+		if libname then
+			return ffi.load(libname)
+		end
+		-- iOS: confirm the statically-linked symbol resolves, then use ffi.C.
+		local _ = ffi.C.SRAL_Initialize
+		return ffi.C
 	end)
 
-	if not ok then
-		-- fallback: load by explicit path from the game directory
-		ok, err = pcall(function()
-			sral_lib = ffi.load(love.filesystem.getSource() .. "/libSRAL.dylib")
-		end)
-	end
-
-	if not ok then
-		-- fallback: use ffi.C for iOS where SRAL is statically linked
-		ok, err = pcall(function()
-			local _ = ffi.C.SRAL_Initialize
-			sral_lib = ffi.C
-		end)
+	if ok then
+		sral_lib = lib_or_err
+	else
+		print("SRAL load failed: " .. tostring(lib_or_err))
 	end
 
 	if sral_lib then
