@@ -146,6 +146,7 @@ function loadSettingsJSON()
 		musicVolume = savedSettings.musicVolume
 		sfxVolume = savedSettings.sfxVolume
 		userAnimationScale = savedSettings.userAnimationScale
+		updateMusicVolume()
 	end
 end
 
