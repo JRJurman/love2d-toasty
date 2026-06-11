@@ -1,9 +1,12 @@
+wideInstructions = 'Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions any time. Escape for settings.'
+tallInstructions = ''
+
 actionDetails = {
 	start = {
 		modalTitle = "Toasty!",
 		modalSubtitle = "a push-your-luck deck builder",
 		label = "Start",
-		initialModalDescription = "Chef, start plates with bread and then make fat stacks of ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Make it through 5 shifts. Use Spacebar, Enter, or X to select, W A S D or arrow keys to change selection. Use the R key to repeat instructions any time. Escape for settings.",
+		initialModalDescription = "Chef, start plates with bread and then make fat stacks of ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Make it through 5 shifts.",
 		actionDescription = "Select to start the game",
 	},
 	restart = {

@@ -469,6 +469,14 @@ ui = {
 		x = 1360,
 		y = 687,
 	},
+	chefReadoutArrow = {
+		x1 = 1405,
+		y1 = 707,
+		x2 = 1445,
+		y2 = 707,
+		x3 = 1450,
+		y3 = 752
+	},
 	scoreBoard = {
 		x = 0,
 		y = 0,
@@ -476,3 +484,87 @@ ui = {
 		height = 320,
 	},
 }
+
+toMobileLayout = function()
+	-- hand
+	ui.hand.x = 30
+	ui.hand.y = 1160
+
+	-- hand cards
+	ui.card1.x = 70
+	ui.card1.y = 1190
+	ui.card2.x = 70 + (cardSize.width*0.9)
+	ui.card2.y = 1190
+	ui.card3.x = 70 + (cardSize.width*1.8)
+	ui.card3.y = 1190
+
+	-- hand actions
+	ui.actionDraw.x = 105
+	ui.actionDraw.y = 1240
+	ui.actionNewPlate.x = 490
+	ui.actionNewPlate.y = 1240
+
+	-- draw & discard
+	ui.deck.x = 10
+	ui.deck.y = 1580
+	ui.drawPile.x = 30
+	ui.drawPile.y = 1610
+	ui.discardPile.x = 380
+	ui.discardPile.y = 1610
+
+	-- chef and readout
+	ui.chef.x = 825
+	ui.chef.y = 1000
+	ui.chefReadoutArrow.x1 = 923
+	ui.chefReadoutArrow.y1 = 1080
+	ui.chefReadoutArrow.x2 = 893
+	ui.chefReadoutArrow.y2 = 1100
+	ui.chefReadoutArrow.x3 = 893
+	ui.chefReadoutArrow.y3 = 1060
+	ui.readout.x = 10
+	ui.readout.y = 837
+	ui.readout.width = 890
+	ui.readout.height = 300
+end
+
+toDesktopLayout = function()
+	-- hand
+	ui.hand.x = 365
+	ui.hand.y = 820
+
+	-- hand cards
+	ui.card1.x = 405
+	ui.card1.y = 850
+	ui.card2.x = 405 + (cardSize.width*0.9)
+	ui.card2.y = 850
+	ui.card3.x = 405 + (cardSize.width*1.8)
+	ui.card3.y = 850
+
+	-- hand actions
+	ui.actionDraw.x = 440
+	ui.actionDraw.y = 900
+	ui.actionNewPlate.x = 825
+	ui.actionNewPlate.y = 900
+
+	-- draw & discard
+	ui.deck.x = 10
+	ui.deck.y = 820
+	ui.drawPile.x = 30
+	ui.drawPile.y = 850
+	ui.discardPile.x = 1280
+	ui.discardPile.y = 850
+
+	-- chef and readout
+	ui.chef.x = 1360
+	ui.chef.y = 687
+	ui.chefReadoutArrow.x1 = 1405
+	ui.chefReadoutArrow.y1 = 707
+	ui.chefReadoutArrow.x2 = 1445
+	ui.chefReadoutArrow.y2 = 707
+	ui.chefReadoutArrow.x3 = 1450
+	ui.chefReadoutArrow.y3 = 752
+	ui.readout.x = 1070
+	ui.readout.y = 10
+	ui.readout.width = 530
+	ui.readout.height = 700
+end

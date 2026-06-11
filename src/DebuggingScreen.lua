@@ -1,4 +1,5 @@
 -- copied from Ladybud Roll
+local push = require "push"
 
 local DebuggingScreen = {}
 debugging = false
@@ -43,6 +44,11 @@ function DebuggingScreen.draw()
 
 	-- draw current mouse position (circle)
 	local x, y = love.mouse.getPosition()
+	x, y = push:toGame(x, y)
+	if (x == nil or y == nil) then
+		return
+	end
+
 	love.graphics.circle('fill', x, y, 3)
 
 	-- if there is an origin point, draw a line from there to here
@@ -53,6 +59,8 @@ function DebuggingScreen.draw()
 
 
 	-- write current mouse position (text)
+	x = string.format("%.2f", x)
+	y = string.format("%.2f", y)
 	love.graphics.print('mouse '..x..', '..y, 20, 580)
 
 	-- draw all points that have been clicked on

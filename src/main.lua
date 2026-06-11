@@ -1,6 +1,5 @@
 local json = require("json")
 require('shuffle')
-require('copy')
 require('hsl')
 
 require('save')
@@ -27,16 +26,17 @@ require('trackDetails')
 require('actionDetails')
 require('sfx')
 require('tts')
+require('resize')
 
 require('FontFunctions')
 DebuggingScreen = require('DebuggingScreen')
 
 love.graphics.setFont(getFont(30))
 
--- setup for push.lua, library to preserve aspect ratio
-local gameWidth, gameHeight = 1600, 1200 --fixed game resolution
+-- determine if we should be in landscape or portrait mode
 local windowWidth, windowHeight = love.graphics.getDimensions()
-push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {fullscreen = false, resizable = true})
+isTall = nil
+resize(windowWidth, windowHeight, isTall)
 
 local startingDeck = {
 	-- bread
@@ -790,11 +790,10 @@ function love.draw()
 	-- readout arrow
 	love.graphics.setColor(175/256, 201/256, 104/256)
 	love.graphics.polygon('fill',
-		ui.chef.x + 45, ui.chef.y + 20,
-		ui.chef.x + 85, ui.chef.y + 20,
-		ui.chef.x + 90, ui.chef.y + 65
+		ui.chefReadoutArrow.x1, ui.chefReadoutArrow.y1,
+		ui.chefReadoutArrow.x2, ui.chefReadoutArrow.y2,
+		ui.chefReadoutArrow.x3, ui.chefReadoutArrow.y3
 	)
-
 
 	-- readout text
 	love.graphics.setColor(16/256, 20/256, 31/256)
@@ -852,7 +851,7 @@ function love.draw()
 end
 
 function love.resize(width, height)
-	push:resize(width, height)
+	resize(width, height, isTall)
 end
 
 function shuffleDrawPile(deep)
