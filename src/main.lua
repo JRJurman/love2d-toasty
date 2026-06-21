@@ -100,6 +100,17 @@ local drawnAnimationText = ''
 
 local repeating = false
 
+-- logic to keep track of touch interactions
+-- (this swaps between swipes and searches)
+-- see https://github.com/JRJurman/love2d-swipe-example
+local isTouching = false
+local touchTime = 0
+local startTouchPos = { x = nil, y = nil }
+
+-- how long before we swap from swipe to search
+local swipeTimeThreshold = 0.25
+
+
 gameSeed = nil
 waitingSeed = 0
 
@@ -567,6 +578,9 @@ function love.update(dt)
 	end
 	updateAnimations(routines, dt)
 	checkToLoopMusic()
+	if isTouching then
+		touchTime = touchTime + dt
+	end
 end
 
 function love.draw()
@@ -1256,7 +1270,7 @@ end
 function love.keypressed(rawKey)
 	-- DebuggingScreen.keypressed(rawKey)
 
-	-- print('rawKey: '..rawKey)
+	print('rawKey: '..rawKey)
 
 	key = remap(rawKey)
 	local navKey = getNavKey()
@@ -1585,6 +1599,15 @@ function love.mousemoved(x, y)
 		return
 	end
 
+	if istouch then
+		-- if we are below swipeTimeThreshold, we could be swiping
+		if touchTime < swipeTimeThreshold then
+			return
+		end
+
+		-- otherwise, consider this a search
+	end
+
 	local handIsEmpty = getHandSize() == 0
 
 	-- if we are animating, don't do anything
@@ -1627,8 +1650,65 @@ function love.mousepressed(x, y, button, istouch, presses)
 		return
 	end
 
-	DebuggingScreen.mousepressed(x, y)
+	if istouch then
+		isTouching = true
+		touchTime = 0
+		startTouchPos = { x = x, y = y }
+	end
 
+	DebuggingScreen.mousepressed(x, y)
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+	x, y = push:toGame(x, y)
+	if (x == nil or y == nil) then
+		return
+	end
+
+	if istouch then
+		isTouching = false
+
+		-- determine how much x and y we moved
+		dx = x - startTouchPos.x
+		dy = y - startTouchPos.y
+
+		-- if we were holding for more than swipeTimeThreshold,
+		-- don't register this as a swipe action
+		if touchTime > swipeTimeThreshold then
+			return
+		end
+
+		-- if dx and dy are 0, this was just a tap
+		if (dx == 0 and dy == 0) then
+			checkTapAgainstSelectedElement(x, y, presses)
+			return
+		end
+
+		abs_dx = math.abs(dx)
+		abs_dy = math.abs(dy)
+
+		if abs_dx > abs_dy then
+			if dx > 0 then
+				love.keypressed('right')
+			else
+				love.keypressed('left')
+			end
+		else
+			if dy > 0 then
+				love.keypressed('down')
+			else
+				love.keypressed('up')
+			end
+		end
+	end
+
+	DebuggingScreen.mousereleased(x, y)
+
+	checkTapAgainstSelectedElement(x, y, presses)
+end
+
+function checkTapAgainstSelectedElement(x, y, presses)
+	print('presses', presses)
 	-- if this is a double click, always accept it as a valid press, regardless of selection hover
 	-- (this mimics accessible interfaces)
 	-- otherwise, check if we are within the x and y of the selected element
@@ -1642,13 +1722,4 @@ function love.mousepressed(x, y, button, istouch, presses)
 			love.keypressed('select')
 		end
 	end
-end
-
-function love.mousereleased(x, y)
-	x, y = push:toGame(x, y)
-	if (x == nil or y == nil) then
-		return
-	end
-
-	DebuggingScreen.mousereleased(x, y)
 end
