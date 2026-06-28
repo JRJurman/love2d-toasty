@@ -1,2 +1,117 @@
+# ========= web git-ignore ============
+
 node_modules
 WebExport.zip
+
+# ========= android git-ignore ========
+
+# Gradle files
+android/**/.gradle/
+android/**/build/
+
+# Local configuration file (sdk path, etc)
+android/**/local.properties
+
+# Log/OS Files
+android/**/*.log
+
+# Android Studio generated files and folders
+android/**/captures/
+android/**/.externalNativeBuild/
+android/**/.cxx/
+android/**/*.apk
+android/**/output.json
+
+# Keystore files
+android/**/*.jks
+android/**/*.keystore
+
+# Google Services (e.g. APIs or Firebase)
+android/**/google-services.json
+
+# Android Profiling
+android/**/*.hprof
+
+# ========= android love ==============
+
+android/app/src/main/cpp/love/**/config.h
+android/app/src/main/cpp/love/**/config.h.in
+android/app/src/main/cpp/love/**/config.log
+android/app/src/main/cpp/love/**/config.status
+android/app/src/main/cpp/love/**/configure
+android/app/src/main/cpp/love/**/configure-modules-post.ac
+android/app/src/main/cpp/love/**/configure-modules-pre.ac
+android/app/src/main/cpp/love/**/configure.ac
+
+android/app/src/main/cpp/love/**/extra/reshax/Release/
+android/app/src/main/cpp/love/**/extra/reshax/Debug/
+android/app/src/main/cpp/love/**/extra/reshax/resources.h
+android/app/src/main/cpp/love/**/extra/reshax/resources.cpp
+android/app/src/main/cpp/love/**/*.obj
+android/app/src/main/cpp/love/**/*.o
+android/app/src/main/cpp/love/**/*.dirstamp
+android/app/src/main/cpp/love/**/*.m4
+android/app/src/main/cpp/love/**/*.Po
+android/app/src/main/cpp/love/**/*.lo
+android/app/src/main/cpp/love/**/*.Plo
+android/app/src/main/cpp/love/**/*.dll
+android/app/src/main/cpp/love/**/*.user
+android/app/src/main/cpp/love/**/*.suo
+android/app/src/main/cpp/love/**/*/Release*
+android/app/src/main/cpp/love/**/*/Debug*
+android/app/src/main/cpp/love/**/*.lib
+android/app/src/main/cpp/love/**/*.ncb
+android/app/src/main/cpp/love/**/*.exe
+android/app/src/main/cpp/love/**/*.bat
+android/app/src/main/cpp/love/**/platform/xcode/Build
+android/app/src/main/cpp/love/**/platform/xcode/DerivedData
+android/app/src/main/cpp/love/**/platform/xcode/ios/include
+android/app/src/main/cpp/love/**/platform/xcode/ios/libraries
+android/app/src/main/cpp/love/**/platform/xcode/ios/luajit-git
+android/app/src/main/cpp/love/**/platform/xcode/macosx/Frameworks
+android/app/src/main/cpp/love/**/platform/xcode/shared/Frameworks
+android/app/src/main/cpp/love/**/*xcuserdata*
+android/app/src/main/cpp/love/**/*.DS_Store
+android/app/src/main/cpp/love/**/*.dylib
+android/app/src/main/cpp/love/**/*.dmg*
+android/app/src/main/cpp/love/**/demos
+android/app/src/main/cpp/love/**/*.orig
+android/app/src/main/cpp/love/**/.*.swp
+android/app/src/main/cpp/love/**/autom4te.cache/
+android/app/src/main/cpp/love/**/src/.libs/
+android/app/src/main/cpp/love/**/*~
+android/app/src/main/cpp/love/**/Makefile*
+android/app/src/main/cpp/love/**/libtool
+android/app/src/main/cpp/love/**/src/config.h
+android/app/src/main/cpp/love/**/platform/unix/ar-lib
+android/app/src/main/cpp/love/**/platform/unix/compile
+android/app/src/main/cpp/love/**/platform/unix/config.guess
+android/app/src/main/cpp/love/**/platform/unix/config.sub
+android/app/src/main/cpp/love/**/platform/unix/debian/changelog
+android/app/src/main/cpp/love/**/platform/unix/debian/control
+android/app/src/main/cpp/love/**/platform/unix/debian/rules
+android/app/src/main/cpp/love/**/platform/unix/depcomp
+android/app/src/main/cpp/love/**/platform/unix/install-sh
+android/app/src/main/cpp/love/**/platform/unix/love.desktop
+android/app/src/main/cpp/love/**/platform/unix/ltmain.sh
+android/app/src/main/cpp/love/**/platform/unix/missing
+android/app/src/main/cpp/love/**/.lineno
+android/app/src/main/cpp/love/**/*.la
+android/app/src/main/cpp/love/**/*.Tpo
+android/app/src/main/cpp/love/**/*.rej
+android/app/src/main/cpp/love/**/*/.deps
+android/app/src/main/cpp/love/**/stamp-h1
+android/app/src/main/cpp/love/**/src/love
+android/app/src/main/cpp/love/**/src/tags
+android/app/src/main/cpp/love/**/.vs/
+android/app/src/main/cpp/love/**/.vscode/
+android/app/src/main/cpp/love/**/testing/output/*.xml
+android/app/src/main/cpp/love/**/testing/output/*.html
+android/app/src/main/cpp/love/**/testing/output/*.md
+android/app/src/main/cpp/love/**/testing/output/actual/*.png
+android/app/src/main/cpp/love/**/testing/output/difference/*.png
+
+# ========= android megasource ========
+
+android/app/src/main/cpp/megasource/**/build
+android/app/src/main/cpp/megasource/**/libs/love

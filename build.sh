@@ -1,3 +1,5 @@
+## =========== Web Build =====================
+
 # Build the .love package (a .zip)
 cd src; zip "../toasty.love" -r *; cd ..
 
@@ -6,3 +8,7 @@ npx love.js "toasty.love" "docs" -t "toasty" -c
 
 # Copy the template assets to the love.js project
 cp template.html "docs/index.html"
+
+## =========== Android Build =====================
+
+## =========== iOS Build =====================
