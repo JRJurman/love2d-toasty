@@ -30,11 +30,13 @@ import android.graphics.Rect;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DisplayCutout;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.Keep;
@@ -109,6 +111,31 @@ public class GameActivity extends SDLActivity {
 
         if (mBrokenLibraries) {
             return;
+        }
+
+        org.sral.SralBootstrap.init(this);
+
+        // Direct-touch pass-through: the game handles its own accessibility
+        // (announcements, hover, activation) via SRAL, so tell TalkBack to
+        // ignore the SDL surface and deliver raw touches to the app. When
+        // TalkBack is on, the system rewrites touches into hover events;
+        // translate those back to touch events so the game still sees them.
+        if (mSurface != null) {
+            mSurface.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            mSurface.setOnHoverListener((v, event) -> {
+                int action;
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_HOVER_ENTER: action = MotionEvent.ACTION_DOWN; break;
+                    case MotionEvent.ACTION_HOVER_MOVE:  action = MotionEvent.ACTION_MOVE; break;
+                    case MotionEvent.ACTION_HOVER_EXIT:  action = MotionEvent.ACTION_UP;   break;
+                    default: return false;
+                }
+                MotionEvent touch = MotionEvent.obtain(event);
+                touch.setAction(action);
+                boolean handled = v.dispatchTouchEvent(touch);
+                touch.recycle();
+                return handled;
+            });
         }
 
         // Set low-latency audio values

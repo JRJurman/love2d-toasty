@@ -24,7 +24,7 @@ android {
                 // account. This result in liboboe.so and libluajit.so not get included into the final
                 // APK. "love" target depends on LuaJIT, and "OpenAL" target depends on oboe::oboe
                 // (which provides liboboe.so). So, add "OpenAL" and "love" target.
-                targets "love_android", "OpenAL", "love"
+                targets "love_android", "OpenAL", "love", "SralBootstrap"
             }
         }
 
