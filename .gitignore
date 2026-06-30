@@ -5,6 +5,9 @@ WebExport.zip
 
 # ========= android git-ignore ========
 
+# game source
+android/app/src/embed/assets
+
 # Gradle files
 android/**/.gradle/
 android/**/build/

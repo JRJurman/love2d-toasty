@@ -10,6 +10,6 @@ npx love.js "toasty.love" "docs" -t "toasty" -c
 cp template.html "docs/index.html"
 
 ## =========== Android Build =====================
-cp toasty.love android/app/src/embed/assets/game.love
+cp -r src/ android/app/src/embed/assets
 
 ## =========== iOS Build =====================
