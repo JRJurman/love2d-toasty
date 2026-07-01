@@ -28,6 +28,7 @@ android/**/output.json
 # Keystore files
 android/**/*.jks
 android/**/*.keystore
+android/**/keystore.properties
 
 # Google Services (e.g. APIs or Firebase)
 android/**/google-services.json
