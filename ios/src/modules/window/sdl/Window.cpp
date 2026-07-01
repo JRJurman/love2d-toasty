@@ -315,6 +315,10 @@ bool Window::createWindowAndContext(int x, int y, int w, int h, Uint32 windowfla
 		love::macosx::setWindowSRGBColorSpace(window);
 #endif
 
+#ifdef LOVE_IOS
+		love::ios::setDirectTouchInteraction(window);
+#endif
+
 		context = SDL_GL_CreateContext(window);
 
 		if (!context)
@@ -1319,9 +1323,9 @@ void Window::requestAttention(bool continuous)
 #else
 
 	LOVE_UNUSED(continuous);
-	
+
 #endif
-	
+
 	// TODO: Linux?
 }
 

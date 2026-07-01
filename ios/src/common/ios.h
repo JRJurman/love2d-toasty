@@ -83,12 +83,18 @@ bool hasBackgroundMusic();
  **/
 void initAudioSessionInterruptionHandler();
 void destroyAudioSessionInterruptionHandler();
-    
+
 /**
  * Gets the area in the window that is safe for UI to render to (not covered by
  * the status bar, notch, etc.)
  **/
 Rect getSafeArea(SDL_Window *window);
+
+/**
+ * Enables direct touch interaction for the window's view so VoiceOver
+ * passes raw touch events through instead of intercepting them.
+ **/
+void setDirectTouchInteraction(SDL_Window *window);
 
 } // ios
 } // love

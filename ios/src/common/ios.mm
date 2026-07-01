@@ -36,6 +36,8 @@
 #include <SDL_video.h>
 #include <SDL_syswm.h>
 
+#import <objc/runtime.h>
+
 static NSArray *getLovesInDocuments();
 static bool deleteFileInDocuments(NSString *filename);
 
@@ -491,6 +493,44 @@ Rect getSafeArea(SDL_Window *window)
 		}
 
 		return rect;
+	}
+}
+
+static UIAccessibilityTraits swizzled_accessibilityTraits(id self, SEL _cmd)
+{
+	#pragma unused(self)
+	#pragma unused(_cmd)
+	// The SDL view is the game's render surface and is forced to be a single
+	// accessibility element (see swizzled_isAccessibilityElement). Report it as
+	// a direct-interaction element so VoiceOver passes raw touches straight to
+	// the game.
+
+	return UIAccessibilityTraitAllowsDirectInteraction;
+}
+
+static BOOL swizzled_isAccessibilityElement(id self, SEL _cmd)
+{
+	#pragma unused(self)
+	#pragma unused(_cmd)
+	return YES;
+}
+
+void setDirectTouchInteraction(SDL_Window *window)
+{
+	@autoreleasepool
+	{
+		Class sdlViewClass = NSClassFromString(@"SDL_uikitview");
+		if (!sdlViewClass)
+		{
+			NSLog(@"LOVE2D: Could not find SDL_uikitview class");
+			return;
+		}
+
+		class_replaceMethod(sdlViewClass, @selector(accessibilityTraits), (IMP)swizzled_accessibilityTraits, "Q@:");
+
+		class_replaceMethod(sdlViewClass, @selector(isAccessibilityElement), (IMP)swizzled_isAccessibilityElement, "B@:");
+
+		NSLog(@"LOVE2D: Swizzled SDL_uikitview accessibility for direct touch interaction");
 	}
 }
 
