@@ -118,3 +118,15 @@ android/app/src/main/cpp/love/**/testing/output/difference/*.png
 
 android/app/src/main/cpp/megasource/**/build
 android/app/src/main/cpp/megasource/**/libs/love
+
+# ========= ios love ==================
+
+# user-specific config
+ios/**/xcuserdata/
+ios/**/*.xcuserstate
+ios/**/*.pbxuser
+
+# Xcode build output
+ios/**/DerivedData/
+ios/**/build/
+ios/**/.DS_Store
