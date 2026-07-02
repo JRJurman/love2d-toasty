@@ -107,7 +107,7 @@ local touchTime = 0
 local startTouchPos = { x = nil, y = nil }
 
 -- how long before we swap from swipe to search
-local swipeTimeThreshold = 0.25
+local swipeTimeThreshold = 0.50
 
 
 gameSeed = nil
@@ -1673,6 +1673,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 
 		-- if we were holding for more than swipeTimeThreshold,
 		-- don't register this as a swipe action
+		print('touchTime', touchTime)
 		if touchTime > swipeTimeThreshold then
 			return
 		end
