@@ -1609,7 +1609,9 @@ function love.keypressed(rawKey)
 end
 
 
-function love.mousemoved(x, y)
+function love.mousemoved(x, y, dx, dy, istouch)
+	-- print('mousemoved '..touchTime)
+
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
 		return
@@ -1671,6 +1673,8 @@ function love.mousemoved(x, y)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
+	-- print('mousepressed '..touchTime)
+
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
 		return
@@ -1686,6 +1690,8 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
+	-- print('mousereleased '..touchTime)
+
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
 		return
