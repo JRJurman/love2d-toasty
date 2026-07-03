@@ -117,7 +117,7 @@ defaultCursorHue = 0.3
 cursorHue = defaultCursorHue
 defaultMasterVolume = 1
 masterVolume = defaultMasterVolume
-defaultMusicVolume = 0.7
+defaultMusicVolume = 0.8
 musicVolume = defaultMusicVolume
 defaultSfxVolume = 0.7
 sfxVolume = defaultSfxVolume
@@ -826,6 +826,12 @@ function love.draw()
 	-- draw the chef
 	drawChef(ui.chef.x, ui.chef.y)
 
+	-- draw the settings option
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setFont(getFont(40))
+	love.graphics.rectangle("line", ui.settingsControl.x, ui.settingsControl.y, ui.settingsControl.width, ui.settingsControl.height)
+	love.graphics.printf("Settings", ui.settingsControl.x, ui.settingsControl.y - 15, ui.settingsControl.width, 'center')
+
 	-- draw the cursor
 	love.graphics.setColor(HSL(cursorHue, 1, 0.60))
 	drawFatRect('outset', 10, cursor.x, cursor.y, cursor.width, cursor.height)
@@ -1254,6 +1260,10 @@ function getSelectionInstruction()
 		return 'Reset settings to default'
 	end
 
+	if selection == 'settingsControl' then
+		return 'Settings, select to open configuration options'
+	end
+
 	return ''
 end
 
@@ -1566,6 +1576,13 @@ function love.keypressed(rawKey)
 		end)
 	end
 
+	-- if we are selecting settings
+	if key == 'select' and ui[selection].settingsControl then
+		async(routines, function()
+			startSettingsModal()
+		end)
+	end
+
 	-- repeat text if r was pressed
 	if key == "r" then
 		async(routines, function()
@@ -1618,22 +1635,32 @@ function love.mousemoved(x, y)
 	for selectionKey, uiElement in pairs(ui) do
 		if selectionKey ~= selection then
 			if uiElement.selectable then
+				-- check if the mouse / touch is within a selectable ui element
 				local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
 				local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
+
+				-- if we are within the x and y of an element,
+				-- make sure that that element is valid for the current state we are in
 				if isWithinX and isWithinY then
-					if settingsModalActive then
-						if uiElement.settingsModal then
+					if uiElement.settingsModal or settingsModalActive then
+						if uiElement.settingsModal and settingsModalActive then
 							updateSelection(selectionKey, true)
 						end
-					elseif modalActive then
-						if uiElement.modal and not uiElement.settingsModal then
+					elseif modalActive or uiElement.modal then
+						if modalActive and uiElement.modal then
 							updateSelection(selectionKey, true)
 						end
 					else
-						if uiElement.hand and not handIsEmpty then
-							updateSelection(selectionKey, true)
-						end
-						if uiElement.action and handIsEmpty and not uiElement.modal then
+						if uiElement.hand then
+							if not handIsEmpty then
+								updateSelection(selectionKey, true)
+							end
+						elseif uiElement.action then
+							if handIsEmpty and not uiElement.modal then
+								updateSelection(selectionKey, true)
+							end
+						else
+							print('selecting '..selectionKey)
 							updateSelection(selectionKey, true)
 						end
 					end

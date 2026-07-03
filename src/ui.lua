@@ -44,10 +44,6 @@ ui = {
 				down = 'deck',
 				right = 'plate'
 			},
-			withModal = {
-				down = 'deck',
-				right = 'modalAction1'
-			},
 		},
 
 		x = 10,
@@ -99,13 +95,13 @@ ui = {
 	},
 	drawPile = {
 		x = 30,
-		y = 850,
+		y = 830,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
 	discardPile = {
 		x = 1280,
-		y = 850,
+		y = 830,
 		width = cardSize.width,
 		height = cardSize.height,
 	},
@@ -122,11 +118,13 @@ ui = {
 				left = 'deck',
 				right = 'card2',
 				up = 'plate',
+				down = 'settingsControl'
 			},
 			withModal = {
 				left = 'deck',
 				right = 'card2',
 				up = 'modalAction1',
+				down = 'settingsControl'
 			},
 		},
 
@@ -148,11 +146,13 @@ ui = {
 				up = 'plate',
 				left = 'card1',
 				right = 'card3',
+				down = 'settingsControl'
 			},
 			withModal = {
 				up = 'modalAction1',
 				left = 'card1',
 				right = 'card3',
+				down = 'settingsControl'
 			},
 		},
 
@@ -173,10 +173,12 @@ ui = {
 				selectLabel = 'plate card',
 				up = 'plate',
 				left = 'card2',
+				down = 'settingsControl'
 			},
 			withModal = {
 				up = 'modalAction1',
 				left = 'card2',
+				down = 'settingsControl'
 			},
 		},
 
@@ -202,6 +204,7 @@ ui = {
 				up = 'plate',
 				left = 'deck',
 				right = 'actionNewPlate',
+				down = 'settingsControl'
 			},
 		},
 
@@ -220,6 +223,7 @@ ui = {
 			withActions = {
 				up = 'plate',
 				left = 'actionDraw',
+				down = 'settingsControl'
 			},
 		},
 
@@ -483,6 +487,27 @@ ui = {
 		width = 1060,
 		height = 320,
 	},
+	settingsControl = {
+		label = 'Settings',
+		x = 1280,
+		y = 1140,
+		width = 300,
+		height = 40,
+		selectable = true,
+		settingsControl = true,
+
+		nav = {
+			withHand = {
+				up = 'card1',
+			},
+			withActions = {
+				up = 'card1'
+			},
+			withModal = {
+				up = 'card1'
+			},
+		},
+	}
 }
 
 toMobileLayout = function()
@@ -509,7 +534,7 @@ toMobileLayout = function()
 	ui.deck.y = 1580
 	ui.drawPile.x = 30
 	ui.drawPile.y = 1610
-	ui.discardPile.x = 380
+	ui.discardPile.x = 365
 	ui.discardPile.y = 1610
 
 	-- chef and readout
@@ -525,6 +550,12 @@ toMobileLayout = function()
 	ui.readout.y = 837
 	ui.readout.width = 890
 	ui.readout.height = 300
+
+	-- settings control
+	ui.settingsControl.x = 695
+	ui.settingsControl.y = 1640
+	ui.settingsControl.width = 300
+	ui.settingsControl.height = 200
 end
 
 toDesktopLayout = function()
@@ -550,9 +581,9 @@ toDesktopLayout = function()
 	ui.deck.x = 10
 	ui.deck.y = 820
 	ui.drawPile.x = 30
-	ui.drawPile.y = 850
+	ui.drawPile.y = 830
 	ui.discardPile.x = 1280
-	ui.discardPile.y = 850
+	ui.discardPile.y = 830
 
 	-- chef and readout
 	ui.chef.x = 1360
@@ -567,4 +598,10 @@ toDesktopLayout = function()
 	ui.readout.y = 10
 	ui.readout.width = 530
 	ui.readout.height = 700
+
+	-- settings control
+	ui.settingsControl.x = 1280
+	ui.settingsControl.y = 1140
+	ui.settingsControl.width = 300
+	ui.settingsControl.height = 40
 end

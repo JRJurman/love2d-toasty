@@ -12,8 +12,15 @@ function love.conf(t)
 
 	t.window.title = "Toasty"        -- The window title (string)
 	-- t.window.icon = nil                 -- Filepath to an image to use as the window's icon (string)
+
+	-- mobile
 	t.window.width = 450                	 -- The window width (number)
 	t.window.height = 775               	 -- The window height (number)
+
+	-- desktop
+	-- t.window.width = 775                	 -- The window width (number)
+	-- t.window.height = 450               	 -- The window height (number)
+
 	-- t.window.borderless = false         -- Remove all border visuals from the window (boolean)
 	t.window.resizable = true          		 -- Let the window be user-resizable (boolean)
 	-- t.window.minwidth = 800              	 -- Minimum window width if the window is resizable (number)
