@@ -107,7 +107,7 @@ local touchTime = 0
 local startTouchPos = { x = nil, y = nil }
 
 -- how long before we swap from swipe to search
-local swipeTimeThreshold = 0.50
+local swipeTimeThreshold = 0.25
 
 
 gameSeed = nil
@@ -1608,12 +1608,25 @@ function love.keypressed(rawKey)
 	end
 end
 
+function startTouch(x, y)
+	isTouching = true
+	touchTime = 0
+	startTouchPos = { x = x, y = y }
+end
+
 
 function love.mousemoved(x, y, dx, dy, istouch)
 	-- print('mousemoved '..touchTime)
 
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
+		return
+	end
+
+	-- sometimes we get a mousemoved event BEFORE a mouse press;
+	-- mark that we are starting a touch interaction and return early
+	if istouch and isTouching == false then
+		startTouch(x, y)
 		return
 	end
 
@@ -1681,9 +1694,7 @@ function love.mousepressed(x, y, button, istouch, presses)
 	end
 
 	if istouch then
-		isTouching = true
-		touchTime = 0
-		startTouchPos = { x = x, y = y }
+		startTouch(x, y)
 	end
 
 	DebuggingScreen.mousepressed(x, y)
@@ -1691,6 +1702,7 @@ end
 
 function love.mousereleased(x, y, button, istouch, presses)
 	-- print('mousereleased '..touchTime)
+	isTouching = false
 
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
@@ -1698,18 +1710,18 @@ function love.mousereleased(x, y, button, istouch, presses)
 	end
 
 	if istouch then
-		isTouching = false
-
 		-- determine how much x and y we moved
 		dx = x - startTouchPos.x
 		dy = y - startTouchPos.y
 
 		-- if we were holding for more than swipeTimeThreshold,
 		-- don't register this as a swipe action
-		print('touchTime', touchTime)
+		-- (in either case, reset touchTime, for debugging purposes mostly)
 		if touchTime > swipeTimeThreshold then
+			touchTime = 0
 			return
 		end
+		touchTime = 0
 
 		-- if dx and dy are 0, this was just a tap
 		if (dx == 0 and dy == 0) then
