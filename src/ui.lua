@@ -501,10 +501,10 @@ ui = {
 				up = 'card1',
 			},
 			withActions = {
-				up = 'card1'
+				up = 'actionNewPlate'
 			},
 			withModal = {
-				up = 'card1'
+				up = 'modalAction1'
 			},
 		},
 	}

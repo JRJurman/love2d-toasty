@@ -99,7 +99,7 @@ local drawnAnimationText = ''
 
 local repeating = false
 
--- logic to keep track of touch interactions
+-- variables to keep track of touch interactions
 -- (this swaps between swipes and searches)
 -- see https://github.com/JRJurman/love2d-swipe-example
 local isTouching = false
@@ -109,6 +109,9 @@ local startTouchPos = { x = nil, y = nil }
 -- how long before we swap from swipe to search
 local swipeTimeThreshold = 0.25
 
+-- variables to keep track of time after single touch
+local tapRoutines = {}
+local singleTouchThreshold = 0.5
 
 gameSeed = nil
 waitingSeed = 0
@@ -575,7 +578,13 @@ function love.update(dt)
 	if gameSeed == nil then
 		waitingSeed = waitingSeed + dt*10000
 	end
+
+	-- progress all animation routines by dt
 	updateAnimations(routines, dt)
+
+	-- not really animations, but timers all the same
+	updateAnimations(tapRoutines, dt)
+
 	checkToLoopMusic()
 	if isTouching then
 		touchTime = touchTime + dt
@@ -1614,38 +1623,8 @@ function startTouch(x, y)
 	startTouchPos = { x = x, y = y }
 end
 
-
-function love.mousemoved(x, y, dx, dy, istouch)
-	-- print('mousemoved '..touchTime)
-
-	x, y = push:toGame(x, y)
-	if (x == nil or y == nil) then
-		return
-	end
-
-	-- sometimes we get a mousemoved event BEFORE a mouse press;
-	-- mark that we are starting a touch interaction and return early
-	if istouch and isTouching == false then
-		startTouch(x, y)
-		return
-	end
-
-	if istouch then
-		-- if we are below swipeTimeThreshold, we could be swiping
-		if touchTime < swipeTimeThreshold then
-			return
-		end
-
-		-- otherwise, consider this a search
-	end
-
+function selectElementAt(x, y)
 	local handIsEmpty = getHandSize() == 0
-
-	-- if we are animating, don't do anything
-	local isAnimating = #routines > 0
-	if isAnimating then
-		return
-	end
 
 	for selectionKey, uiElement in pairs(ui) do
 		if selectionKey ~= selection then
@@ -1675,7 +1654,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
 								updateSelection(selectionKey, true)
 							end
 						else
-							print('selecting '..selectionKey)
 							updateSelection(selectionKey, true)
 						end
 					end
@@ -1685,8 +1663,48 @@ function love.mousemoved(x, y, dx, dy, istouch)
 	end
 end
 
+function love.mousemoved(x, y, dx, dy, istouch)
+	-- print('mousemoved '..touchTime)
+
+	-- if we had started a countdown for a single tap, kill it now
+	stopAnimations(tapRoutines)
+
+	x, y = push:toGame(x, y)
+	if (x == nil or y == nil) then
+		return
+	end
+
+	-- sometimes we get a mousemoved event BEFORE a mouse press;
+	-- mark that we are starting a touch interaction and return early
+	if istouch and isTouching == false then
+		startTouch(x, y)
+		return
+	end
+
+	if istouch then
+		-- if we are below swipeTimeThreshold, we could be swiping
+		if touchTime < swipeTimeThreshold then
+			return
+		end
+
+		-- otherwise, consider this a search
+		-- (do selectElementAt at the end)
+	end
+
+	-- if we are animating, don't do anything
+	local isAnimating = #routines > 0
+	if isAnimating then
+		return
+	end
+
+	selectElementAt(x, y)
+end
+
 function love.mousepressed(x, y, button, istouch, presses)
 	-- print('mousepressed '..touchTime)
+
+	-- if we had started a countdown for a single tap, kill it now
+	stopAnimations(tapRoutines)
 
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
@@ -1704,12 +1722,21 @@ function love.mousereleased(x, y, button, istouch, presses)
 	-- print('mousereleased '..touchTime)
 	isTouching = false
 
+	-- if we had started a countdown for a single tap, kill it now
+	stopAnimations(tapRoutines)
+
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
 		return
 	end
 
-	if istouch then
+	-- if we get a double tap, select whatever element has focus
+	if istouch and presses > 1 then
+		touchTime = 0
+		love.keypressed('select')
+	end
+
+	if istouch and presses == 1 then
 		-- determine how much x and y we moved
 		dx = x - startTouchPos.x
 		dy = y - startTouchPos.y
@@ -1724,8 +1751,21 @@ function love.mousereleased(x, y, button, istouch, presses)
 		touchTime = 0
 
 		-- if dx and dy are 0, this was just a tap
+		-- start a counter to track if this was only a single tap
 		if (dx == 0 and dy == 0) then
-			checkTapAgainstSelectedElement(x, y, presses)
+			async(tapRoutines, function()
+				local elapsed = 0
+
+				while elapsed < singleTouchThreshold do
+					local dt = coroutine.yield()
+					elapsed = elapsed + (dt or 0)
+				end
+
+				-- if we haven't killed this routine, select this element
+				selectElementAt(x, y)
+				wait(0.05)
+				love.keypressed('select')
+			end)
 			return
 		end
 
@@ -1748,23 +1788,4 @@ function love.mousereleased(x, y, button, istouch, presses)
 	end
 
 	DebuggingScreen.mousereleased(x, y)
-
-	checkTapAgainstSelectedElement(x, y, presses)
-end
-
-function checkTapAgainstSelectedElement(x, y, presses)
-	print('presses', presses)
-	-- if this is a double click, always accept it as a valid press, regardless of selection hover
-	-- (this mimics accessible interfaces)
-	-- otherwise, check if we are within the x and y of the selected element
-	if presses > 1 then
-		love.keypressed('select')
-	else
-		local uiElement = ui[selection]
-		local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
-		local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
-		if isWithinX and isWithinY then
-			love.keypressed('select')
-		end
-	end
 end
