@@ -1730,6 +1730,11 @@ function love.mousereleased(x, y, button, istouch, presses)
 		return
 	end
 
+	-- if this is a mouse click (not a touchscreen tap), select the element
+	if not istouch then
+		love.keypressed('select')
+	end
+
 	-- if we get a double tap, select whatever element has focus
 	if istouch and presses > 1 then
 		touchTime = 0
