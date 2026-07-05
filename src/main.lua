@@ -1610,11 +1610,6 @@ function love.keypressed(rawKey)
 			end
 		end)
 	end
-
-	-- if we need to figure out where we are
-	if key == '/' then
-		print('selection: '..selection)
-	end
 end
 
 function startTouch(x, y)
@@ -1623,39 +1618,37 @@ function startTouch(x, y)
 	startTouchPos = { x = x, y = y }
 end
 
-function selectElementAt(x, y)
+function getElementAt(x, y)
 	local handIsEmpty = getHandSize() == 0
 
 	for selectionKey, uiElement in pairs(ui) do
-		if selectionKey ~= selection then
-			if uiElement.selectable then
-				-- check if the mouse / touch is within a selectable ui element
-				local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
-				local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
+		if uiElement.selectable then
+			-- check if the mouse / touch is within a selectable ui element
+			local isWithinX = x > uiElement.x and x < uiElement.x + uiElement.width
+			local isWithinY = y > uiElement.y and y < uiElement.y + uiElement.height
 
-				-- if we are within the x and y of an element,
-				-- make sure that that element is valid for the current state we are in
-				if isWithinX and isWithinY then
-					if uiElement.settingsModal or settingsModalActive then
-						if uiElement.settingsModal and settingsModalActive then
-							updateSelection(selectionKey, true)
+			-- if we are within the x and y of an element,
+			-- make sure that that element is valid for the current state we are in
+			if isWithinX and isWithinY then
+				if uiElement.settingsModal or settingsModalActive then
+					if uiElement.settingsModal and settingsModalActive then
+						return selectionKey
+					end
+				elseif modalActive or uiElement.modal then
+					if modalActive and uiElement.modal then
+						return selectionKey
+					end
+				else
+					if uiElement.hand then
+						if not handIsEmpty then
+							return selectionKey
 						end
-					elseif modalActive or uiElement.modal then
-						if modalActive and uiElement.modal then
-							updateSelection(selectionKey, true)
+					elseif uiElement.action then
+						if handIsEmpty and not uiElement.modal then
+							return selectionKey
 						end
 					else
-						if uiElement.hand then
-							if not handIsEmpty then
-								updateSelection(selectionKey, true)
-							end
-						elseif uiElement.action then
-							if handIsEmpty and not uiElement.modal then
-								updateSelection(selectionKey, true)
-							end
-						else
-							updateSelection(selectionKey, true)
-						end
+						return selectionKey
 					end
 				end
 			end
@@ -1663,9 +1656,15 @@ function selectElementAt(x, y)
 	end
 end
 
-function love.mousemoved(x, y, dx, dy, istouch)
-	-- print('mousemoved '..touchTime)
+function selectElementAt(x, y)
+	selectionKey = getElementAt(x, y)
 
+	if selectionKey and (selectionKey ~= selection) then
+		updateSelection(selectionKey, true)
+	end
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
 	-- if we had started a countdown for a single tap, kill it now
 	stopAnimations(tapRoutines)
 
@@ -1701,8 +1700,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-	-- print('mousepressed '..touchTime)
-
 	-- if we had started a countdown for a single tap, kill it now
 	stopAnimations(tapRoutines)
 
@@ -1719,7 +1716,6 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-	-- print('mousereleased '..touchTime)
 	isTouching = false
 
 	-- if we had started a countdown for a single tap, kill it now
@@ -1730,9 +1726,13 @@ function love.mousereleased(x, y, button, istouch, presses)
 		return
 	end
 
-	-- if this is a mouse click (not a touchscreen tap), select the element
+	-- if this is a mouse click (not a touchscreen tap),
+	-- if we clicked an element, select it
 	if not istouch then
-		love.keypressed('select')
+		clickedElement = getElementAt(x, y)
+		if clickedElement then
+			love.keypressed('select')
+		end
 	end
 
 	-- if we get a double tap, select whatever element has focus
@@ -1756,21 +1756,29 @@ function love.mousereleased(x, y, button, istouch, presses)
 		touchTime = 0
 
 		-- if dx and dy are 0, this was just a tap
+		isSingleTap = dx == 0 and dy == 0
+
+		-- check if there is an element under the tapped selection
+		tappedSelection = getElementAt(x, y)
+
+		-- if this is a single tap, and they are selecting an element
 		-- start a counter to track if this was only a single tap
-		if (dx == 0 and dy == 0) then
-			async(tapRoutines, function()
-				local elapsed = 0
+		if isSingleTap then
+			if tappedSelection then
+				async(tapRoutines, function()
+					local elapsed = 0
 
-				while elapsed < singleTouchThreshold do
-					local dt = coroutine.yield()
-					elapsed = elapsed + (dt or 0)
-				end
+					while elapsed < singleTouchThreshold do
+						local dt = coroutine.yield()
+						elapsed = elapsed + (dt or 0)
+					end
 
-				-- if we haven't killed this routine, select this element
-				selectElementAt(x, y)
-				wait(0.05)
-				love.keypressed('select')
-			end)
+					-- if we haven't killed this routine, select this element
+					selectElementAt(x, y)
+					wait(0.05)
+					love.keypressed('select')
+				end)
+			end
 			return
 		end
 
