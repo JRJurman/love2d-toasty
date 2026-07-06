@@ -173,11 +173,13 @@ ui = {
 				selectLabel = 'plate card',
 				up = 'plate',
 				left = 'card2',
+				right = 'settingsControl',
 				down = 'settingsControl'
 			},
 			withModal = {
 				up = 'modalAction1',
 				left = 'card2',
+				right = 'settingsControl',
 				down = 'settingsControl'
 			},
 		},
@@ -223,7 +225,8 @@ ui = {
 			withActions = {
 				up = 'plate',
 				left = 'actionDraw',
-				down = 'settingsControl'
+				down = 'settingsControl',
+				right = 'settingsControl'
 			},
 		},
 
@@ -499,12 +502,15 @@ ui = {
 		nav = {
 			withHand = {
 				up = 'card1',
+				left = 'card3'
 			},
 			withActions = {
-				up = 'actionNewPlate'
+				up = 'actionNewPlate',
+				left = 'actionNewPlate'
 			},
 			withModal = {
-				up = 'modalAction1'
+				up = 'modalAction1',
+				left = 'deck'
 			},
 		},
 	}
@@ -532,6 +538,7 @@ toMobileLayout = function()
 	-- draw & discard
 	ui.deck.x = 10
 	ui.deck.y = 1580
+	ui.deck.width = 675
 	ui.drawPile.x = 30
 	ui.drawPile.y = 1610
 	ui.discardPile.x = 365
@@ -556,6 +563,29 @@ toMobileLayout = function()
 	ui.settingsControl.y = 1640
 	ui.settingsControl.width = 300
 	ui.settingsControl.height = 200
+
+	-- update nav mappings
+	ui.deck.nav.withHand.right = 'settingsControl'
+	ui.deck.nav.withActions.right = 'settingsControl'
+	ui.deck.nav.withModal.right = 'settingsControl'
+
+	ui.deck.nav.withHand.up = 'card1'
+	ui.deck.nav.withActions.up = 'actionDraw'
+
+	ui.score.nav.withHand.down = 'card1'
+	ui.score.nav.withActions.down = 'actionDraw'
+
+	ui.settingsControl.nav.withHand.left = 'deck'
+	ui.settingsControl.nav.withActions.left = 'deck'
+
+	ui.actionDraw.nav.withActions.up = 'score'
+
+	ui.card1.nav.withHand.up = 'score'
+	ui.card1.nav.withHand.down = 'deck'
+	ui.card1.nav.withModal.down = 'deck'
+
+	ui.card2.nav.withHand.down = 'deck'
+	ui.card2.nav.withModal.down = 'deck'
 end
 
 toDesktopLayout = function()
@@ -580,6 +610,7 @@ toDesktopLayout = function()
 	-- draw & discard
 	ui.deck.x = 10
 	ui.deck.y = 820
+	ui.deck.width = 340
 	ui.drawPile.x = 30
 	ui.drawPile.y = 830
 	ui.discardPile.x = 1280
@@ -604,4 +635,27 @@ toDesktopLayout = function()
 	ui.settingsControl.y = 1140
 	ui.settingsControl.width = 300
 	ui.settingsControl.height = 40
+
+	-- update nav mappings
+	ui.deck.nav.withHand.right = 'card1'
+	ui.deck.nav.withActions.right = 'actionDraw'
+	ui.deck.nav.withModal.right = 'card1'
+
+	ui.deck.nav.withHand.up = 'score'
+	ui.deck.nav.withActions.up = 'score'
+
+	ui.score.nav.withHand.down = 'deck'
+	ui.score.nav.withActions.down = 'deck'
+
+	ui.settingsControl.nav.withHand.left = 'card3'
+	ui.settingsControl.nav.withActions.left = 'actionNewPlate'
+
+	ui.actionDraw.nav.withActions.up = 'plate'
+
+	ui.card1.nav.withHand.up = 'plate'
+	ui.card1.nav.withHand.down = 'settingsControl'
+	ui.card1.nav.withModal.down = 'settingsControl'
+
+	ui.card2.nav.withHand.down = 'settingsControl'
+	ui.card2.nav.withModal.down = 'settingsControl'
 end
