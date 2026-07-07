@@ -107,7 +107,7 @@ local touchTime = 0
 local startTouchPos = { x = nil, y = nil }
 
 -- how long before we swap from swipe to search
-local swipeTimeThreshold = 0.25
+local swipeTimeThreshold = 0.5
 
 -- variables to keep track of time after single touch
 local tapRoutines = {}
