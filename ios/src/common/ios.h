@@ -96,6 +96,15 @@ Rect getSafeArea(SDL_Window *window);
  **/
 void setDirectTouchInteraction(SDL_Window *window);
 
+/**
+ * Services any pending sources on the main run loop without blocking.
+ * Assistive technologies (VoiceOver, Voice Control, etc.) talk to the app
+ * over XPC serviced by the main run loop; the game loop must pump it more
+ * than once per frame or those round-trips stall, which shows up as touch
+ * latency and dropped announcements while VoiceOver is running.
+ **/
+void pumpRunLoop();
+
 } // ios
 } // love
 

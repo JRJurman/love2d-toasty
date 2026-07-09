@@ -500,10 +500,10 @@ static UIAccessibilityTraits swizzled_accessibilityTraits(id self, SEL _cmd)
 {
 	#pragma unused(self)
 	#pragma unused(_cmd)
-	// The SDL view is the game's render surface and is forced to be a single
+	// The SDL view is love2d's render surface and is forced to be a single
 	// accessibility element (see swizzled_isAccessibilityElement). Report it as
 	// a direct-interaction element so VoiceOver passes raw touches straight to
-	// the game.
+	// love2d.
 
 	return UIAccessibilityTraitAllowsDirectInteraction;
 }
@@ -513,6 +513,17 @@ static BOOL swizzled_isAccessibilityElement(id self, SEL _cmd)
 	#pragma unused(self)
 	#pragma unused(_cmd)
 	return YES;
+}
+
+static UIAccessibilityDirectTouchOptions swizzled_accessibilityDirectTouchOptions(id self, SEL _cmd)
+{
+	#pragma unused(self)
+	#pragma unused(_cmd)
+	// Without SilentOnTouch, VoiceOver still runs its own per-touch processing
+	// (touch sounds / speaking) inside a direct-interaction element, adding
+	// latency to every touch. We almost always want to handle our own audio feedback,
+	// so ask VoiceOver to stay quiet and hand touches over immediately.
+	return UIAccessibilityDirectTouchOptionSilentOnTouch;
 }
 
 void setDirectTouchInteraction(SDL_Window *window)
@@ -530,7 +541,19 @@ void setDirectTouchInteraction(SDL_Window *window)
 
 		class_replaceMethod(sdlViewClass, @selector(isAccessibilityElement), (IMP)swizzled_isAccessibilityElement, "B@:");
 
+		class_replaceMethod(sdlViewClass, @selector(accessibilityDirectTouchOptions), (IMP)swizzled_accessibilityDirectTouchOptions, "Q@:");
+
 		NSLog(@"LOVE2D: Swizzled SDL_uikitview accessibility for direct touch interaction");
+	}
+}
+
+void pumpRunLoop()
+{
+	@autoreleasepool
+	{
+		while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, TRUE) == kCFRunLoopRunHandledSource)
+		{
+		}
 	}
 }
 
