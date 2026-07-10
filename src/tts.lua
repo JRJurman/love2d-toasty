@@ -4,6 +4,9 @@ local sral_lib
 local sral_initialized = false
 local ffi
 
+-- engine bit mask with nothing disabled
+local EXCLUDE_NOTHING = 0
+
 if not isWeb then
 	ffi = require("ffi")
 
@@ -15,6 +18,8 @@ if not isWeb then
 		bool SRAL_IsSpeaking(void);
 		const char* SRAL_GetEngineName(int engine);
 		int SRAL_GetCurrentEngine(void);
+		int SRAL_GetTTSEngines(void);
+		bool SRAL_SetEnginesExclude(int engines_exclude);
 	]]
 
 	local os_name = love.system.getOS()
@@ -48,7 +53,6 @@ if not isWeb then
 	end
 
 	if sral_lib then
-		local EXCLUDE_NOTHING = 0
 		sral_initialized = sral_lib.SRAL_Initialize(EXCLUDE_NOTHING)
 		print("SRAL engine: " .. ffi.string(sral_lib.SRAL_GetEngineName(sral_lib.SRAL_GetCurrentEngine())))
 	end
@@ -65,4 +69,24 @@ function speak(text)
 	end
 
 	print("tts: " .. text)
+end
+
+function disableTTS()
+	-- exclude all TTS engines in SRAL
+	if sral_lib and sral_initialized then
+		sral_lib.SRAL_SetEnginesExclude(sral_lib.SRAL_GetTTSEngines())
+	end
+
+	-- send console log to tell template to disable TTS
+	print('DISABLE_TTS')
+end
+
+function enableTTS()
+	-- exclude all TTS engines in SRAL
+	if sral_lib and sral_initialized then
+		sral_lib.SRAL_SetEnginesExclude(0)
+	end
+
+	-- send console log to tell template to disable TTS
+	print('ENABLE_TTS')
 end

@@ -16,9 +16,27 @@
         outline: none;
         visibility: hidden;
       }
+
+      #ttsModal {
+        max-width: 800px;
+        font-size: 2em;
+
+        button {
+          font-size: inherit;
+        }
+      }
     </style>
   </head>
   <body style="background: #172038">
+    <dialog id="ttsModal">
+      <p autofocus>
+        This game supports native screen readers and text-to-speech.
+        If you have a screen reader already enabled, or you don't need text-to-speech, you can skip.
+        You can change these settings in game if you'd like to ever toggle these on.
+      </p>
+      <button id="skipTTS">Skip Text to Speech</button>
+      <button id="enableTTS">Enable Text to Speech</button>
+    </dialog>
     <main id="container" role="application" aria-live="false">
       <div id="loveReadout" aria-label="" aria-live="assertive" role="presentation">Loading...</div>
       <canvas id="loadingCanvas" oncontextmenu="event.preventDefault()" width="1600" height="1200"></canvas>
@@ -106,7 +124,9 @@
       };
 
       var applicationLoad = function(e) {
-        Love(Module);
+        window.loadGame = () => {
+          Love(Module);
+        }
       }
     </script>
 
@@ -145,16 +165,35 @@
 
     <!-- script to override console log with text readout -->
     <script>
+      speechSynthesis.getVoices()
       const realConsoleLog = console.log;
       console.log = (text, ...args) => {
+        if (text == 'DISABLE_TTS') {
+          window.ttsEnabled = false
+          localStorage.setItem('ttsEnabled', 'false')
+        }
+        if (text == 'ENABLE_TTS') {
+          window.ttsEnabled = true
+          localStorage.setItem('ttsEnabled', 'true')
+        }
         if (text.startsWith('tts:')) {
           loveReadout.textContent = text.split('tts:').at(1);
+          if (window.ttsEnabled) {
+            speechSynthesis.cancel()
+            const utterance = new SpeechSynthesisUtterance(loveReadout.textContent);
+            speechSynthesis.speak(utterance);
+          }
         }
         if (text.startsWith('coroutine failed:')) {
           console.error(text, ...args)
         }
         if (text.startsWith('Error: ')) {
           loveReadout.textContent = 'Apologies, the game has crashed with an unhandled error.';
+          if (window.ttsEnabled) {
+            speechSynthesis.cancel()
+            const utterance = new SpeechSynthesisUtterance(loveReadout.textContent);
+            speechSynthesis.speak(utterance);
+          }
         }
         realConsoleLog(text, ...args)
       }
@@ -163,6 +202,27 @@
     <!-- end a11y template content -->
 
     <script type="text/javascript" src="game.js"></script>
-    <script async type="text/javascript" src="love.js" onload="applicationLoad(this)"></script>
+    <script type="text/javascript" src="love.js" onload="applicationLoad(this)"></script>
+    <script>
+      if (localStorage.getItem('ttsEnabled') == undefined) {
+        window.ttsEnabled = true
+        ttsModal.showModal()
+        skipTTS.addEventListener('click', () => {
+          window.ttsEnabled = false
+          localStorage.setItem('ttsEnabled', 'false')
+          ttsModal.close()
+          window.loadGame()
+        })
+        enableTTS.addEventListener('click', () => {
+          window.ttsEnabled = true
+          localStorage.setItem('ttsEnabled', 'true')
+          ttsModal.close()
+          window.loadGame()
+        })
+      } else {
+        window.ttsEnabled = localStorage.getItem('ttsEnabled') == 'true'
+        window.loadGame()
+      }
+    </script>
   </body>
 </html>

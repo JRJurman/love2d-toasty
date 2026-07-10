@@ -12,6 +12,7 @@ require('ui')
 require('drawCard')
 require('drawFatRect')
 require('drawSlider')
+require('drawCheckbox')
 require('drawPlate')
 require('drawChef')
 require('drawReceipt')
@@ -126,6 +127,8 @@ defaultSfxVolume = 0.7
 sfxVolume = defaultSfxVolume
 defaultUserAnimationScale = 1
 userAnimationScale = defaultUserAnimationScale
+defaultTTSEnabled = true
+ttsEnabled = defaultTTSEnabled
 
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
@@ -147,7 +150,8 @@ function saveSettingsJSON()
 		masterVolume = masterVolume,
 		musicVolume = musicVolume,
 		sfxVolume = sfxVolume,
-		userAnimationScale = userAnimationScale
+		userAnimationScale = userAnimationScale,
+		ttsEnabled = ttsEnabled
 	})
 end
 
@@ -159,6 +163,14 @@ function loadSettingsJSON()
 		musicVolume = savedSettings.musicVolume
 		sfxVolume = savedSettings.sfxVolume
 		userAnimationScale = savedSettings.userAnimationScale
+		if savedSettings.ttsEnabled == nil then
+			ttsEnabled = defaultTTSEnabled
+		else
+			ttsEnabled = savedSettings.ttsEnabled
+			if ttsEnabled == false then
+				disableTTS()
+			end
+		end
 		updateMusicVolume()
 	end
 end
@@ -170,6 +182,8 @@ function resetSettings()
 	musicVolume = defaultMusicVolume
 	sfxVolume = defaultSfxVolume
 	userAnimationScale = defaultUserAnimationScale
+	ttsEnabled = defaultTTSEnabled
+	enableTTS()
 	updateMusicVolume()
 end
 
@@ -741,56 +755,7 @@ function love.draw()
 		love.graphics.setFont(getFont(30))
 	end
 
-	-- draw the settings modal
-	if settingsModalActive then
-		drawChalkBoard('green', ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
-
-		-- draw modal title
-		love.graphics.setFont(getFont(50))
-		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y + 30, ui.settingsModal.width - 20, 'center')
-
-		-- draw the settings
-		love.graphics.setFont(getFont(30))
-		local masterX = ui.settingsMasterSlider.x + ui.settingsModal.x + 10
-		local masterY = ui.settingsMasterSlider.y + ui.settingsModal.y
-		love.graphics.printf('Master Volume', masterX, masterY, ui.settingsMasterSlider.width, 'left')
-		drawSlider(masterX, masterY + 10 + (ui.settingsMasterSlider.height / 2), ui.settingsMasterSlider.width - 20, masterVolume, 0, 1)
-
-		local musicX = ui.settingsMusicSlider.x + ui.settingsModal.x + 10
-		local musicY = ui.settingsMusicSlider.y + ui.settingsModal.y
-		love.graphics.printf('Music Volume', ui.settingsMusicSlider.x + ui.settingsModal.x + 5, ui.settingsMusicSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(musicX, musicY + 10 + (ui.settingsMusicSlider.height / 2), ui.settingsMusicSlider.width - 20, musicVolume, 0, 1)
-
-		local sfxX = ui.settingsSFXSlider.x + ui.settingsModal.x + 10
-		local sfxY = ui.settingsSFXSlider.y + ui.settingsModal.y
-		love.graphics.printf('Sound Volume', ui.settingsSFXSlider.x + ui.settingsModal.x + 5, ui.settingsSFXSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(sfxX, sfxY + 10 + (ui.settingsSFXSlider.height / 2), ui.settingsSFXSlider.width - 20, sfxVolume, 0, 1)
-
-		local animationX = ui.settingsAnimationSlider.x + ui.settingsModal.x + 10
-		local animationY = ui.settingsAnimationSlider.y + ui.settingsModal.y
-		love.graphics.printf('Animation Speed', ui.settingsAnimationSlider.x + ui.settingsModal.x + 5, ui.settingsAnimationSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(animationX, animationY + 10 + (ui.settingsAnimationSlider.height / 2), ui.settingsAnimationSlider.width - 20, userAnimationScale, 0.25, 4)
-
-		local cursorHueX = ui.settingsCursorSlider.x + ui.settingsModal.x + 10
-		local cursorHueY = ui.settingsCursorSlider.y + ui.settingsModal.y
-		love.graphics.printf('Cursor Hue', ui.settingsCursorSlider.x + ui.settingsModal.x + 5, ui.settingsCursorSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(cursorHueX, cursorHueY + 10 + (ui.settingsCursorSlider.height / 2), ui.settingsCursorSlider.width - 20, cursorHue, 0, 1)
-
-
-		-- draw actions on the modal
-		love.graphics.setFont(getFont(60))
-		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
-		local actionY = ui.settingsModal.y + ui.modalSettingsSaveAction.y
-		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsSaveAction.width, ui.modalSettingsSaveAction.height)
-		love.graphics.printf('Save', actionX, actionY, ui.modalSettingsSaveAction.width, 'center')
-
-		local actionX = ui.settingsModal.x + ui.modalSettingsResetAction.x
-		local actionY = ui.settingsModal.y + ui.modalSettingsResetAction.y
-		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsResetAction.width, ui.modalSettingsResetAction.height)
-		love.graphics.printf('Reset', actionX, actionY, ui.modalSettingsResetAction.width, 'center')
-
-		love.graphics.setFont(getFont(30))
-	end
+	love.graphics.setFont(getFont(30))
 
 	-- draw any cards that are moving
 	if movingCard.enabled then
@@ -840,6 +805,65 @@ function love.draw()
 	love.graphics.setFont(getFont(40))
 	love.graphics.rectangle("line", ui.settingsControl.x, ui.settingsControl.y, ui.settingsControl.width, ui.settingsControl.height)
 	love.graphics.printf("Settings", ui.settingsControl.x, ui.settingsControl.y - 15, ui.settingsControl.width, 'center')
+
+	-- draw the settings modal
+	if settingsModalActive then
+		drawChalkBoard('green', ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
+
+		-- draw modal title
+		love.graphics.setFont(getFont(50))
+		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y + 30, ui.settingsModal.width - 20, 'center')
+
+		-- draw the settings
+		love.graphics.setFont(getFont(30))
+		local masterX = ui.settingsMasterSlider.x + ui.settingsModal.x + 10
+		local masterY = ui.settingsMasterSlider.y + ui.settingsModal.y
+		love.graphics.printf('Master Volume', masterX, masterY, ui.settingsMasterSlider.width, 'left')
+		drawSlider(masterX, masterY + 10 + (ui.settingsMasterSlider.height / 2), ui.settingsMasterSlider.width - 20, masterVolume, 0, 1)
+
+		local musicX = ui.settingsMusicSlider.x + ui.settingsModal.x + 10
+		local musicY = ui.settingsMusicSlider.y + ui.settingsModal.y
+		love.graphics.printf('Music Volume', ui.settingsMusicSlider.x + ui.settingsModal.x + 5, ui.settingsMusicSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(musicX, musicY + 10 + (ui.settingsMusicSlider.height / 2), ui.settingsMusicSlider.width - 20, musicVolume, 0, 1)
+
+		local sfxX = ui.settingsSFXSlider.x + ui.settingsModal.x + 10
+		local sfxY = ui.settingsSFXSlider.y + ui.settingsModal.y
+		love.graphics.printf('Sound Volume', ui.settingsSFXSlider.x + ui.settingsModal.x + 5, ui.settingsSFXSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(sfxX, sfxY + 10 + (ui.settingsSFXSlider.height / 2), ui.settingsSFXSlider.width - 20, sfxVolume, 0, 1)
+
+		local animationX = ui.settingsAnimationSlider.x + ui.settingsModal.x + 10
+		local animationY = ui.settingsAnimationSlider.y + ui.settingsModal.y
+		love.graphics.printf('Animation Speed', ui.settingsAnimationSlider.x + ui.settingsModal.x + 5, ui.settingsAnimationSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(animationX, animationY + 10 + (ui.settingsAnimationSlider.height / 2), ui.settingsAnimationSlider.width - 20, userAnimationScale, 0.25, 4)
+
+		local cursorHueX = ui.settingsCursorSlider.x + ui.settingsModal.x + 10
+		local cursorHueY = ui.settingsCursorSlider.y + ui.settingsModal.y
+		love.graphics.printf('Cursor Hue', ui.settingsCursorSlider.x + ui.settingsModal.x + 5, ui.settingsCursorSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawSlider(cursorHueX, cursorHueY + 10 + (ui.settingsCursorSlider.height / 2), ui.settingsCursorSlider.width - 20, cursorHue, 0, 1)
+
+		local ttsCheckboxX = ui.settingsTTSCheckbox.x + ui.settingsModal.x + 10
+		local ttsCheckboxY = ui.settingsTTSCheckbox.y + ui.settingsModal.y
+		love.graphics.printf('Text to Speech', ui.settingsTTSCheckbox.x + ui.settingsModal.x + 5, ui.settingsTTSCheckbox.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawCheckbox(ttsCheckboxX, ttsCheckboxY + 10 + (ui.settingsCursorSlider.height / 2), ttsEnabled)
+
+		-- draw actions on the modal
+		love.graphics.setFont(getFont(60))
+		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
+		local actionY = ui.settingsModal.y + ui.modalSettingsSaveAction.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsSaveAction.width, ui.modalSettingsSaveAction.height)
+		love.graphics.printf('Save', actionX, actionY, ui.modalSettingsSaveAction.width, 'center')
+
+		local actionX = ui.settingsModal.x + ui.modalSettingsResetAction.x
+		local actionY = ui.settingsModal.y + ui.modalSettingsResetAction.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsResetAction.width, ui.modalSettingsResetAction.height)
+		love.graphics.printf('Reset', actionX, actionY, ui.modalSettingsResetAction.width, 'center')
+
+		-- draw mobile settings readout
+		if isTall then
+			love.graphics.setFont(getFont(50))
+			love.graphics.printf(readoutText, ui.settingsMobileReadout.x + 15, ui.settingsMobileReadout.y, ui.settingsMobileReadout.width - 30, 'center')
+		end
+	end
 
 	-- draw the cursor
 	love.graphics.setColor(HSL(cursorHue, 1, 0.60))
@@ -1261,6 +1285,10 @@ function getSelectionInstruction()
 		return 'Cursor Hue Slider, press left and right to change cursor hue color'
 	end
 
+	if selection == 'settingsTTSCheckbox' then
+		return 'Text to Speech checkbox, select to toggle text to speech engine - ignored if screen reader is detected'
+	end
+
 	if selection == 'modalSettingsSaveAction' then
 		return 'Save Settings and continue game'
 	end
@@ -1286,7 +1314,7 @@ function repeatText()
 end
 
 function love.keypressed(rawKey)
-	-- DebuggingScreen.keypressed(rawKey)
+	DebuggingScreen.keypressed(rawKey)
 
 	print('rawKey: '..rawKey)
 
@@ -1564,6 +1592,19 @@ function love.keypressed(rawKey)
 
 			updateSelectionAfterPlayOrDraw()
 		end)
+	end
+
+	-- if we are selecting a checkbox toggle
+	if key == 'select' and selection == 'settingsTTSCheckbox' then
+		if ttsEnabled then
+			ttsEnabled = false
+			selectionText = 'Text to speech disabled'
+			disableTTS()
+		else
+			ttsEnabled = true
+			selectionText = 'Text to speech enabled'
+			enableTTS()
+		end
 	end
 
 	-- non-modal action selection

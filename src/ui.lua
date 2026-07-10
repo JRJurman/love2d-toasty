@@ -336,7 +336,7 @@ ui = {
 		x = 5,
 		y = -1200,
 		width = 1055,
-		height = 805,
+		height = 1170,
 	},
 	settingsMasterSlider = {
 		label = 'Master Audio Slider',
@@ -423,12 +423,31 @@ ui = {
 		nav = {
 			withSettingsModal = {
 				up = 'settingsAnimationSlider',
-				down = 'modalSettingsSaveAction',
+				down = 'settingsTTSCheckbox',
 			},
 		},
 
 		x = 90,
 		y = 490,
+		width = 700,
+		height = 100,
+	},
+	settingsTTSCheckbox = {
+		label = 'Text to Speech Checkbox',
+		modal = true,
+		settingsModal = true,
+		selectable = true,
+		slider = false,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsCursorSlider',
+				down = 'modalSettingsSaveAction',
+			},
+		},
+
+		x = 90,
+		y = 590,
 		width = 700,
 		height = 100,
 	},
@@ -442,13 +461,13 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				up = 'settingsCursorSlider',
+				up = 'settingsTTSCheckbox',
 				right = 'modalSettingsResetAction',
 			},
 		},
 
 		x = 90,
-		y = 630,
+		y = 730,
 		width = 365,
 		height = 90,
 	},
@@ -468,9 +487,15 @@ ui = {
 		},
 
 		x = 510,
-		y = 630,
+		y = 730,
 		width = 365,
 		height = 90,
+	},
+	settingsMobileReadout = {
+		x = 80,
+		y = 900,
+		width = 850,
+		height = 700,
 	},
 	chef = {
 		x = 1360,
@@ -564,6 +589,9 @@ toMobileLayout = function()
 	ui.settingsControl.width = 300
 	ui.settingsControl.height = 200
 
+	-- settings modal
+	ui.settingsModal.height = 1870
+
 	-- update nav mappings
 	ui.deck.nav.withHand.right = 'settingsControl'
 	ui.deck.nav.withActions.right = 'settingsControl'
@@ -635,6 +663,9 @@ toDesktopLayout = function()
 	ui.settingsControl.y = 1140
 	ui.settingsControl.width = 300
 	ui.settingsControl.height = 40
+
+	-- settings modal
+	ui.settingsModal.height = 1170
 
 	-- update nav mappings
 	ui.deck.nav.withHand.right = 'card1'
