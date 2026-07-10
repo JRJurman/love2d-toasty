@@ -51,6 +51,15 @@ local startingDeck = {
 	4, 7,
 }
 
+local commonCardRewardsStart = 3
+local commonCardRewardsEnd = 14
+
+local uncommonCardRewardsStart = 15
+local uncommonCardRewardsEnd = 18
+
+local rareCardRewardsStart = 19
+local rareCardRewardsEnd = 22
+
 local drawPile = {}
 
 local discardPile = {}
@@ -682,7 +691,7 @@ function love.draw()
 		love.graphics.setFont(getFont(90))
 
 		local scoreLabel = '+'..currentPlateRawScore
-		if typeOfPlate < 1 then
+		if typeOfPlate == -1 or currentPlateRawScore == 0 then
 			scoreLabel = '0'
 		end
 		love.graphics.printf(scoreLabel, ui.plateScore.x + 10, ui.plateScore.y, ui.plateScore.width - 20, 'center')
@@ -963,8 +972,16 @@ function startNextRoundModal()
 	-- load modal for players to add a new card to the deck
 	modalActions = {'add', 'skip'}
 	-- make sure each number is unique by starting at a random number, and showing the next one
-	local firstRandomCard = math.random(3, #cardDetails - 1)
-	modalCards = { firstRandomCard, firstRandomCard + 1 }
+	modalCards = {}
+	if roundNumber ~= 2 and roundNumber ~= 6 then
+		local commonCardReward = math.random(commonCardRewardsStart, commonCardRewardsEnd)
+		local uncommonCardReward = math.random(uncommonCardRewardsStart, uncommonCardRewardsEnd)
+		modalCards = { commonCardReward, uncommonCardReward }
+	else
+		local firstRareCardReward = math.random(rareCardRewardsStart, rareCardRewardsEnd - 1)
+		local secondRareCardReward = firstRareCardReward + 1
+		modalCards = { firstRareCardReward, secondRareCardReward }
+	end
 	startModal()
 
 	-- once the player has selected a card to add, we'll shuffle then
@@ -1434,7 +1451,8 @@ function love.keypressed(rawKey)
 
 			-- if there is bread on the plate, plate this card
 			-- (otherwise, discard it)
-			if currentPlate[1] == 1 then
+			canPlate = canPlateIngredient(currentPlate, hand[handIndex])
+			if canPlate then
 				plateCardFromHand(handIndex, ui[selection].x, ui[selection].y)
 			else
 				animationText = 'No bread, discarding '..cardDetails[hand[handIndex]].label
@@ -1496,8 +1514,7 @@ function love.keypressed(rawKey)
 			modalActive = false
 			animationText = 'plating from deck'
 
-			-- only plate if this is bread or we already have bread
-			local canPlate = currentPlate[1] == 1  or drawPile[ui[selection].drawIndex] == 1
+			local canPlate = canPlateIngredient(currentPlate, drawPile[ui[selection].drawIndex])
 			if canPlate then
 				plateCardFromDeck(ui[selection].drawIndex)
 			else

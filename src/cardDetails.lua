@@ -18,6 +18,7 @@ cardDetails = {
 	},
 	[3] = {
 		label = 'Avocado',
+		effectKey = 'shuffle',
 		effectShortLabel = 'on play effect, shuffle',
 		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
@@ -29,6 +30,7 @@ cardDetails = {
 	},
 	[4] = {
 		label = 'Strawberry',
+		effectKey = 'plate',
 		effectShortLabel = 'on play effect, plate',
 		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
@@ -44,6 +46,7 @@ cardDetails = {
 	},
 	[6] = {
 		label = 'Jam',
+		effectKey = 'shuffle',
 		effectShortLabel = 'on play effect, shuffle',
 		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
@@ -55,6 +58,7 @@ cardDetails = {
 	},
 	[7] = {
 		label = 'Orange',
+		effectKey = 'plate',
 		effectShortLabel = 'on play effect, plate',
 		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
@@ -70,6 +74,7 @@ cardDetails = {
 	},
 	[9] = {
 		label = 'Cheddar',
+		effectKey = 'shuffle',
 		effectShortLabel = 'on play effect, shuffle',
 		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
@@ -81,6 +86,7 @@ cardDetails = {
 	},
 	[10] = {
 		label = 'Garlic',
+		effectKey = 'plate',
 		effectShortLabel = 'on play effect, plate',
 		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
@@ -96,6 +102,7 @@ cardDetails = {
 	},
 	[12] = {
 		label = 'Ricotta',
+		effectKey = 'shuffle',
 		effectShortLabel = 'on play effect, shuffle',
 		effect = 'when played preview the next two cards and you may shuffle and guarantee a bread next hand.',
 		points = 1,
@@ -107,6 +114,7 @@ cardDetails = {
 	},
 	[13] = {
 		label = 'Sausage',
+		effectKey = 'plate',
 		effectShortLabel = 'on play effect, plate',
 		effect = 'when played preview the next two cards and you may immediately plate one.',
 		points = 1,
@@ -120,4 +128,77 @@ cardDetails = {
 		label = 'Bacon',
 		points = 2,
 	},
+	[15] = {
+		label = 'Pickles',
+		effectKey = 'side',
+		effectShortLabel = 'a side even when toast is missing',
+		effect = 'can always be played even when no toast has been started yet',
+		points = 1,
+		onPlate = {
+			name = 'side',
+		}
+	},
+	[16] = {
+		label = 'Blueberries',
+		effectKey = 'finish',
+		effectShortLabel = 'on play effect, finish toast',
+		effect = 'when played immediately scores and completes your plate',
+		points = 4,
+		onPlay = {
+			name = 'finish',
+		}
+	},
+	[17] = {
+		label = 'Banana',
+		effectKey = 'small-draw',
+		effectShortLabel = 'on play effect, reduce next draw size',
+		effect = 'when played reduce the number of cards you will draw next turn by one',
+		points = 1,
+		onPlay = {
+			name = 'short',
+		}
+	},
+	[18] = {
+		label = 'Cream Cheese',
+		effect = 'small-recover',
+		effectShortLabel = 'on play effect, recover some ingredients',
+		effect = 'when played return two random ingredients from the discard to your deck',
+		points = 1,
+		onPlay = {
+			name = 'recover'
+		}
+	},
+	[19] = {
+		label = 'Double decker',
+		effect = 'decker',
+		effectShortLabel = 'starts toast, does not causes sandwiches',
+		effect = 'can be played to start toast or as an ingredient on top of existing toast, does not causes sandwiches',
+		points = 2
+	},
+	[20] = {
+		label = 'Hummus',
+		effect = 'recover-all',
+		effectShortLabel = 'on play effect, recover all ingredients from discard',
+		effect = 'when played return all ingredients from the discard to your deck',
+		points = 2,
+		onPlay = {
+			name = 'recover-all'
+		}
+	},
+	[21] = {
+		label = 'Salmon',
+		points = 8
+	},
+	[22] = {
+		label = 'Tomato',
+		effectKey = 'remove',
+		effectShortLabel = 'on play effect, remove ingredient from deck',
+		effect = 'when played preview the next two cards and you may remove one from your deck',
+		points = 2,
+		onPlay = {
+			name = 'remove',
+			previewCount = 2,
+			actions = {'remove', 'skip'}
+		}
+	}
 }

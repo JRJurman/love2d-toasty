@@ -102,8 +102,8 @@ end
 
 function drawAction(x, y, card)
 	love.graphics.setColor(1,1,1)
-	if cardDetails[card].onPlay then
-		local ability = cardDetails[card].onPlay.actions[1];
+	if cardDetails[card].effectKey then
+		local ability = cardDetails[card].effectKey
 		if ability == 'plate' then
 			love.graphics.draw(pickAsset, x + 5, y + 150, 0, 0.4)
 		end

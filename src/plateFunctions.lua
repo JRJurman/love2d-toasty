@@ -1,4 +1,31 @@
 require('deckFunctions')
+require('filter')
+
+function isNotSide(ingredient)
+	return ingredient ~= 15
+end
+
+function canPlateIngredient(plate, ingredient)
+	-- for the purposes of determining if there is a starting bread, remove sides
+	local nonSidePlate = filter(plate, isNotSide)
+
+	local isOrHasBread = nonSidePlate[1] == 1 or ingredient == 1
+	if isOrHasBread then
+		return true
+	end
+
+	local isOrHasDecker = nonSidePlate[1] == 19 or ingredient == 19
+	if isOrHasDecker then
+		return true
+	end
+
+	local isSide = ingredient == 15
+	if isSide then
+		return true
+	end
+
+	return false
+end
 
 function getPlateIngredients(plate)
 	-- get ingredients past our initial slices of bread
@@ -30,14 +57,17 @@ typesOfPlates = {
 	[3] = 'Ultimate Toast (+12)'
 }
 function getTypeOfPlate(plate)
+	-- if we have any sides, remove those (they don't count for toast type)
+	local nonSidePlate = filter(plate, isNotSide)
+
 	-- if we don't have anything on this plate, this isn't toast yet
-	if plate[1] == nil then
+	if nonSidePlate[1] == nil then
 		return 0
 	end
 
 	-- check if we swap between ingredients and bread (if we do, this is a sandwich)
 	local hasIngredients = false
-	for plateIndex, ingredient in ipairs(plate) do
+	for plateIndex, ingredient in ipairs(nonSidePlate) do
 		if ingredient ~= 1 then
 			hasIngredients = true
 		end
@@ -47,12 +77,12 @@ function getTypeOfPlate(plate)
 	end
 
 	-- if we have less than 5, we have toast
-	if #plate < 5 then
+	if #nonSidePlate < 5 then
 		return 1
 	end
 
 	-- if we have less than 8 we have fat toast
-	if #plate < 8 then
+	if #nonSidePlate < 8 then
 		return 2
 	end
 
@@ -74,7 +104,7 @@ function getScoreForPlate(plate)
 	local plateScore = getRawScoreForPlate(plate)
 	local typeOfPlate = getTypeOfPlate(plate)
 
-	if typeOfPlate == 0 or typeOfPlate == -1 then
+	if typeOfPlate == -1 then
 		return 0
 	end
 
