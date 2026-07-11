@@ -139,6 +139,9 @@ userAnimationScale = defaultUserAnimationScale
 defaultTTSEnabled = true
 ttsEnabled = defaultTTSEnabled
 
+local defaultDrawSize = 3
+local drawSize = defaultDrawSize
+
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
 intro:setVolume(masterVolume * musicVolume * 0.2)
@@ -524,9 +527,12 @@ function drawThree()
 	async(routines, function()
 		animationText = 'drawing from deck'
 		wait(1 * animationScale * (1/userAnimationScale))
-		drawFromDeck(1)
-		drawFromDeck(2)
-		drawFromDeck(3)
+		for cardToDraw=1, drawSize do
+			drawFromDeck(cardToDraw)
+		end
+
+		-- if we had modified the drawSize, reset it now
+		drawSize = defaultDrawSize
 
 		updateSelectionAfterPlayOrDraw()
 	end)
@@ -566,6 +572,7 @@ function startNewGame()
 	completedPlates = {}
 	roundGoal = 6
 	roundNumber = 1
+	drawSize = defaultDrawSize
 	hasStarted = false
 	modalActions = {'start'}
 	modalCards = {}
@@ -1036,6 +1043,7 @@ function completePlate()
 		end
 		roundNumber = roundNumber + 1
 		roundGoal = nextRoundGoal
+		drawSize = defaultDrawSize
 
 		-- based on how much time was already used, wait the remaining time to read the rest of the text
 		wait(waitTime * animationScale * (1/userAnimationScale))
@@ -1274,7 +1282,7 @@ function getSelectionInstruction()
 			firstHandInstructions = 'Press right to see other action.'
 		end
 
-		return 'Two actions, First action: Draw, Select to draw 3 new cards. '..drawPileText..' '..firstHandInstructions
+		return 'Two actions, First action: Draw, Select to draw '..drawSize..' new cards. '..drawPileText..' '..firstHandInstructions
 	end
 
 	if selection == 'actionNewPlate' then
@@ -1491,6 +1499,12 @@ function love.keypressed(rawKey)
 					end
 					updateSelectionAfterPlayOrDraw()
 				end
+				if playedCardDetails.onPlay.name == 'reduce-draw' then
+					-- reduce draw size (but never below one)
+					drawSize = math.max(drawSize - 1, 1)
+
+					updateSelectionAfterPlayOrDraw()
+				end
 			else
 				updateSelectionAfterPlayOrDraw()
 			end
@@ -1577,7 +1591,7 @@ function love.keypressed(rawKey)
 					loadSeed()
 				end
 				-- now that we've loaded a seed, do a shuffle of the deck
-				shuffleDrawPile(3)
+				shuffleDrawPile(drawSize)
 			end
 
 			-- if the modal action was add, we still need to shuffle here
@@ -1615,7 +1629,7 @@ function love.keypressed(rawKey)
 		async(routines, function()
 			minimizeModal()
 			modalActive = false
-			shuffleDrawPile(3)
+			shuffleDrawPile(drawSize)
 
 			updateSelectionAfterPlayOrDraw()
 		end)

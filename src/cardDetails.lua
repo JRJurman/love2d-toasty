@@ -132,7 +132,7 @@ cardDetails = {
 		label = 'Pickles',
 		effectKey = 'side',
 		effectShortLabel = 'a side even when toast is missing',
-		effect = 'can always be played even when no toast has been started yet',
+		effect = 'can always be played even when no toast has been started yet.',
 		points = 1,
 		onPlate = {
 			name = 'side',
@@ -142,44 +142,44 @@ cardDetails = {
 		label = 'Blueberries',
 		effectKey = 'finish',
 		effectShortLabel = 'on play effect, finish toast',
-		effect = 'when played immediately scores and completes your plate',
+		effect = 'when played immediately scores and completes your plate.',
 		points = 4,
 		onPlay = {
 			name = 'finish',
 		}
 	},
 	[17] = {
-		label = 'Banana',
-		effectKey = 'small-draw',
+		label = 'Bananas',
+		effectKey = 'reduce-draw',
 		effectShortLabel = 'on play effect, reduce next draw size',
-		effect = 'when played reduce the number of cards you will draw next turn by one',
+		effect = 'when played reduce the number of cards you will draw next turn by one.',
 		points = 1,
 		onPlay = {
-			name = 'short',
+			name = 'reduce-draw',
 		}
 	},
 	[18] = {
 		label = 'Cream Cheese',
 		effect = 'small-recover',
 		effectShortLabel = 'on play effect, recover some ingredients',
-		effect = 'when played return two random ingredients from the discard to your deck',
+		effect = 'when played return two random ingredients from the discard to your deck.',
 		points = 1,
 		onPlay = {
-			name = 'recover'
+			name = 'small-recover'
 		}
 	},
 	[19] = {
 		label = 'Double decker',
 		effect = 'decker',
 		effectShortLabel = 'starts toast, does not causes sandwiches',
-		effect = 'can be played to start toast or as an ingredient on top of existing toast, does not causes sandwiches',
+		effect = 'can be played to start toast or as an ingredient on top of existing toast, does not causes sandwiches.',
 		points = 2
 	},
 	[20] = {
 		label = 'Hummus',
 		effect = 'recover-all',
-		effectShortLabel = 'on play effect, recover all ingredients from discard',
-		effect = 'when played return all ingredients from the discard to your deck',
+		effectShortLabel = 'on play effect, recover all ingredients',
+		effect = 'when played return all ingredients from the discard to your deck.',
 		points = 2,
 		onPlay = {
 			name = 'recover-all'
@@ -193,7 +193,7 @@ cardDetails = {
 		label = 'Tomato',
 		effectKey = 'remove',
 		effectShortLabel = 'on play effect, remove ingredient from deck',
-		effect = 'when played preview the next two cards and you may remove one from your deck',
+		effect = 'when played preview the next two cards and you may remove one from your deck.',
 		points = 2,
 		onPlay = {
 			name = 'remove',
