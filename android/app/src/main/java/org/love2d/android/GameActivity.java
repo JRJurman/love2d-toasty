@@ -30,6 +30,7 @@ import android.graphics.Rect;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -115,13 +116,20 @@ public class GameActivity extends SDLActivity {
 
         org.sral.SralBootstrap.init(this);
 
-        // Direct-touch pass-through: the game handles its own accessibility
-        // (announcements, hover, activation) via SRAL, so tell TalkBack to
-        // ignore the SDL surface and deliver raw touches to the app. When
-        // TalkBack is on, the system rewrites touches into hover events;
-        // translate those back to touch events so the game still sees them.
+        // The game handles its own accessibility (announcements, hover,
+        // activation) via SRAL. When TalkBack is on, the system rewrites
+        // touches into hover events; translate those back to touch events so
+        // the game still sees them (explore-by-drag). TalkBack's double-tap
+        // performs ACTION_CLICK on the accessibility-focused node, so the
+        // surface must be a clickable node: performClick is translated into
+        // an Enter key press, which the game treats as 'select'.
         if (mSurface != null) {
-            mSurface.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            mSurface.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+            mSurface.setContentDescription(getApplicationInfo().loadLabel(getPackageManager()));
+            mSurface.setOnClickListener(v -> {
+                onNativeKeyDown(KeyEvent.KEYCODE_ENTER);
+                onNativeKeyUp(KeyEvent.KEYCODE_ENTER);
+            });
             mSurface.setOnHoverListener((v, event) -> {
                 int action;
                 switch (event.getActionMasked()) {
