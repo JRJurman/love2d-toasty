@@ -1481,6 +1481,16 @@ function love.keypressed(rawKey)
 					end
 					startModal()
 				end
+				if playedCardDetails.onPlay.name == 'finish' then
+					local typeOfPlate = getTypeOfPlate(currentPlate)
+					if typeOfPlate > 0 then
+						animationText = 'Scoring Plate'
+						playStackSFX()
+						wait(1 * animationScale * (1/userAnimationScale))
+						completePlate()
+					end
+					updateSelectionAfterPlayOrDraw()
+				end
 			else
 				updateSelectionAfterPlayOrDraw()
 			end
