@@ -53,6 +53,12 @@ actionDetails = {
 		initialModalDescription = "Starting new shift. Showing new cards that you can add to your deck. Each comes with a free bread card.",
 		actionDescription = "Select a card above to add it to your deck.",
 	},
+	remove = {
+		modalTitle = "Remove a Card?",
+		label = "Remove Card",
+		initialModalDescription = "Showing the next cards that you will draw, you may pick one to remove from your deck permanently.",
+		actionDescription = "Select a card above to remove it from your deck.",
+	},
 	endless = {
 		modalTitle = "Shifts Complete!",
 		modalSubtitle = "great job",

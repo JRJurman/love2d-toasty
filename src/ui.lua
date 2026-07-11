@@ -611,9 +611,14 @@ toMobileLayout = function()
 	ui.card1.nav.withHand.up = 'score'
 	ui.card1.nav.withHand.down = 'deck'
 	ui.card1.nav.withModal.down = 'deck'
+	ui.card1.nav.withHand.left = nil
+	ui.card1.nav.withModal.left = nil
 
 	ui.card2.nav.withHand.down = 'deck'
 	ui.card2.nav.withModal.down = 'deck'
+
+	ui.card3.nav.withHand.right = nil
+	ui.card3.nav.withModal.right = nil
 end
 
 toDesktopLayout = function()
@@ -686,7 +691,12 @@ toDesktopLayout = function()
 	ui.card1.nav.withHand.up = 'plate'
 	ui.card1.nav.withHand.down = 'settingsControl'
 	ui.card1.nav.withModal.down = 'settingsControl'
+	ui.card1.nav.withHand.left = 'deck'
+	ui.card1.nav.withModal.left = 'deck'
 
 	ui.card2.nav.withHand.down = 'settingsControl'
 	ui.card2.nav.withModal.down = 'settingsControl'
+
+	ui.card3.nav.withHand.right = 'settingsControl'
+	ui.card3.nav.withModal.right = 'settingsControl'
 end

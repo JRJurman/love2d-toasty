@@ -196,7 +196,7 @@ cardDetails = {
 		effect = 'when played preview the next two cards and you may remove one from your deck.',
 		points = 2,
 		onPlay = {
-			name = 'remove',
+			name = 'preview',
 			previewCount = 2,
 			actions = {'remove', 'skip'}
 		}

@@ -1190,7 +1190,7 @@ function getSelectionInstruction()
 			else
 				location = indexText..' card, '
 				if ui[selection].drawIndex == 1 then
-					if modalActions[1] == 'pick' or modalActions[1] == 'plate' then
+					if modalActions[1] == 'pick' or modalActions[1] == 'plate' or modalActions[1] == 'remove' then
 						location = 'You have '..modalSize..' cards from deck to choose from. '..indexText..' card, '
 					else
 						location = 'You have '..modalSize..' cards from deck to preview. '..indexText..' card, '
@@ -1604,6 +1604,23 @@ function love.keypressed(rawKey)
 				wait(0.75 * animationScale * (1/userAnimationScale))
 				discardCardFromDeck(ui[selection].drawIndex)
 			end
+
+			updateSelectionAfterPlayOrDraw()
+		end)
+	end
+
+	-- if we are selecting a card and the modal action is remove, trash it
+	local modalActionIsRemove = modalActions[1] == 'remove'
+	if key == 'select' and isSelectingModalCard and modalActionIsRemove then
+		async(routines, function()
+			minimizeModal()
+			modalActive = false
+
+			animationText = 'removing '..cardDetails[drawPile[ui[selection].drawIndex]].label..' from deck'
+			wait(0.75 * animationScale * (1/userAnimationScale))
+
+			-- TODO rip card SFX
+			table.remove(drawPile, ui[selection].drawIndex)
 
 			updateSelectionAfterPlayOrDraw()
 		end)
