@@ -1551,6 +1551,18 @@ function love.keypressed(rawKey)
 
 					updateSelectionAfterPlayOrDraw()
 				end
+				if playedCardDetails.onPlay.name == 'recover-all' then
+					if #discardPile > 0 then
+						animationText = 'Recovering '..#discardPile..' cards from discard'
+						wait(0.75 * animationScale * (1/userAnimationScale))
+						recoverAllCardsFromDiscardPile()
+					else
+						animationText = 'No cards in discard to recover'
+						wait(0.75 * animationScale * (1/userAnimationScale))
+					end
+
+					updateSelectionAfterPlayOrDraw()
+				end
 			else
 				updateSelectionAfterPlayOrDraw()
 			end

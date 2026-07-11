@@ -169,10 +169,10 @@ cardDetails = {
 		}
 	},
 	[19] = {
-		label = 'Double decker',
+		label = 'Pita',
 		effect = 'decker',
 		effectShortLabel = 'starts toast, does not causes sandwiches',
-		effect = 'can be played to start toast or as an ingredient on top of existing toast, does not causes sandwiches.',
+		effect = 'can be played to start toast or as an ingredient on top of existing toast, does not cause sandwiches.',
 		points = 2
 	},
 	[20] = {
