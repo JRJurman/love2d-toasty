@@ -351,6 +351,7 @@ function checkForSandwich()
 		playTossSFX()
 		animationText = 'You made a Sandwich, no points! Tossing Plate.'
 		wait(2.65 * animationScale * (1/userAnimationScale))
+		tossPlateIntoDiscard()
 		completePlate()
 	end
 end
@@ -520,6 +521,35 @@ function discardCardFromDeck(drawIndex)
 	)
 	table.insert(discardPile, movedCard)
 	movingCard.enabled = false
+end
+
+function recoverCardFromDiscardPile(discardIndex)
+	local movedCard = table.remove(discardPile, discardIndex)
+	movingCard.enabled = true
+	movingCard.cardValue = movedCard
+	movingCard.x = ui.discardPile.x
+	movingCard.y = ui.discardPile.y
+
+	animateMany(
+		movingCard,
+		{'x', 'y'},
+		{ui.drawPile.x, ui.drawPile.y},
+		drawAnimationSpeed * animationScale * (1/userAnimationScale), ease.inovershoot
+	)
+	table.insert(drawPile, movedCard)
+	movingCard.enabled = false
+end
+
+function recoverAllCardsFromDiscardPile()
+	for discardIndex = #discardPile, 1, -1 do
+		table.insert(drawPile, table.remove(discardPile, discardIndex))
+	end
+end
+
+function tossPlateIntoDiscard()
+	for plateIndex = #currentPlate, 1, -1 do
+		table.insert(discardPile, table.remove(currentPlate, plateIndex))
+	end
 end
 
 function drawThree()
@@ -998,7 +1028,6 @@ end
 function completePlate()
 	local completedPlate = currentPlate
 	currentPlate = {}
-	-- TODO animate plate to completed plates
 	table.insert(completedPlates, completedPlate)
 
 	-- if we pass the round score, shuffle the discard and plate cards back to the draw pile
@@ -1027,9 +1056,7 @@ function completePlate()
 		end
 
 		-- add the discard to draw pile
-		for discardIndex = #discardPile, 1, -1 do
-			table.insert(drawPile, table.remove(discardPile, discardIndex))
-		end
+		recoverAllCardsFromDiscardPile()
 
 		-- for each plate, add each card in that plate back to the drawPile
 		for plateIndex = #completedPlates, 1, -1 do
@@ -1502,6 +1529,25 @@ function love.keypressed(rawKey)
 				if playedCardDetails.onPlay.name == 'reduce-draw' then
 					-- reduce draw size (but never below one)
 					drawSize = math.max(drawSize - 1, 1)
+
+					updateSelectionAfterPlayOrDraw()
+				end
+				if playedCardDetails.onPlay.name == 'small-recover' then
+					if #discardPile > 0 then
+						for recoverCount=1, 2 do
+							if #discardPile > 0 then
+								animationText = 'Recovering '..cardDetails[discardPile[1]].label..' from discard'
+								wait(0.75 * animationScale * (1/userAnimationScale))
+								recoverCardFromDiscardPile(1)
+							else
+								animationText = 'No more cards to recover'
+								wait(0.75 * animationScale * (1/userAnimationScale))
+							end
+						end
+					else
+						animationText = 'No cards in discard to recover'
+						wait(0.75 * animationScale * (1/userAnimationScale))
+					end
 
 					updateSelectionAfterPlayOrDraw()
 				end
