@@ -44,9 +44,12 @@ To run the game, you can run `./start-web.sh`.
 
 ```sh
 ./build.sh
-./build-android.sh
+./build-android.sh --device
+
+# while running the app
+./start-android.sh
 ```
 
 ### iOS Build
 
-_To be added_
+To run the iOS build, open the love project in Xcode, and target a device to build on.
