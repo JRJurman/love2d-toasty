@@ -1892,13 +1892,12 @@ function love.mousereleased(x, y, button, istouch, presses)
 		end
 	end
 
-	-- if we get a double tap, select whatever element has focus
-	if istouch and presses > 1 then
-		touchTime = 0
-		love.keypressed('select')
-	end
+	local isTap = nil
+	local dx = nil
+	local dy = nil
 
-	if istouch and presses == 1 then
+	-- check if we were swiping at all (if we are, never treat this as a select)
+	if istouch then
 		-- determine how much x and y we moved
 		dx = x - startTouchPos.x
 		dy = y - startTouchPos.y
@@ -1913,32 +1912,10 @@ function love.mousereleased(x, y, button, istouch, presses)
 		touchTime = 0
 
 		-- if dx and dy are 0, this was just a tap
-		isSingleTap = dx == 0 and dy == 0
+		isTap = dx == 0 and dy == 0
+	end
 
-		-- check if there is an element under the tapped selection
-		tappedSelection = getElementAt(x, y)
-
-		-- if this is a single tap, and they are selecting an element
-		-- start a counter to track if this was only a single tap
-		if isSingleTap then
-			if tappedSelection then
-				async(tapRoutines, function()
-					local elapsed = 0
-
-					while elapsed < singleTouchThreshold do
-						local dt = coroutine.yield()
-						elapsed = elapsed + (dt or 0)
-					end
-
-					-- if we haven't killed this routine, select this element
-					selectElementAt(x, y)
-					wait(0.05)
-					love.keypressed('select')
-				end)
-			end
-			return
-		end
-
+	if istouch and not isTap then
 		abs_dx = math.abs(dx)
 		abs_dy = math.abs(dy)
 
@@ -1954,6 +1931,35 @@ function love.mousereleased(x, y, button, istouch, presses)
 			else
 				love.keypressed('up')
 			end
+		end
+	end
+
+	-- if we get a double tap, select whatever element has focus
+	if istouch and isTap and presses > 1 then
+		touchTime = 0
+		love.keypressed('select')
+	end
+
+	-- if this is a single tap, and they are selecting an element
+	-- start a counter to track if this was only a single tap
+	if istouch and isTap and presses == 1 then
+		-- check if there is an element under the tapped selection
+		tappedSelection = getElementAt(x, y)
+
+		if tappedSelection then
+			async(tapRoutines, function()
+				local elapsed = 0
+
+				while elapsed < singleTouchThreshold do
+					local dt = coroutine.yield()
+					elapsed = elapsed + (dt or 0)
+				end
+
+				-- if we haven't killed this routine, select this element
+				selectElementAt(x, y)
+				wait(0.05)
+				love.keypressed('select')
+			end)
 		end
 	end
 
