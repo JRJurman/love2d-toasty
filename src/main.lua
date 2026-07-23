@@ -418,7 +418,7 @@ function plateCardFromDeck(drawIndex)
 	checkForEndOfRound()
 end
 
-function updateSelectionAfterPlayOrDraw()
+function updateSelectionAfterPlayOrDraw(overriddenEmptyPlateAnimationText)
 	local handIsEmpty = getHandSize() == 0
 	local plateIsEmpty = #currentPlate == 0
 
@@ -452,6 +452,9 @@ function updateSelectionAfterPlayOrDraw()
 		local hasStartedRound = #completedPlates > 0
 		if hasStartedRound then
 			animationText = 'no plate to score, '
+			if overriddenEmptyPlateAnimationText then
+				animationText = overriddenEmptyPlateAnimationText
+			end
 			wait(1 * animationScale * (1/userAnimationScale))
 		end
 
@@ -1524,8 +1527,13 @@ function love.keypressed(rawKey)
 						playStackSFX()
 						wait(1 * animationScale * (1/userAnimationScale))
 						completePlate()
+
+						-- if we completed a plate with a 'finish' ability, we need
+						-- to override the 'no plate' text on update
+						updateSelectionAfterPlayOrDraw('starting next plate')
+					else
+						updateSelectionAfterPlayOrDraw()
 					end
-					updateSelectionAfterPlayOrDraw()
 				end
 				if playedCardDetails.onPlay.name == 'reduce-draw' then
 					-- reduce draw size (but never below one)
