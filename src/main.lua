@@ -325,7 +325,7 @@ function readoutCurrentScore()
 	local currentPlateRawScore = getScoreForPlate(currentPlate)
 
 	local scoreLabel = currentPlateRawScore..' points'
-	local waitTime = 1.25
+	local waitTime = 1.75
 	if currentPlateRawScore == 1 then
 		scoreLabel = '1 point'
 	end
@@ -337,7 +337,7 @@ function readoutCurrentScore()
 		-- add "total to the end to clarify the score"
 		-- read out as "Fat Toast (+6), 13 points total"
 		scoreLabel = scoreLabel..' total'
-		waitTime = waitTime + 1.35
+		waitTime = waitTime + 0.85
 	end
 
 	animationText = typeOfPlateLabel..', '..scoreLabel
@@ -975,6 +975,7 @@ function expandModal()
 		animationText = 'opening modal'
 	end
 	ui.modal.y = ui.offScreenModal.y
+	wait(0.5 * animationScale * (1/userAnimationScale))
 	animate(ui.modal, 'y', ui.onScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.outovershoot)
 end
 
@@ -1552,16 +1553,16 @@ function love.keypressed(rawKey)
 						for recoverCount=1, 2 do
 							if #discardPile > 0 then
 								animationText = 'Recovering '..cardDetails[discardPile[1]].label..' from discard'
-								wait(0.75 * animationScale * (1/userAnimationScale))
+								wait(0.9 * animationScale * (1/userAnimationScale))
 								recoverCardFromDiscardPile(1)
 							else
 								animationText = 'No more cards to recover'
-								wait(0.75 * animationScale * (1/userAnimationScale))
+								wait(3 * animationScale * (1/userAnimationScale))
 							end
 						end
 					else
 						animationText = 'No cards in discard to recover'
-						wait(0.75 * animationScale * (1/userAnimationScale))
+						wait(1.8 * animationScale * (1/userAnimationScale))
 					end
 
 					updateSelectionAfterPlayOrDraw()
@@ -1569,11 +1570,11 @@ function love.keypressed(rawKey)
 				if playedCardDetails.onPlay.name == 'recover-all' then
 					if #discardPile > 0 then
 						animationText = 'Recovering '..#discardPile..' cards from discard'
-						wait(0.75 * animationScale * (1/userAnimationScale))
+						wait(1.8 * animationScale * (1/userAnimationScale))
 						recoverAllCardsFromDiscardPile()
 					else
 						animationText = 'No cards in discard to recover'
-						wait(0.75 * animationScale * (1/userAnimationScale))
+						wait(1.8 * animationScale * (1/userAnimationScale))
 					end
 
 					updateSelectionAfterPlayOrDraw()
@@ -1632,7 +1633,7 @@ function love.keypressed(rawKey)
 			modalActive = false
 
 			animationText = 'removing '..cardDetails[drawPile[ui[selection].drawIndex]].label..' from deck'
-			wait(0.75 * animationScale * (1/userAnimationScale))
+			wait(1.5 * animationScale * (1/userAnimationScale))
 
 			-- TODO rip card SFX
 			table.remove(drawPile, ui[selection].drawIndex)
