@@ -848,7 +848,7 @@ function love.draw()
 	end
 
 	-- change font size based on the amount of text
-	local readoutFontSize = getReadoutFontSize(#readoutText)
+	local readoutFontSize = getReadoutFontSize(#tostring(readoutText))
 	love.graphics.setFont(getFont(readoutFontSize))
 
 	love.graphics.printf(readoutText, ui.readout.x + 15, ui.readout.y, ui.readout.width - 30, 'center')
@@ -1443,7 +1443,7 @@ function love.keypressed(rawKey)
 			local delta = (key == 'left' and -.5) or .5
 			userAnimationScale = userAnimationScale + delta
 			userAnimationScale = math.min(math.max(userAnimationScale, 0.5), 4)
-			selectionText = userAnimationScale
+			selectionText = tostring(userAnimationScale)
 		end
 		if selection == 'settingsCursorSlider' then
 			local delta = (key == 'left' and -1) or 1
