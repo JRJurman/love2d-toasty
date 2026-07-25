@@ -126,7 +126,7 @@ function drawIngredient(x, y, card)
 		love.graphics.draw(creamCheeseAsset, x + 90, y + 90, 0, 0.65)
 	end
 	if card == 19 then
-		love.graphics.draw(pitaAsset, x + 100, y + 90, 0, 0.65)
+		love.graphics.draw(pitaAsset, x + 90, y + 75, 0, 0.75)
 	end
 	if card == 20 then
 		love.graphics.draw(hummusAsset, x + 90, y + 90, 0, 0.65)
