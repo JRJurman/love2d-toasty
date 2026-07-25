@@ -5,6 +5,13 @@ require('drawFatRect')
 -- actions
 local pickAsset = love.graphics.newImage('Assets/pick.png')
 local shuffleAsset = love.graphics.newImage('Assets/shuffle.png')
+local alternateAsset = love.graphics.newImage('Assets/alternate.png')
+local lessDrawAsset = love.graphics.newImage('Assets/less_draw.png')
+local plateNowAsset = love.graphics.newImage('Assets/plate_now.png')
+local removeAsset = love.graphics.newImage('Assets/remove.png')
+local returnAllAsset = love.graphics.newImage('Assets/return_all.png')
+local returnAsset = love.graphics.newImage('Assets/return.png')
+local sideAsset = love.graphics.newImage('Assets/side.png')
 
 -- ingredients
 local breadAsset = love.graphics.newImage('Ingredients/bread.png')
@@ -21,7 +28,14 @@ local onionAsset = love.graphics.newImage('Ingredients/onion.png')
 local ricottaAsset = love.graphics.newImage('Ingredients/ricotta.png')
 local sausageAsset = love.graphics.newImage('Ingredients/sausage.png')
 local baconAsset = love.graphics.newImage('Ingredients/bacon.png')
-
+local picklesAsset = love.graphics.newImage('Ingredients/pickles.png')
+local blueberriesAsset = love.graphics.newImage('Ingredients/blueberries.png')
+local bananasAsset = love.graphics.newImage('Ingredients/bananas.png')
+local creamCheeseAsset = love.graphics.newImage('Ingredients/cream_cheese.png')
+local pitaAsset = love.graphics.newImage('Ingredients/pita.png')
+local hummusAsset = love.graphics.newImage('Ingredients/hummus.png')
+local salmonAsset = love.graphics.newImage('Ingredients/salmon.png')
+local tomatoAsset = love.graphics.newImage('Ingredients/tomato.png')
 
 function drawSeed(x, y, rx, ry, rotation)
 	-- translate so that the origin is at the card center
@@ -52,6 +66,7 @@ function drawCardBack(x, y)
 end
 
 local cardFontSize = 50
+local smallCardFontSize = 40
 local titleFontSize = 80
 
 function drawIngredient(x, y, card)
@@ -98,6 +113,30 @@ function drawIngredient(x, y, card)
 	if card == 14 then
 		love.graphics.draw(baconAsset, x + 90, y + 90, 0, 0.65)
 	end
+	if card == 15 then
+		love.graphics.draw(picklesAsset, x + 90, y + 90, 0, 0.65)
+	end
+	if card == 16 then
+		love.graphics.draw(blueberriesAsset, x + 110, y + 90, 0, 0.65)
+	end
+	if card == 17 then
+		love.graphics.draw(bananasAsset, x + 120, y + 90, 0, 0.55)
+	end
+	if card == 18 then
+		love.graphics.draw(creamCheeseAsset, x + 90, y + 90, 0, 0.65)
+	end
+	if card == 19 then
+		love.graphics.draw(pitaAsset, x + 100, y + 90, 0, 0.65)
+	end
+	if card == 20 then
+		love.graphics.draw(hummusAsset, x + 90, y + 90, 0, 0.65)
+	end
+	if card == 21 then
+		love.graphics.draw(salmonAsset, x + 20, y + 70, 0, 0.85)
+	end
+	if card == 22 then
+		love.graphics.draw(tomatoAsset, x + 120, y + 90, 0, 0.55)
+	end
 end
 
 function drawAction(x, y, card)
@@ -109,6 +148,27 @@ function drawAction(x, y, card)
 		end
 		if ability == 'shuffle' then
 			love.graphics.draw(shuffleAsset, x + 5, y + 150, 0, 0.4)
+		end
+		if ability == 'side' then
+			love.graphics.draw(sideAsset, x + 5, y + 150, 0, 0.4)
+		end
+		if ability == 'finish' then
+			love.graphics.draw(plateNowAsset, x + 15, y + 150, 0, 0.35)
+		end
+		if ability == 'reduce-draw' then
+			love.graphics.draw(lessDrawAsset, x + 5, y + 150, 0, 0.4)
+		end
+		if ability == 'small-recover' then
+			love.graphics.draw(returnAsset, x + 10, y + 150, 0, 0.35)
+		end
+		if ability == 'decker' then
+			love.graphics.draw(alternateAsset, x + 5, y + 150, 0, 0.4)
+		end
+		if ability == 'recover-all' then
+			love.graphics.draw(returnAllAsset, x + 10, y + 150, 0, 0.35)
+		end
+		if ability == 'remove' then
+			love.graphics.draw(removeAsset, x + 5, y + 150, 0, 0.35)
 		end
 	end
 end
@@ -127,8 +187,13 @@ function drawCardFront(x, y, card)
 
 	-- draw card title
 	love.graphics.setColor(35/256, 46/256, 53/256)
+	local yOffset = -10
 	love.graphics.setFont(getFont(cardFontSize))
-	love.graphics.printf(cardDetails[card].label, x, y - 10, cardSize.width, 'center')
+	if #cardDetails[card].label > 11 then
+		love.graphics.setFont(getFont(smallCardFontSize))
+		yOffset = 0
+	end
+	love.graphics.printf(cardDetails[card].label, x, y + yOffset, cardSize.width, 'center')
 
 	-- draw card points
 	if cardDetails[card].points > 0 then

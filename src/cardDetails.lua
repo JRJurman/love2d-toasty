@@ -160,7 +160,7 @@ cardDetails = {
 	},
 	[18] = {
 		label = 'Cream Cheese',
-		effect = 'small-recover',
+		effectKey = 'small-recover',
 		effectShortLabel = 'on play effect, recover some ingredients',
 		effect = 'when played return two random ingredients from the discard to your deck.',
 		points = 1,
@@ -170,14 +170,14 @@ cardDetails = {
 	},
 	[19] = {
 		label = 'Pita',
-		effect = 'decker',
+		effectKey = 'decker',
 		effectShortLabel = 'starts toast, does not causes sandwiches',
 		effect = 'can be played to start toast or as an ingredient on top of existing toast, does not cause sandwiches.',
 		points = 2
 	},
 	[20] = {
 		label = 'Hummus',
-		effect = 'recover-all',
+		effectKey = 'recover-all',
 		effectShortLabel = 'on play effect, recover all ingredients',
 		effect = 'when played return all ingredients from the discard to your deck.',
 		points = 2,
