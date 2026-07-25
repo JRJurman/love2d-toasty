@@ -962,11 +962,11 @@ function love.resize(width, height)
 	resize(width, height, isTall)
 end
 
-function shuffleDrawPile(deep)
+function shuffleDrawPile(deep, card)
 	animationText = 'Shuffling Deck'
 	playShuffleSFX()
 	wait(0.75 * animationScale * (1/userAnimationScale))
-	drawPile = safeShuffle(drawPile, deep)
+	drawPile = safeShuffle(drawPile, deep, card)
 end
 
 function expandModal()
@@ -1645,14 +1645,16 @@ function love.keypressed(rawKey)
 	local modalActionIsAdd = modalActions[1] == 'add'
 	if key == 'select' and isSelectingModalCard and modalActionIsAdd then
 		async(routines, function()
-			-- add free bread
-			table.insert(drawPile, 1, 1)
 
-			-- do starting shuffle
-			shuffleDrawPile(2)
+			-- add selected card
+			local addedCard = modalCards[ui[selection].drawIndex]
+			table.insert(drawPile, 1, addedCard)
 
-			-- insert selected card at top of draw pile
-			table.insert(drawPile, 1, modalCards[ui[selection].drawIndex])
+			-- shuffle the deck (put the new card in 1 of the top 8)
+			shuffleDrawPile(8, addedCard)
+
+			-- add free bread (at 3rd slot)
+			table.insert(drawPile, 3, 1)
 
 			minimizeModal()
 			modalActive = false
