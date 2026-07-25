@@ -424,11 +424,12 @@ function updateSelectionAfterPlayOrDraw(overriddenEmptyPlateAnimationText)
 
 	local breadInDeck = countValueInTopOfPile(drawPile, #drawPile, 1)
 	local pitaInDeck = countValueInTopOfPile(drawPile, #drawPile, 19)
+	local pitaInHand = countValueInTopOfPile(hand, #hand, 19)
 	local currentPlateRawScore = getRawScoreForPlate(currentPlate)
 
 	-- if we are out of bread (and pita), and have no plate, end the game
 	-- alternatively if we have no cards in deck (and the hand is empty), end the game
-	local outOfBread = breadInDeck == 0 and pitaInDeck == 0 and #currentPlate == 0
+	local outOfBread = breadInDeck == 0 and pitaInDeck == 0 and pitaInHand == 0 and #currentPlate == 0
 	local outOfCards = #drawPile == 0 and handIsEmpty
 
 	if outOfBread or outOfCards then
