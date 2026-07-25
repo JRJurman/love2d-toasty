@@ -992,14 +992,15 @@ function expandSettingsModal()
 	animationText = 'opening settings'
 	ui.settingsModal.y = ui.offScreenModal.y
 	animate(ui.settingsModal, 'y', ui.onScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.outovershoot)
+	wait(0.5 * animationScale * (1/userAnimationScale))
 end
 
 function minimizeSettingsModal()
 	animationText = 'closing settings'
 	playPushSFX()
-	wait(0.5 * animationScale * (1/userAnimationScale))
 	ui.settingsModal.y = ui.onScreenModal.y
 	animate(ui.settingsModal, 'y', ui.offScreenModal.y, 0.3 * animationScale * (1/userAnimationScale), ease.inovershoot)
+	wait(0.5 * animationScale * (1/userAnimationScale))
 end
 
 function getScoreForCompletedPlates()
