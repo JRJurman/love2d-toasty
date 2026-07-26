@@ -629,7 +629,7 @@ end
 function getReadoutFontSize(readoutSize)
 	local scale = -0.1255
 	local offset = 68
-	return scale*readoutSize + offset
+	return math.max(35, scale*readoutSize + offset)
 end
 
 function love.load()
@@ -831,7 +831,7 @@ function love.draw()
 
 	-- readout center
 	love.graphics.setColor(210/256, 218/256, 153/256)
-	love.graphics.rectangle("fill", ui.readout.x + 10, ui.readout.y + 10, ui.readout.width - 20, ui.readout.height - 40)
+	love.graphics.rectangle("fill", ui.readout.x + 10, ui.readout.y + 10, ui.readout.width - 20, ui.readout.height - 20)
 
 	-- readout arrow
 	love.graphics.setColor(175/256, 201/256, 104/256)
@@ -878,6 +878,11 @@ function love.draw()
 		local actionY = ui.settingsModal.y + ui.modalSettingsRestartGameAction.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsRestartGameAction.width, ui.modalSettingsRestartGameAction.height)
 		love.graphics.printf(ui.modalSettingsRestartGameAction.label, actionX, actionY, ui.modalSettingsRestartGameAction.width, 'center')
+
+		local actionX = ui.settingsModal.x + ui.modalSettingsControlReview.x
+		local actionY = ui.settingsModal.y + ui.modalSettingsControlReview.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsControlReview.width, ui.modalSettingsControlReview.height)
+		love.graphics.printf(ui.modalSettingsControlReview.label, actionX, actionY, ui.modalSettingsControlReview.width, 'center')
 
 		-- draw the settings
 		love.graphics.setFont(getFont(30))
@@ -1353,8 +1358,12 @@ function getSelectionInstruction()
 		return 'Restart Game Option, select to restart the game and return to the main screen.'
 	end
 
+	if selection == 'modalSettingsControlReview' then
+		return 'Controls: on mobile you can change the current selection by swiping up, down, left, or right. Double tap to select the current option. Press and hold on the screen anywhere to explore by touch. On desktop use arrow keys or W A S D to navigate. Press x, space, return or enter to select an option, press r to repeat any text. On mobile and desktop you can also single tap or click directly on an element to select it.'
+	end
+
 	if selection == 'settingsMasterSlider' then
-		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings, up to restart game action. Current value is '..(math.floor(masterVolume * 100))..'%'
+		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings, up for controls and restart game option. Current value is '..(math.floor(masterVolume * 100))..'%'
 	end
 
 	if selection == 'settingsMusicSlider' then

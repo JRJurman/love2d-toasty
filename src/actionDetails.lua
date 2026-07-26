@@ -11,8 +11,7 @@ actionDetails = {
 	},
 	settings = {
 		label = "Settings",
-		initialModalDescription = "Select to change settings. Also available by pressing escape or selecting the bottom right option during the game.",
-		actionDescription = "Select to change settings.",
+		actionDescription = "Select to change settings and review controls. Also available by pressing escape or selecting the bottom right option during the game.",
 	},
 	restart = {
 		modalTitle = "Game Over!",

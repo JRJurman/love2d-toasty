@@ -347,12 +347,31 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				down = 'settingsMasterSlider',
+				down = 'modalSettingsControlReview',
 			},
 		},
 
 		x = 90,
 		y = 110,
+		width = 700,
+		height = 80,
+	},
+	modalSettingsControlReview = {
+		label = 'Controls',
+		modal = true,
+		settingsModal = true,
+		action = true,
+		selectable = true,
+
+		nav = {
+			withSettingsModal = {
+				up = 'modalSettingsRestartGameAction',
+				down = 'settingsMasterSlider',
+			},
+		},
+
+		x = 90,
+		y = 210,
 		width = 700,
 		height = 80,
 	},
@@ -365,13 +384,13 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				up = 'modalSettingsRestartGameAction',
+				up = 'modalSettingsControlReview',
 				down = 'settingsMusicSlider',
 			},
 		},
 
 		x = 90,
-		y = 210,
+		y = 310,
 		width = 700,
 		height = 100,
 	},
@@ -390,7 +409,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 310,
+		y = 410,
 		width = 700,
 		height = 100,
 	},
@@ -409,7 +428,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 410,
+		y = 510,
 		width = 700,
 		height = 100,
 	},
@@ -428,7 +447,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 510,
+		y = 610,
 		width = 700,
 		height = 100,
 	},
@@ -447,7 +466,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 610,
+		y = 710,
 		width = 700,
 		height = 100,
 	},
@@ -466,7 +485,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 710,
+		y = 810,
 		width = 700,
 		height = 100,
 	},
@@ -485,7 +504,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 850,
+		y = 950,
 		width = 365,
 		height = 90,
 	},
@@ -504,14 +523,14 @@ ui = {
 		},
 
 		x = 510,
-		y = 850,
+		y = 950,
 		width = 365,
 		height = 90,
 	},
 	settingsMobileReadout = {
-		x = 80,
-		y = 1020,
-		width = 850,
+		x = 70,
+		y = 1060,
+		width = 870,
 		height = 700,
 	},
 	chef = {
