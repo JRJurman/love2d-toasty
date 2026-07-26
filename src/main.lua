@@ -1336,27 +1336,27 @@ function getSelectionInstruction()
 	end
 
 	if selection == 'settingsMasterSlider' then
-		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings'
+		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings. Current value is '..(math.floor(masterVolume * 100))..'%'
 	end
 
 	if selection == 'settingsMusicSlider' then
-		return 'Music Volume Slider, press left to decrease, right to increase'
+		return 'Music Volume Slider, press left to decrease, right to increase. Current value is '..(math.floor(musicVolume * 100))..'%'
 	end
 
 	if selection == 'settingsSFXSlider' then
-		return 'Sound Volume Slider, press left to decrease, right to increase'
+		return 'Sound Volume Slider, press left to decrease, right to increase. Current value is '..(math.floor(sfxVolume * 100))..'%'
 	end
 
 	if selection == 'settingsAnimationSlider' then
-		return 'Animation Speed Slider, press left to slow down, right to speed up'
+		return 'Animation Speed Slider, press left to slow down, right to speed up. Current value is '..userAnimationScale
 	end
 
 	if selection == 'settingsCursorSlider' then
-		return 'Cursor Hue Slider, press left and right to change cursor hue color'
+		return 'Cursor Hue Slider, press left and right to change cursor hue color. Current value is '..hueToColor(cursorHue)
 	end
 
 	if selection == 'settingsTTSCheckbox' then
-		return 'Text to Speech checkbox, select to toggle text to speech engine - ignored if screen reader is detected'
+		return 'Text to Speech checkbox, select to toggle text to speech engine - ignored if screen reader is detected. Currently '..(ttsEnabled and 'enabled' or 'disabled')
 	end
 
 	if selection == 'modalSettingsSaveAction' then
