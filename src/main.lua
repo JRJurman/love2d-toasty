@@ -76,7 +76,7 @@ local hasSeenHandActionInstructions = false
 -- start the game with a start game modal
 local hasStarted = false
 local modalActive = true
-local modalActions = {'start'}
+local modalActions = {'start', 'settings'}
 
 local settingsModalActive = false
 local lastSelection = nil
@@ -609,7 +609,7 @@ function startNewGame()
 	roundNumber = 1
 	drawSize = defaultDrawSize
 	hasStarted = false
-	modalActions = {'start'}
+	modalActions = {'start', 'settings'}
 	modalCards = {}
 	startModal()
 
@@ -625,7 +625,7 @@ function loadSeed()
 end
 
 function getReadoutFontSize(readoutSize)
-	local scale = -0.15
+	local scale = -0.1255
 	local offset = 68
 	return scale*readoutSize + offset
 end
@@ -780,7 +780,7 @@ function love.draw()
 
 		-- if this is the start modal, show the toast graphic
 		if modalActions[1] == 'start' then
-			drawChalkToast(ui.modal.x + 315, ui.modal.y + 125)
+			drawChalkToast(ui.modal.x + 190, ui.modal.y + 80)
 		end
 
 		-- draw any cards on the modal
@@ -925,7 +925,7 @@ function love.draw()
 	love.graphics.setColor(HSL(cursorHue, 1, 0.60))
 	drawFatRect('outset', 10, cursor.x, cursor.y, cursor.width, cursor.height)
 
-	DebuggingScreen.draw()
+	-- DebuggingScreen.draw()
 
 	-- if we are animating, unset the selection and nav text
 	-- (these will almost always be set by the animating function)
@@ -1103,11 +1103,16 @@ function updateSelection(target, skipNavAnimation)
 		navSpeed = 0
 	end
 
-	-- if we are on the start / restart modal, and you try to navigate to some other modal control, don't
+	-- if we are on the start / restart modal, limit what you can navigate to
 	-- (this is common trip up for mouse controls)
-	if selection == 'modalAction1' and (modalActions[1] == 'start' or modalActions[1] == 'restart') then
-		if ui[target].modal and not ui[target].settingsModal then
-			-- if we are swapping from restart to start though, do update the selection text
+	if (modalActions[1] == 'start' or modalActions[1] == 'restart') and modalActive then
+		-- if they try to navigate to a card, don't
+		if ui[target].modal and ui[target].card then
+			selectionText = getSelectionInstruction()
+			return
+		end
+		-- if they navigate to something other than a modal (settings or this one), don't
+		if not ui[target].modal then
 			selectionText = getSelectionInstruction()
 			return
 		end
@@ -1268,7 +1273,7 @@ function getSelectionInstruction()
 			local totalActionsLabel = ''
 			local firstModalInstructions = ''
 			if hasStarted and #modalActions > 1 then
-				totalActionsLabel = 'You have '..#modalActions..' options, first option, '
+				totalActionsLabel = 'You have '..#modalActions..' options, first option, '..selectedAction.label..', '
 			else
 				totalActionsLabel = indexToString(ui[selection].actionIndex).. ' option, '
 			end
@@ -1283,7 +1288,7 @@ function getSelectionInstruction()
 	if selection == 'modalAction2' then
 		local selectedAction = actionDetails[modalActions[2]]
 		if selectedAction then
-			return indexToString(ui[selection].actionIndex).. ' option, '..selectedAction.actionDescription
+			return indexToString(ui[selection].actionIndex).. ' option, '..selectedAction.label..', '..selectedAction.actionDescription
 		else
 			return 'No Action'
 		end
@@ -1384,7 +1389,7 @@ function repeatText()
 end
 
 function love.keypressed(rawKey)
-	DebuggingScreen.keypressed(rawKey)
+	-- DebuggingScreen.keypressed(rawKey)
 
 	print('rawKey: '..rawKey)
 
@@ -1405,21 +1410,13 @@ function love.keypressed(rawKey)
 	-- don't navigate if we are in the start or restart modal (unless we are in settings)
 	local noNavModals = modalActive and (modalActions[1] == 'start' or modalActions[1] == 'restart')
 	local isPressingNavKey = (key == 'down' or key == 'up' or key == 'left' or key == 'right')
-	if isPressingNavKey and (not noNavModals or settingsModalActive) then
+	if isPressingNavKey then
 		async(routines, function()
 			local nextSelection = ui[selection].nav[navKey] and ui[selection].nav[navKey][key]
 
 			if nextSelection then
 				updateSelection(nextSelection)
 			end
-		end)
-	end
-
-	-- if we are in a non nav modal, but they did press a nav key, repeat text
-	-- this can be important if they missed the intro text
-	if noNavModals and not settingsModalActive and isPressingNavKey then
-		async(routines, function()
-			repeatText()
 		end)
 	end
 
@@ -1735,6 +1732,14 @@ function love.keypressed(rawKey)
 		end)
 	end
 
+	-- if we are choosing to open settings (from modal)
+	local isSelectingSettings = isSelectingModalAction and modalActions[ui[selection].actionIndex] == 'settings'
+	if key == 'select' and isSelectingSettings then
+		async(routines, function()
+			startSettingsModal()
+		end)
+	end
+
 	-- if we are selecting a checkbox toggle
 	if key == 'select' and selection == 'settingsTTSCheckbox' then
 		if ttsEnabled then
@@ -1894,7 +1899,7 @@ function love.mousepressed(x, y, button, istouch, presses)
 		startTouch(x, y)
 	end
 
-	DebuggingScreen.mousepressed(x, y)
+	-- DebuggingScreen.mousepressed(x, y)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
@@ -1988,5 +1993,5 @@ function love.mousereleased(x, y, button, istouch, presses)
 		end
 	end
 
-	DebuggingScreen.mousereleased(x, y)
+	-- DebuggingScreen.mousereleased(x, y)
 end
