@@ -1234,9 +1234,15 @@ function getSelectionInstruction()
 		end
 
 		local label = cardDetails[selectedCard].label
-		local pointsText = 'worth '..cardDetails[selectedCard].points..' points; '
+		local pointsText = '+'..cardDetails[selectedCard].points..' points; '
 		if cardDetails[selectedCard].points == 1 then
-			pointsText = 'worth 1 point; '
+			pointsText = '+1 point; '
+		end
+
+		-- if this is the add modal, include card rarity
+		local rarityLabel = ''
+		if modalActions[1] == 'add' and modalActive then
+			rarityLabel = cardDetails[selectedCard].rarity..' card, '
 		end
 
 		local firstNavInstructions = ''
@@ -1244,7 +1250,7 @@ function getSelectionInstruction()
 			hasSeenCardInstructions = true
 			firstNavInstructions = 'Use left and right to move between cards, select a card to plate it. '
 		end
-		local cardSelectionText = modalInstructions..location..label..', '..pointsText..effect..' '..firstNavInstructions
+		local cardSelectionText = modalInstructions..location..label..', '..rarityLabel..pointsText..effect..' '..firstNavInstructions
 
 		return cardSelectionText
 	end

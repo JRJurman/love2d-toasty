@@ -174,8 +174,17 @@ function drawAction(x, y, card)
 end
 
 function drawCardFront(x, y, card)
+	local cardDetail = cardDetails[card]
+
 	-- draw background
 	love.graphics.setColor(228/256, 214/256, 183/256)
+	if cardDetail.rarity == 'rare' then
+		love.graphics.setColor(207/256, 87/256, 60/256)
+	end
+	if cardDetail.rarity == 'uncommon' then
+		love.graphics.setColor(79/256, 143/256, 186/256)
+	end
+
 	love.graphics.rectangle("fill", x, y, cardSize.width, cardSize.height, 30, 30)
 
 	-- draw header and body background
@@ -189,16 +198,16 @@ function drawCardFront(x, y, card)
 	love.graphics.setColor(35/256, 46/256, 53/256)
 	local yOffset = -10
 	love.graphics.setFont(getFont(cardFontSize))
-	if #cardDetails[card].label > 11 then
+	if #cardDetail.label > 11 then
 		love.graphics.setFont(getFont(smallCardFontSize))
 		yOffset = 0
 	end
-	love.graphics.printf(cardDetails[card].label, x, y + yOffset, cardSize.width, 'center')
+	love.graphics.printf(cardDetail.label, x, y + yOffset, cardSize.width, 'center')
 
 	-- draw card points
-	if cardDetails[card].points > 0 then
+	if cardDetail.points > 0 then
 		love.graphics.setFont(getFont(titleFontSize))
-		love.graphics.print('+'..cardDetails[card].points, x + 18, y + 45)
+		love.graphics.print('+'..cardDetail.points, x + 18, y + 45)
 	end
 
 	-- draw ingredient
