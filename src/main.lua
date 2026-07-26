@@ -142,11 +142,13 @@ ttsEnabled = defaultTTSEnabled
 local defaultDrawSize = 3
 local drawSize = defaultDrawSize
 
+local musicVolumeScalar = 0.4
+
 local	intro = love.audio.newSource("Assets/intro.ogg", "stream")
 local loop  = love.audio.newSource("Assets/loop.ogg", "stream")
-intro:setVolume(masterVolume * musicVolume * 0.2)
+intro:setVolume(masterVolume * musicVolume * musicVolumeScalar)
 intro:setLooping(true)
-loop:setVolume(masterVolume * musicVolume * 0.2)
+loop:setVolume(masterVolume * musicVolume * musicVolumeScalar)
 loop:setLooping(true)
 
 local animationScale = 0.75
@@ -202,9 +204,9 @@ end
 function updateMusicVolume()
 	-- update the volume for running music
 	if (intro) then
-		intro:setVolume(masterVolume * musicVolume * 0.143)
+		intro:setVolume(masterVolume * musicVolume * musicVolumeScalar)
 	end
-	loop:setVolume(masterVolume * musicVolume * 0.143)
+	loop:setVolume(masterVolume * musicVolume * musicVolumeScalar)
 end
 
 function getHandSize()
