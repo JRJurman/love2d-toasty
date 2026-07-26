@@ -869,8 +869,15 @@ function love.draw()
 		drawChalkBoard('green', ui.settingsModal.x, ui.settingsModal.y, ui.settingsModal.width, ui.settingsModal.height)
 
 		-- draw modal title
-		love.graphics.setFont(getFont(50))
+		love.graphics.setFont(getFont(60))
 		love.graphics.printf('Settings', ui.settingsModal.x + 10, ui.settingsModal.y + 30, ui.settingsModal.width - 20, 'center')
+
+		-- draw the initial restart game action
+		love.graphics.setFont(getFont(50))
+		local actionX = ui.settingsModal.x + ui.modalSettingsRestartGameAction.x
+		local actionY = ui.settingsModal.y + ui.modalSettingsRestartGameAction.y
+		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsRestartGameAction.width, ui.modalSettingsRestartGameAction.height)
+		love.graphics.printf(ui.modalSettingsRestartGameAction.label, actionX, actionY, ui.modalSettingsRestartGameAction.width, 'center')
 
 		-- draw the settings
 		love.graphics.setFont(getFont(30))
@@ -909,12 +916,12 @@ function love.draw()
 		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
 		local actionY = ui.settingsModal.y + ui.modalSettingsSaveAction.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsSaveAction.width, ui.modalSettingsSaveAction.height)
-		love.graphics.printf('Save', actionX, actionY, ui.modalSettingsSaveAction.width, 'center')
+		love.graphics.printf(ui.modalSettingsSaveAction.label, actionX, actionY, ui.modalSettingsSaveAction.width, 'center')
 
 		local actionX = ui.settingsModal.x + ui.modalSettingsResetAction.x
 		local actionY = ui.settingsModal.y + ui.modalSettingsResetAction.y
 		love.graphics.rectangle("line", actionX, actionY, ui.modalSettingsResetAction.width, ui.modalSettingsResetAction.height)
-		love.graphics.printf('Reset', actionX, actionY, ui.modalSettingsResetAction.width, 'center')
+		love.graphics.printf( ui.modalSettingsResetAction.label, actionX, actionY, ui.modalSettingsResetAction.width, 'center')
 
 		-- draw mobile settings readout
 		if isTall then
@@ -1342,8 +1349,12 @@ function getSelectionInstruction()
 		return 'Second Action: Score points and start a new plate. '..scoreText
 	end
 
+	if selection == 'modalSettingsRestartGameAction' then
+		return 'Restart Game Option, select to restart the game and return to the main screen.'
+	end
+
 	if selection == 'settingsMasterSlider' then
-		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings. Current value is '..(math.floor(masterVolume * 100))..'%'
+		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings, up to restart game action. Current value is '..(math.floor(masterVolume * 100))..'%'
 	end
 
 	if selection == 'settingsMusicSlider' then
@@ -1477,6 +1488,18 @@ function love.keypressed(rawKey)
 			minimizeSettingsModal()
 			settingsModalActive = false
 			updateSelection(lastSelection)
+		end)
+		return
+	end
+
+	-- if we are restarting the game, then close the modal, and restart the game
+	-- (we'll save any settings they might have changed)
+	if key == 'select' and selection == 'modalSettingsRestartGameAction' then
+		saveSettingsJSON()
+		async(routines, function()
+			minimizeSettingsModal()
+			settingsModalActive = false
+			startNewGame()
 		end)
 		return
 	end

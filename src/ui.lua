@@ -338,6 +338,24 @@ ui = {
 		width = 1055,
 		height = 1170,
 	},
+	modalSettingsRestartGameAction = {
+		label = 'Restart Game',
+		modal = true,
+		settingsModal = true,
+		action = true,
+		selectable = true,
+
+		nav = {
+			withSettingsModal = {
+				down = 'settingsMasterSlider',
+			},
+		},
+
+		x = 90,
+		y = 110,
+		width = 700,
+		height = 80,
+	},
 	settingsMasterSlider = {
 		label = 'Master Audio Slider',
 		modal = true,
@@ -347,12 +365,13 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
+				up = 'modalSettingsRestartGameAction',
 				down = 'settingsMusicSlider',
 			},
 		},
 
 		x = 90,
-		y = 90,
+		y = 210,
 		width = 700,
 		height = 100,
 	},
@@ -371,7 +390,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 190,
+		y = 310,
 		width = 700,
 		height = 100,
 	},
@@ -390,7 +409,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 290,
+		y = 410,
 		width = 700,
 		height = 100,
 	},
@@ -409,7 +428,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 390,
+		y = 510,
 		width = 700,
 		height = 100,
 	},
@@ -428,7 +447,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 490,
+		y = 610,
 		width = 700,
 		height = 100,
 	},
@@ -447,16 +466,15 @@ ui = {
 		},
 
 		x = 90,
-		y = 590,
+		y = 710,
 		width = 700,
 		height = 100,
 	},
 	modalSettingsSaveAction = {
-		label = 'Save Action',
+		label = 'Save',
 		modal = true,
 		settingsModal = true,
 		action = true,
-		actionIndex = 1,
 		selectable = true,
 
 		nav = {
@@ -467,16 +485,15 @@ ui = {
 		},
 
 		x = 90,
-		y = 730,
+		y = 850,
 		width = 365,
 		height = 90,
 	},
 	modalSettingsResetAction = {
-		label = 'Reset Action',
+		label = 'Reset',
 		modal = true,
 		settingsModal = true,
 		action = true,
-		actionIndex = 2,
 		selectable = true,
 
 		nav = {
@@ -487,13 +504,13 @@ ui = {
 		},
 
 		x = 510,
-		y = 730,
+		y = 850,
 		width = 365,
 		height = 90,
 	},
 	settingsMobileReadout = {
 		x = 80,
-		y = 900,
+		y = 1020,
 		width = 850,
 		height = 700,
 	},
