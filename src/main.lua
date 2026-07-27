@@ -333,9 +333,7 @@ function readoutCurrentScore()
 	end
 
 	-- if this is fat or ultimate toast, show the multiplier
-	if typeOfPlate < 1 then
-		scoreLabel = '0 points'
-	elseif (typeOfPlate > 1) then
+	if (typeOfPlate > 1) then
 		-- add "total to the end to clarify the score"
 		-- read out as "Fat Toast (+6), 13 points total"
 		scoreLabel = scoreLabel..' total'
