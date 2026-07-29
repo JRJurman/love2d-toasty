@@ -77,3 +77,11 @@ function playhighSFX()
 	highSource:setVolume(masterVolume * sfxVolume)
 	highSource:play()
 end
+
+local ripSound = love.sound.newSoundData('Assets/rip.wav')
+local ripSource = love.audio.newSource(ripSound)
+
+function playRipSFX()
+	ripSource:setVolume(masterVolume * sfxVolume)
+	ripSource:play()
+end

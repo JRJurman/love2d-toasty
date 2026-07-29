@@ -627,7 +627,7 @@ end
 function getReadoutFontSize(readoutSize)
 	local scale = -0.1255
 	local offset = 68
-	return math.max(35, scale*readoutSize + offset)
+	return math.max(32, scale*readoutSize + offset)
 end
 
 function love.load()
@@ -1669,9 +1669,9 @@ function love.keypressed(rawKey)
 			modalActive = false
 
 			animationText = 'removing '..cardDetails[drawPile[ui[selection].drawIndex]].label..' from deck'
+			playRipSFX()
 			wait(1.5 * animationScale * (1/userAnimationScale))
 
-			-- TODO rip card SFX
 			table.remove(drawPile, ui[selection].drawIndex)
 
 			updateSelectionAfterPlayOrDraw()
