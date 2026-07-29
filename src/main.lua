@@ -123,6 +123,10 @@ local swipeTimeThreshold = 0.5
 local tapRoutines = {}
 local singleTouchThreshold = 0.5
 
+-- for waitUntilInteraction, we need to keep track if there has been an interaction
+defaultAutoAdvance = false
+local interactionHold = { hasInteracted = false, autoAdvance = defaultAutoAdvance, waitForRepeating = false }
+
 gameSeed = nil
 waitingSeed = 0
 
@@ -165,7 +169,8 @@ function saveSettingsJSON()
 		musicVolume = musicVolume,
 		sfxVolume = sfxVolume,
 		userAnimationScale = userAnimationScale,
-		ttsEnabled = ttsEnabled
+		ttsEnabled = ttsEnabled,
+		autoAdvance = interactionHold.autoAdvance
 	})
 end
 
@@ -185,6 +190,11 @@ function loadSettingsJSON()
 				disableTTS()
 			end
 		end
+		if savedSettings.autoAdvance == nil then
+			interactionHold.autoAdvance = defaultAutoAdvance
+		else
+			interactionHold.autoAdvance = savedSettings.autoAdvance
+		end
 		updateMusicVolume()
 	end
 end
@@ -198,6 +208,7 @@ function resetSettings()
 	userAnimationScale = defaultUserAnimationScale
 	ttsEnabled = defaultTTSEnabled
 	enableTTS()
+	interactionHold.autoAdvance = defaultAutoAdvance
 	updateMusicVolume()
 end
 
@@ -293,9 +304,12 @@ function checkForNewHighestStack()
 	end
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
 		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients.'
+		if not interactionHold.autoAdvance then
+			animationText = animationText..' Press to continue.'
+		end
 		playhighSFX()
 		fattestStack = #currentPlate
-		wait(2.3 * animationScale * (1/userAnimationScale))
+		waitUntilInteraction(2.3 * animationScale * (1/userAnimationScale), interactionHold)
 	end
 end
 
@@ -350,7 +364,10 @@ function checkForSandwich()
 	if typeOfPlate == -1 then
 		playTossSFX()
 		animationText = 'You made a Sandwich, no points! Tossing Plate.'
-		wait(2.65 * animationScale * (1/userAnimationScale))
+		if not interactionHold.autoAdvance then
+			animationText = animationText..' Press to continue.'
+		end
+		waitUntilInteraction(2.65 * animationScale * (1/userAnimationScale), interactionHold)
 		tossPlateIntoDiscard()
 		completePlate()
 	end
@@ -627,7 +644,7 @@ end
 function getReadoutFontSize(readoutSize)
 	local scale = -0.1255
 	local offset = 68
-	return math.max(32, scale*readoutSize + offset)
+	return math.max(31.5, scale*readoutSize + offset)
 end
 
 function love.load()
@@ -759,7 +776,6 @@ function love.draw()
 	love.graphics.setFont(getFont(90))
 	local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 	love.graphics.printf(roundScore..'/'..roundGoal, ui.score.x + 10, ui.score.y + 15, ui.score.width - 20, 'center')
-	-- draw the number of discovered vs undiscovered in the round score
 	love.graphics.setFont(getFont(30))
 	love.graphics.printf('Fattest Stack: '..fattestStack..' ingredients', ui.score.x + 10, ui.score.y + 130, ui.score.width - 20, 'center')
 
@@ -914,6 +930,11 @@ function love.draw()
 		love.graphics.printf('Text to Speech', ui.settingsTTSCheckbox.x + ui.settingsModal.x + 5, ui.settingsTTSCheckbox.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
 		drawCheckbox(ttsCheckboxX, ttsCheckboxY + 10 + (ui.settingsCursorSlider.height / 2), ttsEnabled)
 
+		local autoAdvanceCheckboxX = ui.settingsAutoAdvanceCheckbox.x + ui.settingsModal.x + 10
+		local autoAdvanceCheckboxY = ui.settingsAutoAdvanceCheckbox.y + ui.settingsModal.y
+		love.graphics.printf('Auto Advance', ui.settingsAutoAdvanceCheckbox.x + ui.settingsModal.x + 5, ui.settingsAutoAdvanceCheckbox.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
+		drawCheckbox(autoAdvanceCheckboxX, autoAdvanceCheckboxY + 10 + (ui.settingsCursorSlider.height / 2), interactionHold.autoAdvance)
+
 		-- draw actions on the modal
 		love.graphics.setFont(getFont(60))
 		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
@@ -928,7 +949,7 @@ function love.draw()
 
 		-- draw mobile settings readout
 		if isTall then
-			love.graphics.setFont(getFont(50))
+			love.graphics.setFont(getFont(45))
 			love.graphics.printf(readoutText, ui.settingsMobileReadout.x + 15, ui.settingsMobileReadout.y, ui.settingsMobileReadout.width - 30, 'center')
 		end
 	end
@@ -1060,6 +1081,9 @@ function completePlate()
 		completingRound = true
 		local nextRoundGoal = math.floor(roundGoal * roundMultiplier)
 		animationText = 'Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Shift '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.'
+		if not interactionHold.autoAdvance then
+			animationText = animationText..' Press to continue.'
+		end
 		local waitTime = 4.65
 		if roundGoal > 9 then
 			waitTime = waitTime + 0.25
@@ -1097,7 +1121,7 @@ function completePlate()
 		drawSize = defaultDrawSize
 
 		-- based on how much time was already used, wait the remaining time to read the rest of the text
-		wait(waitTime * animationScale * (1/userAnimationScale))
+		waitUntilInteraction(waitTime * animationScale * (1/userAnimationScale), interactionHold)
 
 		if roundNumber == 6 then
 			startGameEndModal()
@@ -1384,6 +1408,10 @@ function getSelectionInstruction()
 		return 'Text to Speech checkbox, select to toggle text to speech engine - ignored if screen reader is detected. Currently '..(ttsEnabled and 'enabled' or 'disabled')
 	end
 
+	if selection == 'settingsAutoAdvanceCheckbox' then
+		return 'Auto Advance checkbox, select to toggle whether screens should advance automatically, or after an interaction. Currently '..(interactionHold.autoAdvance and 'enabled' or 'disabled')
+	end
+
 	if selection == 'modalSettingsSaveAction' then
 		return 'Save Settings and continue game'
 	end
@@ -1400,21 +1428,34 @@ function getSelectionInstruction()
 end
 
 function repeatText()
+	local previousAnimationText = animationText
 	animationText = 'repeating...'
 	if hasStarted then
 		repeating = true
 	end
 	wait(0.5 * animationScale * (1/userAnimationScale))
-	animationText = ''
+	animationText = previousAnimationText
 end
 
 function love.keypressed(rawKey)
 	-- DebuggingScreen.keypressed(rawKey)
 
-	print('rawKey: '..rawKey)
-
+	print('rawKey: "'..rawKey..'"')
 	key = remap(rawKey)
 	local navKey = getNavKey()
+
+	-- repeat text if r was pressed
+	if key == "r" then
+		async(routines, function()
+			repeatText()
+		end)
+	end
+
+	-- consider this an interaction to advance (unless they wanted to repeat the text)
+	if key ~= "r" then
+		print('interaction')
+		-- interactionHold.hasInteracted = true
+	end
 
 	-- if we are animating don't allow other actions
 	local isAnimating = #routines > 0
@@ -1565,10 +1606,14 @@ function love.keypressed(rawKey)
 				end
 				if playedCardDetails.onPlay.name == 'finish' then
 					local typeOfPlate = getTypeOfPlate(currentPlate)
+					local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 					if typeOfPlate > 0 then
-						animationText = 'Scoring Plate'
+						animationText = 'Scoring Plate, score is '..roundScore..' out of '..roundGoal..' needed.'
+						if not interactionHold.autoAdvance then
+							animationText = animationText..' Press to continue.'
+						end
 						playStackSFX()
-						wait(1 * animationScale * (1/userAnimationScale))
+						waitUntilInteraction(2.5 * animationScale * (1/userAnimationScale), interactionHold)
 						completePlate()
 
 						-- if we completed a plate with a 'finish' ability, we need
@@ -1772,16 +1817,28 @@ function love.keypressed(rawKey)
 		end)
 	end
 
-	-- if we are selecting a checkbox toggle
+	-- if we are selecting the tts checkbox toggle
 	if key == 'select' and selection == 'settingsTTSCheckbox' then
 		if ttsEnabled then
 			ttsEnabled = false
 			selectionText = 'Text to speech disabled'
+			wait(1 * animationScale * (1/userAnimationScale))
 			disableTTS()
 		else
 			ttsEnabled = true
 			selectionText = 'Text to speech enabled'
 			enableTTS()
+		end
+	end
+
+	-- if we are selecting the auto-advance checkbox toggle
+	if key == 'select' and selection == 'settingsAutoAdvanceCheckbox' then
+		if interactionHold.autoAdvance then
+			interactionHold.autoAdvance = false
+			selectionText = 'Auto Advanced disabled'
+		else
+			interactionHold.autoAdvance = true
+			selectionText = 'Auto Advanced enabled'
 		end
 	end
 
@@ -1791,10 +1848,14 @@ function love.keypressed(rawKey)
 			if selection == 'actionDraw' then
 				drawThree()
 			end
+			local roundScore = getScoreForPlate(currentPlate) + getScoreForCompletedPlates()
 			if selection == 'actionNewPlate' then
-				animationText = 'Scoring Plate'
+				animationText = 'Scoring Plate, score is '..roundScore..' out of '..roundGoal..' needed.'
+				if not interactionHold.autoAdvance then
+					animationText = animationText..' Press to continue.'
+				end
 				playStackSFX()
-				wait(1 * animationScale * (1/userAnimationScale))
+				waitUntilInteraction(2.5 * animationScale * (1/userAnimationScale), interactionHold)
 
 				completePlate()
 				if not modalActive then
@@ -1808,13 +1869,6 @@ function love.keypressed(rawKey)
 	if key == 'select' and ui[selection].settingsControl then
 		async(routines, function()
 			startSettingsModal()
-		end)
-	end
-
-	-- repeat text if r was pressed
-	if key == "r" then
-		async(routines, function()
-			repeatText()
 		end)
 	end
 
@@ -1936,6 +1990,7 @@ end
 
 function love.mousereleased(x, y, button, istouch, presses)
 	isTouching = false
+	interactionHold.hasInteracted = true
 
 	-- if we had started a countdown for a single tap, kill it now
 	stopAnimations(tapRoutines)

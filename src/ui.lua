@@ -480,12 +480,31 @@ ui = {
 		nav = {
 			withSettingsModal = {
 				up = 'settingsCursorSlider',
-				down = 'modalSettingsSaveAction',
+				down = 'settingsAutoAdvanceCheckbox',
 			},
 		},
 
 		x = 90,
 		y = 810,
+		width = 700,
+		height = 100,
+	},
+	settingsAutoAdvanceCheckbox = {
+		label = 'Auto Advance Checkbox',
+		modal = true,
+		settingsModal = true,
+		selectable = true,
+		slider = false,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsTTSCheckbox',
+				down = 'modalSettingsSaveAction',
+			},
+		},
+
+		x = 90,
+		y = 910,
 		width = 700,
 		height = 100,
 	},
@@ -498,13 +517,13 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				up = 'settingsTTSCheckbox',
+				up = 'settingsAutoAdvanceCheckbox',
 				right = 'modalSettingsResetAction',
 			},
 		},
 
 		x = 90,
-		y = 950,
+		y = 1050,
 		width = 365,
 		height = 90,
 	},
@@ -517,21 +536,21 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				up = 'settingsCursorSlider',
+				up = 'settingsAutoAdvanceCheckbox',
 				left = 'modalSettingsSaveAction',
 			},
 		},
 
 		x = 510,
-		y = 950,
+		y = 1050,
 		width = 365,
 		height = 90,
 	},
 	settingsMobileReadout = {
 		x = 70,
-		y = 1060,
+		y = 1160,
 		width = 870,
-		height = 700,
+		height = 600,
 	},
 	chef = {
 		x = 1360,

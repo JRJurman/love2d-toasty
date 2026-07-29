@@ -17,6 +17,20 @@ function wait(seconds)
 	end
 end
 
+-- helper function to pause between animations until a click occurs
+function waitUntilInteraction(seconds, interactionHold)
+	interactionHold.hasInteracted = false
+
+	-- if we disable interaction holds, wait the normal time
+	if interactionHold.autoAdvance then
+		return wait(seconds)
+	end
+
+	while not interactionHold.hasInteracted do
+		coroutine.yield()
+	end
+end
+
 -- helper function to change a property on an object over time
 function animate(obj, key, value, duration, easing)
 	duration = duration or 0.5
