@@ -23,11 +23,15 @@ function waitUntilInteraction(seconds, interactionHold)
 
 	-- if we disable interaction holds, wait the normal time
 	if interactionHold.autoAdvance then
-		return wait(seconds)
-	end
-
-	while not interactionHold.hasInteracted do
-		coroutine.yield()
+		local elapsed = 0
+		while elapsed < seconds and not interactionHold.hasInteracted do
+			local dt = coroutine.yield()
+			elapsed = elapsed + (dt or 0)
+		end
+	else
+		while not interactionHold.hasInteracted do
+			coroutine.yield()
+		end
 	end
 end
 
