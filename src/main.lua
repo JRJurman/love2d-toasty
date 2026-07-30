@@ -142,6 +142,8 @@ defaultUserAnimationScale = 1
 userAnimationScale = defaultUserAnimationScale
 defaultTTSEnabled = true
 ttsEnabled = defaultTTSEnabled
+defaultSingleTapEnabled = false
+singleTapEnabled = defaultSingleTapEnabled
 
 local defaultDrawSize = 3
 local drawSize = defaultDrawSize
@@ -170,7 +172,8 @@ function saveSettingsJSON()
 		sfxVolume = sfxVolume,
 		userAnimationScale = userAnimationScale,
 		ttsEnabled = ttsEnabled,
-		autoAdvance = interactionHold.autoAdvance
+		autoAdvance = interactionHold.autoAdvance,
+		singleTapEnabled = singleTapEnabled,
 	})
 end
 
@@ -194,6 +197,11 @@ function loadSettingsJSON()
 			interactionHold.autoAdvance = defaultAutoAdvance
 		else
 			interactionHold.autoAdvance = savedSettings.autoAdvance
+		end
+		if singleTapEnabled == nil then
+			singleTapEnabled = defaultSingleTapEnabled
+		else
+			singleTapEnabled = savedSettings.singleTapEnabled
 		end
 		updateMusicVolume()
 	end
@@ -935,6 +943,11 @@ function love.draw()
 		love.graphics.printf('Auto Advance', autoAdvanceCheckboxX, autoAdvanceCheckboxY, ui.settingsCursorSlider.width, 'left')
 		drawCheckbox(autoAdvanceCheckboxX + 380, autoAdvanceCheckboxY + (ui.settingsCursorSlider.height / 2) - 5, interactionHold.autoAdvance)
 
+		local singleTapCheckboxX = ui.settingsSingleTapCheckbox.x + ui.settingsModal.x + 10
+		local singleTapCheckboxY = ui.settingsSingleTapCheckbox.y + ui.settingsModal.y
+		love.graphics.printf('Single Tap', singleTapCheckboxX, singleTapCheckboxY, ui.settingsCursorSlider.width, 'left')
+		drawCheckbox(singleTapCheckboxX + 380, singleTapCheckboxY + (ui.settingsCursorSlider.height / 2) - 5, singleTapEnabled)
+
 		-- draw actions on the modal
 		love.graphics.setFont(getFont(60))
 		local actionX = ui.settingsModal.x + ui.modalSettingsSaveAction.x
@@ -1412,6 +1425,10 @@ function getSelectionInstruction()
 		return 'Auto Advance checkbox, select to toggle whether screens should advance automatically, or after an interaction. Currently '..(interactionHold.autoAdvance and 'enabled' or 'disabled')
 	end
 
+	if selection == 'settingsSingleTapCheckbox' then
+		return 'Single Tap checkbox, select to toggle single tap support on touch devices. Currently '..(singleTapEnabled and 'enabled' or 'disabled')
+	end
+
 	if selection == 'modalSettingsSaveAction' then
 		return 'Save Settings and continue game'
 	end
@@ -1845,6 +1862,17 @@ function love.keypressed(rawKey)
 		end
 	end
 
+	-- if we are selecting the single-tap checkbox toggle
+	if key == 'select' and selection == 'settingsSingleTapCheckbox' then
+		if singleTapEnabled then
+			singleTapEnabled = false
+			selectionText = 'Single Tap disabled'
+		else
+			singleTapEnabled = true
+			selectionText = 'Single Tap enabled'
+		end
+	end
+
 	-- non-modal action selection
 	if key == 'select' and ui[selection].action then
 		async(routines, function()
@@ -1941,9 +1969,6 @@ function selectElementAt(x, y)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-	-- if we had started a countdown for a single tap, kill it now
-	stopAnimations(tapRoutines)
-
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
 		return
@@ -1976,9 +2001,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-	-- if we had started a countdown for a single tap, kill it now
-	stopAnimations(tapRoutines)
-
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
 		return
@@ -1994,9 +2016,6 @@ end
 function love.mousereleased(x, y, button, istouch, presses)
 	isTouching = false
 	interactionHold.hasInteracted = true
-
-	-- if we had started a countdown for a single tap, kill it now
-	stopAnimations(tapRoutines)
 
 	x, y = push:toGame(x, y)
 	if (x == nil or y == nil) then
@@ -2061,21 +2080,13 @@ function love.mousereleased(x, y, button, istouch, presses)
 	end
 
 	-- if this is a single tap, and they are selecting an element
-	-- start a counter to track if this was only a single tap
-	if istouch and isTap and presses == 1 then
+	-- select the element (only if singleTap is enabled)
+	if istouch and isTap and presses == 1 and singleTapEnabled then
 		-- check if there is an element under the tapped selection
 		tappedSelection = getElementAt(x, y)
 
 		if tappedSelection then
 			async(tapRoutines, function()
-				local elapsed = 0
-
-				while elapsed < singleTouchThreshold do
-					local dt = coroutine.yield()
-					elapsed = elapsed + (dt or 0)
-				end
-
-				-- if we haven't killed this routine, select this element
 				selectElementAt(x, y)
 				wait(0.05)
 				love.keypressed('select')

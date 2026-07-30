@@ -499,12 +499,31 @@ ui = {
 		nav = {
 			withSettingsModal = {
 				up = 'settingsTTSCheckbox',
-				down = 'modalSettingsSaveAction',
+				down = 'settingsSingleTapCheckbox',
 			},
 		},
 
 		x = 70,
 		y = 790,
+		width = 480,
+		height = 60,
+	},
+	settingsSingleTapCheckbox = {
+		label = 'Single Tap Checkbox',
+		modal = true,
+		settingsModal = true,
+		selectable = true,
+		slider = false,
+
+		nav = {
+			withSettingsModal = {
+				up = 'settingsAutoAdvanceCheckbox',
+				down = 'modalSettingsSaveAction',
+			},
+		},
+
+		x = 70,
+		y = 870,
 		width = 480,
 		height = 60,
 	},
@@ -517,13 +536,13 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				up = 'settingsAutoAdvanceCheckbox',
+				up = 'settingsSingleTapCheckbox',
 				right = 'modalSettingsResetAction',
 			},
 		},
 
 		x = 90,
-		y = 870,
+		y = 960,
 		width = 365,
 		height = 90,
 	},
@@ -536,19 +555,19 @@ ui = {
 
 		nav = {
 			withSettingsModal = {
-				up = 'settingsAutoAdvanceCheckbox',
+				up = 'settingsSingleTapCheckbox',
 				left = 'modalSettingsSaveAction',
 			},
 		},
 
 		x = 510,
-		y = 870,
+		y = 960,
 		width = 365,
 		height = 90,
 	},
 	settingsMobileReadout = {
 		x = 70,
-		y = 1000,
+		y = 1100,
 		width = 870,
 		height = 800,
 	},
