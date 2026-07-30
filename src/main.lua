@@ -163,6 +163,24 @@ local drawAnimationSpeed = 1
 
 local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false, cardValue = nil }
 
+local touchDetected = false
+local keyboardDetected = false
+local mouseDetected = false
+
+function navigationWord()
+	if touchDetected then
+		return 'Swipe'
+	end
+	return 'Press'
+end
+
+function holdMessage()
+	if touchDetected then
+		return ' Single Tap anywhere to continue.'
+	end
+	return ' Press any key to continue.'
+end
+
 local settingsFileName = 'settings.v1.json'
 function saveSettingsJSON()
 	saveGameData(settingsFileName, {
@@ -313,7 +331,7 @@ function checkForNewHighestStack()
 	if #currentPlate > fattestStack and typeOfPlate > 1 then
 		animationText = 'New Fattest Stack reached '..#currentPlate..' ingredients.'
 		if not interactionHold.autoAdvance then
-			animationText = animationText..' Press to continue.'
+			animationText = animationText..holdMessage()
 		end
 		playhighSFX()
 		fattestStack = #currentPlate
@@ -373,7 +391,7 @@ function checkForSandwich()
 		playTossSFX()
 		animationText = 'You made a Sandwich, no points! Tossing Plate.'
 		if not interactionHold.autoAdvance then
-			animationText = animationText..' Press to continue.'
+			animationText = animationText..holdMessage()
 		end
 		waitUntilInteraction(2.65 * animationScale * (1/userAnimationScale), interactionHold)
 		tossPlateIntoDiscard()
@@ -1095,7 +1113,7 @@ function completePlate()
 		local nextRoundGoal = math.floor(roundGoal * roundMultiplier)
 		animationText = 'Current Score is '..completedPlatesScore..' out of '..roundGoal..' needed. Shift '..roundNumber..' Completed. Your new goal is '..nextRoundGoal..' points.'
 		if not interactionHold.autoAdvance then
-			animationText = animationText..' Press to continue.'
+			animationText = animationText..holdMessage()
 		end
 		local waitTime = 4.65
 		if roundGoal > 9 then
@@ -1328,7 +1346,7 @@ function getSelectionInstruction()
 			end
 			if hasStarted and #modalActions > 1 and hasSeenModalActionInstructions == false then
 				hasSeenModalActionInstructions = true
-				firstModalInstructions = 'Press right to see other option.'
+				firstModalInstructions = navigationWord()..' right to see other option.'
 			end
 			return totalActionsLabel..selectedAction.actionDescription..' '..firstModalInstructions
 		end
@@ -1378,7 +1396,7 @@ function getSelectionInstruction()
 		local firstHandInstructions = ''
 		if hasSeenHandActionInstructions == false then
 			hasSeenHandActionInstructions = true
-			firstHandInstructions = 'Press right to see other action.'
+			firstHandInstructions = navigationWord()..' right to see other action.'
 		end
 
 		return 'Two actions, First action: Draw, Select to draw '..drawSize..' new cards. '..drawPileText..' '..firstHandInstructions
@@ -1394,27 +1412,33 @@ function getSelectionInstruction()
 	end
 
 	if selection == 'modalSettingsControlReview' then
-		return 'Controls: on mobile you can change the current selection by swiping up, down, left, or right. Double tap to select the current option. Press and hold on the screen anywhere to explore by touch. On desktop use arrow keys or W A S D to navigate. Press x, space, return or enter to select an option, press r to repeat any text. On mobile and desktop you can also single tap or click directly on an element to select it.'
+		local controlsText = 'Controls: '
+		if touchDetected then
+			controlsText = controlsText..'Change the current selection by swiping up, down, left, or right. Double tap to select the current option. Press and hold on the screen anywhere to explore by touch. Enable single tap below to single tap an option directly. '
+		else
+			controlsText = controlsText..'Change the current selection by using arrow keys or W A S D. Press x, space, return or enter to select the current option. Press R to repeat any text. '
+		end
+		return controlsText
 	end
 
 	if selection == 'settingsMasterSlider' then
-		return 'Master Volume Slider, press left to decrease, right to increase, down to see other settings, up for controls and restart game option. Current value is '..(math.floor(masterVolume * 100))..'%'
+		return 'Master Volume Slider, '..navigationWord()..' left to decrease, right to increase, down to see other settings, up for controls and restart game option. Current value is '..(math.floor(masterVolume * 100))..'%'
 	end
 
 	if selection == 'settingsMusicSlider' then
-		return 'Music Volume Slider, press left to decrease, right to increase. Current value is '..(math.floor(musicVolume * 100))..'%'
+		return 'Music Volume Slider, '..navigationWord()..' left to decrease, right to increase. Current value is '..(math.floor(musicVolume * 100))..'%'
 	end
 
 	if selection == 'settingsSFXSlider' then
-		return 'Sound Volume Slider, press left to decrease, right to increase. Current value is '..(math.floor(sfxVolume * 100))..'%'
+		return 'Sound Volume Slider, '..navigationWord()..' left to decrease, right to increase. Current value is '..(math.floor(sfxVolume * 100))..'%'
 	end
 
 	if selection == 'settingsAnimationSlider' then
-		return 'Animation Speed Slider, press left to slow down, right to speed up. Current value is '..userAnimationScale
+		return 'Animation Speed Slider, '..navigationWord()..' left to slow down, right to speed up. Current value is '..userAnimationScale
 	end
 
 	if selection == 'settingsCursorSlider' then
-		return 'Cursor Hue Slider, press left and right to change cursor hue color. Current value is '..hueToColor(cursorHue)
+		return 'Cursor Hue Slider, '..navigationWord()..' left and right to change cursor hue color. Current value is '..hueToColor(cursorHue)
 	end
 
 	if selection == 'settingsTTSCheckbox' then
@@ -1454,10 +1478,16 @@ function repeatText()
 	animationText = previousAnimationText
 end
 
-function love.keypressed(rawKey)
+function love.keypressed(rawKey, scancode)
 	-- DebuggingScreen.keypressed(rawKey)
+	print('rawKey: '..rawKey)
 
-	print('rawKey:'..rawKey)
+	-- if there is a scancode, this is a real keyboard press (not a redirect)
+	-- mark that a keyboard was detected
+	if scancode then
+		keyboardDetected = true
+	end
+
 	key = remap(rawKey)
 	local navKey = getNavKey()
 
@@ -1626,7 +1656,7 @@ function love.keypressed(rawKey)
 					if typeOfPlate > 0 then
 						animationText = 'Scoring Plate, score is '..roundScore..' out of '..roundGoal..' needed.'
 						if not interactionHold.autoAdvance then
-							animationText = animationText..' Press to continue.'
+							animationText = animationText..holdMessage()
 						end
 						playStackSFX()
 						waitUntilInteraction(2.5 * animationScale * (1/userAnimationScale), interactionHold)
@@ -1883,7 +1913,7 @@ function love.keypressed(rawKey)
 			if selection == 'actionNewPlate' then
 				animationText = 'Scoring Plate, score is '..roundScore..' out of '..roundGoal..' needed.'
 				if not interactionHold.autoAdvance then
-					animationText = animationText..' Press to continue.'
+					animationText = animationText..holdMessage()
 				end
 				playStackSFX()
 				waitUntilInteraction(2.5 * animationScale * (1/userAnimationScale), interactionHold)
@@ -2007,7 +2037,12 @@ function love.mousepressed(x, y, button, istouch, presses)
 	end
 
 	if istouch then
+		touchDetected = true
 		startTouch(x, y)
+	end
+
+	if not istouch then
+		mouseDetected = true
 	end
 
 	-- DebuggingScreen.mousepressed(x, y)

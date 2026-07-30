@@ -7,11 +7,11 @@ actionDetails = {
 		modalSubtitle = "a push-your-luck deck builder",
 		label = "Start",
 		initialModalDescription = "Chef, start plates with bread and then make fat stacks of ingredients on top. You must never make a sandwich though, chef, sandwiches are forbidden. Make it through 5 shifts.",
-		actionDescription = "Select to start the game, press or swipe right for settings option.",
+		actionDescription = "Double Tap or Press Enter to start the game, press or swipe right for settings option.",
 	},
 	settings = {
 		label = "Settings",
-		actionDescription = "Select to change settings and review controls. Also available by pressing escape or selecting the bottom right option during the game.",
+		actionDescription = "Double Tap or Press Enter to change settings and review controls. Also available by pressing escape or selecting the bottom right option during the game.",
 	},
 	restart = {
 		modalTitle = "Game Over!",
