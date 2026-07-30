@@ -944,7 +944,7 @@ function love.draw()
 		local animationX = ui.settingsAnimationSlider.x + ui.settingsModal.x + 10
 		local animationY = ui.settingsAnimationSlider.y + ui.settingsModal.y
 		love.graphics.printf('Animation Speed', animationX, animationY, ui.settingsAnimationSlider.width, 'left')
-		drawSlider(animationX + 400, animationY + (ui.settingsAnimationSlider.height / 2) - 5, ui.settingsAnimationSlider.width - 420, userAnimationScale, 0.25, 4)
+		drawSlider(animationX + 400, animationY + (ui.settingsAnimationSlider.height / 2) - 5, ui.settingsAnimationSlider.width - 420, userAnimationScale, 0, 2.5)
 
 		local cursorHueX = ui.settingsCursorSlider.x + ui.settingsModal.x + 10
 		local cursorHueY = ui.settingsCursorSlider.y + ui.settingsModal.y
@@ -1086,14 +1086,17 @@ function startNextRoundModal()
 	modalActions = {'add', 'skip'}
 	-- make sure each number is unique by starting at a random number, and showing the next one
 	modalCards = {}
-	if roundNumber ~= 2 and roundNumber ~= 6 then
-		local commonCardReward = math.random(commonCardRewardsStart, commonCardRewardsEnd)
-		local uncommonCardReward = math.random(uncommonCardRewardsStart, uncommonCardRewardsEnd)
-		modalCards = { commonCardReward, uncommonCardReward }
-	else
+
+	-- always rare cards for round 2 and round 6
+	if roundNumber == 2 or roundNumber == 6 then
 		local firstRareCardReward = math.random(rareCardRewardsStart, rareCardRewardsEnd - 1)
 		local secondRareCardReward = firstRareCardReward + 1
 		modalCards = { firstRareCardReward, secondRareCardReward }
+	else
+		-- common, and then either an uncommon or rare card
+		local commonCardReward = math.random(commonCardRewardsStart, commonCardRewardsEnd)
+		local uncommonOrRareCardReward = math.random(uncommonCardRewardsStart, rareCardRewardsEnd)
+		modalCards = { commonCardReward, uncommonOrRareCardReward }
 	end
 	startModal()
 
@@ -1551,9 +1554,9 @@ function love.keypressed(rawKey, scancode)
 			selectionText = (math.floor(sfxVolume * 100))..'%'
 		end
 		if selection == 'settingsAnimationSlider' then
-			local delta = (key == 'left' and -.5) or .5
+			local delta = (key == 'left' and -.25) or .25
 			userAnimationScale = userAnimationScale + delta
-			userAnimationScale = math.min(math.max(userAnimationScale, 0.5), 4)
+			userAnimationScale = math.min(math.max(userAnimationScale, 0.5), 2)
 			selectionText = tostring(userAnimationScale)
 		end
 		if selection == 'settingsCursorSlider' then
