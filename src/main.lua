@@ -899,41 +899,41 @@ function love.draw()
 		love.graphics.printf(ui.modalSettingsControlReview.label, actionX, actionY, ui.modalSettingsControlReview.width, 'center')
 
 		-- draw the settings
-		love.graphics.setFont(getFont(30))
+		love.graphics.setFont(getFont(45))
 		local masterX = ui.settingsMasterSlider.x + ui.settingsModal.x + 10
 		local masterY = ui.settingsMasterSlider.y + ui.settingsModal.y
 		love.graphics.printf('Master Volume', masterX, masterY, ui.settingsMasterSlider.width, 'left')
-		drawSlider(masterX, masterY + 10 + (ui.settingsMasterSlider.height / 2), ui.settingsMasterSlider.width - 20, masterVolume, 0, 1)
+		drawSlider(masterX + 340, masterY + (ui.settingsMasterSlider.height / 2) - 5, ui.settingsMasterSlider.width - 360, masterVolume, 0, 1)
 
 		local musicX = ui.settingsMusicSlider.x + ui.settingsModal.x + 10
 		local musicY = ui.settingsMusicSlider.y + ui.settingsModal.y
-		love.graphics.printf('Music Volume', ui.settingsMusicSlider.x + ui.settingsModal.x + 5, ui.settingsMusicSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(musicX, musicY + 10 + (ui.settingsMusicSlider.height / 2), ui.settingsMusicSlider.width - 20, musicVolume, 0, 1)
+		love.graphics.printf('Music Volume', musicX, musicY, ui.settingsMusicSlider.width, 'left')
+		drawSlider(musicX + 340, musicY + (ui.settingsMusicSlider.height / 2) - 5, ui.settingsMusicSlider.width - 360, musicVolume, 0, 1)
 
 		local sfxX = ui.settingsSFXSlider.x + ui.settingsModal.x + 10
 		local sfxY = ui.settingsSFXSlider.y + ui.settingsModal.y
-		love.graphics.printf('Sound Volume', ui.settingsSFXSlider.x + ui.settingsModal.x + 5, ui.settingsSFXSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(sfxX, sfxY + 10 + (ui.settingsSFXSlider.height / 2), ui.settingsSFXSlider.width - 20, sfxVolume, 0, 1)
+		love.graphics.printf('Sound Volume', sfxX, sfxY, ui.settingsSFXSlider.width, 'left')
+		drawSlider(sfxX + 340, sfxY + (ui.settingsSFXSlider.height / 2) - 5, ui.settingsSFXSlider.width - 360, sfxVolume, 0, 1)
 
 		local animationX = ui.settingsAnimationSlider.x + ui.settingsModal.x + 10
 		local animationY = ui.settingsAnimationSlider.y + ui.settingsModal.y
-		love.graphics.printf('Animation Speed', ui.settingsAnimationSlider.x + ui.settingsModal.x + 5, ui.settingsAnimationSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(animationX, animationY + 10 + (ui.settingsAnimationSlider.height / 2), ui.settingsAnimationSlider.width - 20, userAnimationScale, 0.25, 4)
+		love.graphics.printf('Animation Speed', animationX, animationY, ui.settingsAnimationSlider.width, 'left')
+		drawSlider(animationX + 400, animationY + (ui.settingsAnimationSlider.height / 2) - 5, ui.settingsAnimationSlider.width - 420, userAnimationScale, 0.25, 4)
 
 		local cursorHueX = ui.settingsCursorSlider.x + ui.settingsModal.x + 10
 		local cursorHueY = ui.settingsCursorSlider.y + ui.settingsModal.y
-		love.graphics.printf('Cursor Hue', ui.settingsCursorSlider.x + ui.settingsModal.x + 5, ui.settingsCursorSlider.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawSlider(cursorHueX, cursorHueY + 10 + (ui.settingsCursorSlider.height / 2), ui.settingsCursorSlider.width - 20, cursorHue, 0, 1)
+		love.graphics.printf('Cursor Hue', cursorHueX, cursorHueY, ui.settingsCursorSlider.width, 'left')
+		drawSlider(cursorHueX + 400, cursorHueY + (ui.settingsCursorSlider.height / 2) - 5, ui.settingsCursorSlider.width - 420, cursorHue, 0, 1)
 
 		local ttsCheckboxX = ui.settingsTTSCheckbox.x + ui.settingsModal.x + 10
 		local ttsCheckboxY = ui.settingsTTSCheckbox.y + ui.settingsModal.y
-		love.graphics.printf('Text to Speech', ui.settingsTTSCheckbox.x + ui.settingsModal.x + 5, ui.settingsTTSCheckbox.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawCheckbox(ttsCheckboxX, ttsCheckboxY + 10 + (ui.settingsCursorSlider.height / 2), ttsEnabled)
+		love.graphics.printf('Text to Speech', ttsCheckboxX, ttsCheckboxY, ui.settingsCursorSlider.width, 'left')
+		drawCheckbox(ttsCheckboxX + 380, ttsCheckboxY + (ui.settingsCursorSlider.height / 2) - 5, ttsEnabled)
 
 		local autoAdvanceCheckboxX = ui.settingsAutoAdvanceCheckbox.x + ui.settingsModal.x + 10
 		local autoAdvanceCheckboxY = ui.settingsAutoAdvanceCheckbox.y + ui.settingsModal.y
-		love.graphics.printf('Auto Advance', ui.settingsAutoAdvanceCheckbox.x + ui.settingsModal.x + 5, ui.settingsAutoAdvanceCheckbox.y + ui.settingsModal.y, ui.settingsModal.width - 20, 'left')
-		drawCheckbox(autoAdvanceCheckboxX, autoAdvanceCheckboxY + 10 + (ui.settingsCursorSlider.height / 2), interactionHold.autoAdvance)
+		love.graphics.printf('Auto Advance', autoAdvanceCheckboxX, autoAdvanceCheckboxY, ui.settingsCursorSlider.width, 'left')
+		drawCheckbox(autoAdvanceCheckboxX + 380, autoAdvanceCheckboxY + (ui.settingsCursorSlider.height / 2) - 5, interactionHold.autoAdvance)
 
 		-- draw actions on the modal
 		love.graphics.setFont(getFont(60))
@@ -1440,7 +1440,7 @@ end
 function love.keypressed(rawKey)
 	-- DebuggingScreen.keypressed(rawKey)
 
-	print('rawKey: "'..rawKey..'"')
+	print('rawKey:'..rawKey)
 	key = remap(rawKey)
 	local navKey = getNavKey()
 
@@ -1453,8 +1453,7 @@ function love.keypressed(rawKey)
 
 	-- consider this an interaction to advance (unless they wanted to repeat the text)
 	if key ~= "r" then
-		print('interaction')
-		-- interactionHold.hasInteracted = true
+		interactionHold.hasInteracted = true
 	end
 
 	-- if we are animating don't allow other actions
@@ -1819,16 +1818,20 @@ function love.keypressed(rawKey)
 
 	-- if we are selecting the tts checkbox toggle
 	if key == 'select' and selection == 'settingsTTSCheckbox' then
-		if ttsEnabled then
-			ttsEnabled = false
-			selectionText = 'Text to speech disabled'
-			wait(1 * animationScale * (1/userAnimationScale))
-			disableTTS()
-		else
-			ttsEnabled = true
-			selectionText = 'Text to speech enabled'
-			enableTTS()
-		end
+		async(routines, function()
+			if ttsEnabled then
+				ttsEnabled = false
+				-- animate and wait, so that the TTS can read that it has been disabled
+				animationText = 'Text to speech disabled'
+				selectionText = 'Text to speech disabled'
+				wait(1 * animationScale * (1/userAnimationScale))
+				disableTTS()
+			else
+				ttsEnabled = true
+				selectionText = 'Text to speech enabled'
+				enableTTS()
+			end
+		end)
 	end
 
 	-- if we are selecting the auto-advance checkbox toggle

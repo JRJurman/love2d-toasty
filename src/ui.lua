@@ -389,10 +389,10 @@ ui = {
 			},
 		},
 
-		x = 90,
+		x = 70,
 		y = 310,
-		width = 700,
-		height = 100,
+		width = 880,
+		height = 60,
 	},
 	settingsMusicSlider = {
 		label = 'Music Audio Slider',
@@ -408,10 +408,10 @@ ui = {
 			},
 		},
 
-		x = 90,
-		y = 410,
-		width = 700,
-		height = 100,
+		x = 70,
+		y = 390,
+		width = 880,
+		height = 60,
 	},
 	settingsSFXSlider = {
 		label = 'Sound Audio Slider',
@@ -427,10 +427,10 @@ ui = {
 			},
 		},
 
-		x = 90,
-		y = 510,
-		width = 700,
-		height = 100,
+		x = 70,
+		y = 470,
+		width = 880,
+		height = 60,
 	},
 	settingsAnimationSlider = {
 		label = 'Animation Speed Slider',
@@ -446,10 +446,10 @@ ui = {
 			},
 		},
 
-		x = 90,
-		y = 610,
-		width = 700,
-		height = 100,
+		x = 70,
+		y = 550,
+		width = 880,
+		height = 60,
 	},
 	settingsCursorSlider = {
 		label = 'Cursor Hue Slider',
@@ -465,10 +465,10 @@ ui = {
 			},
 		},
 
-		x = 90,
-		y = 710,
-		width = 700,
-		height = 100,
+		x = 70,
+		y = 630,
+		width = 880,
+		height = 60,
 	},
 	settingsTTSCheckbox = {
 		label = 'Text to Speech Checkbox',
@@ -484,10 +484,10 @@ ui = {
 			},
 		},
 
-		x = 90,
-		y = 810,
-		width = 700,
-		height = 100,
+		x = 70,
+		y = 710,
+		width = 480,
+		height = 60,
 	},
 	settingsAutoAdvanceCheckbox = {
 		label = 'Auto Advance Checkbox',
@@ -503,10 +503,10 @@ ui = {
 			},
 		},
 
-		x = 90,
-		y = 910,
-		width = 700,
-		height = 100,
+		x = 70,
+		y = 790,
+		width = 480,
+		height = 60,
 	},
 	modalSettingsSaveAction = {
 		label = 'Save',
@@ -523,7 +523,7 @@ ui = {
 		},
 
 		x = 90,
-		y = 1050,
+		y = 870,
 		width = 365,
 		height = 90,
 	},
@@ -542,15 +542,15 @@ ui = {
 		},
 
 		x = 510,
-		y = 1050,
+		y = 870,
 		width = 365,
 		height = 90,
 	},
 	settingsMobileReadout = {
 		x = 70,
-		y = 1160,
+		y = 1000,
 		width = 870,
-		height = 600,
+		height = 800,
 	},
 	chef = {
 		x = 1360,
