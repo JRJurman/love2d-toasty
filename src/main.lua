@@ -2077,7 +2077,11 @@ function love.mousereleased(x, y, button, istouch, presses)
 	if not istouch then
 		clickedElement = getElementAt(x, y)
 		if clickedElement then
-			handleInput('select')
+			async(tapRoutines, function()
+				selectElementAt(x, y)
+				wait(0.05)
+				handleInput('select')
+			end)
 		end
 	end
 
