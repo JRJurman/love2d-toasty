@@ -182,7 +182,12 @@ end
 
 function holdMessage()
 	if touchDetected then
-		return ' Single Tap anywhere to continue.'
+		-- if single tap is enabled, we don't need to say single tap here
+		if singleTapEnabled then
+			return ' Tap anywhere to continue.'
+		else
+			return ' Single Tap anywhere to continue.'
+		end
 	end
 	if gamepadDetected then
 		return ' Press any button to continue.'
@@ -1435,9 +1440,9 @@ function getSelectionInstruction()
 		if touchDetected then
 			controlsText = controlsText..'Change the current selection by swiping up, down, left, or right. Double tap to select the current option. Press and hold on the screen anywhere to explore by touch. Enable single tap below to single tap an option directly. '
 		elseif gamepadDetected then
-			controlsText = controlsText..'Change the current selection by using the joystick or d-pad. Press any face button to select the current option. Press any bumper to repeat any text.'
+			controlsText = controlsText..'Change the current selection by using the joystick or d-pad. Press any face button to select the current option. Press any bumper to repeat any text. Press back to open settings.'
 		else
-			controlsText = controlsText..'Change the current selection by using arrow keys or W A S D. Press x, space, return or enter to select the current option. Press R to repeat any text. '
+			controlsText = controlsText..'Change the current selection by using arrow keys or W A S D. Press x, space, return or enter to select the current option. Press R to repeat any text. Press escape to open settings.'
 		end
 		return controlsText
 	end
