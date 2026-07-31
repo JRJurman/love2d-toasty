@@ -60,6 +60,11 @@ local uncommonCardRewardsEnd = 18
 local rareCardRewardsStart = 19
 local rareCardRewardsEnd = 22
 
+-- 2 is uncommon, 3 is rare
+local secondCardRarities = {
+	2, 2, 2, 2, 2, 3, 3,
+}
+
 local drawPile = {}
 
 local discardPile = {}
@@ -1095,8 +1100,12 @@ function startNextRoundModal()
 	else
 		-- common, and then either an uncommon or rare card
 		local commonCardReward = math.random(commonCardRewardsStart, commonCardRewardsEnd)
-		local uncommonOrRareCardReward = math.random(uncommonCardRewardsStart, rareCardRewardsEnd)
-		modalCards = { commonCardReward, uncommonOrRareCardReward }
+		local secondCardRarity = secondCardRarities[math.random(#secondCardRarities)]
+		local secondCardReward = math.random(uncommonCardRewardsStart, uncommonCardRewardsEnd)
+		if secondCardRarity == 3 then
+			secondCardReward = math.random(rareCardRewardsStart, rareCardRewardsEnd)
+		end
+		modalCards = { commonCardReward, secondCardReward }
 	end
 	startModal()
 
