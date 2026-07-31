@@ -62,7 +62,7 @@ local rareCardRewardsEnd = 22
 
 -- 2 is uncommon, 3 is rare
 local secondCardRarities = {
-	2, 2, 2, 2, 2, 3, 3,
+	2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
 }
 
 local drawPile = {}
@@ -171,6 +171,7 @@ local movingCard = { x = ui.drawPile.x, y = ui.drawPile.y, enabled = false, card
 local touchDetected = false
 local keyboardDetected = false
 local mouseDetected = false
+local gamepadDetected = false
 
 function navigationWord()
 	if touchDetected then
@@ -182,6 +183,9 @@ end
 function holdMessage()
 	if touchDetected then
 		return ' Single Tap anywhere to continue.'
+	end
+	if gamepadDetected then
+		return ' Press any button to continue.'
 	end
 	return ' Press any key to continue.'
 end
@@ -1100,11 +1104,14 @@ function startNextRoundModal()
 	else
 		-- common, and then either an uncommon or rare card
 		local commonCardReward = math.random(commonCardRewardsStart, commonCardRewardsEnd)
-		local secondCardRarity = secondCardRarities[math.random(#secondCardRarities)]
+
+		local randomRarityIndex = math.random(#secondCardRarities)
+		local secondCardRarity = secondCardRarities[randomRarityIndex]
 		local secondCardReward = math.random(uncommonCardRewardsStart, uncommonCardRewardsEnd)
 		if secondCardRarity == 3 then
 			secondCardReward = math.random(rareCardRewardsStart, rareCardRewardsEnd)
 		end
+
 		modalCards = { commonCardReward, secondCardReward }
 	end
 	startModal()
@@ -1427,6 +1434,8 @@ function getSelectionInstruction()
 		local controlsText = 'Controls: '
 		if touchDetected then
 			controlsText = controlsText..'Change the current selection by swiping up, down, left, or right. Double tap to select the current option. Press and hold on the screen anywhere to explore by touch. Enable single tap below to single tap an option directly. '
+		elseif gamepadDetected then
+			controlsText = controlsText..'Change the current selection by using the joystick or d-pad. Press any face button to select the current option. Press any bumper to repeat any text.'
 		else
 			controlsText = controlsText..'Change the current selection by using arrow keys or W A S D. Press x, space, return or enter to select the current option. Press R to repeat any text. '
 		end
@@ -1490,7 +1499,7 @@ function repeatText()
 	animationText = previousAnimationText
 end
 
-function love.keypressed(rawKey)
+function love.keyreleased(rawKey)
 	-- DebuggingScreen.keypressed(rawKey)
 	print('rawKey: '..rawKey)
 
@@ -1501,20 +1510,55 @@ function love.keypressed(rawKey)
 	handleInput(key)
 end
 
+function love.gamepadreleased(joystick, button)
+	gamepadDetected = true
+
+	if button then
+		local key = controllerRemap(button)
+		handleInput(key)
+	end
+end
+
+function love.gamepadaxis(joystick, axis, value)
+	local gamepadThreshold = 0.75
+
+	if math.abs(value) > gamepadThreshold then
+		gamepadDetected = true
+	end
+
+	local isXAxis = axis == 'leftx' or axis == 'rightx'
+	local isYAxis = axis == 'lefty' or axis == 'righty'
+	if isXAxis then
+		if value > gamepadThreshold then
+			handleInput('right')
+		elseif isXAxis and value < -gamepadThreshold then
+			handleInput('left')
+		end
+	end
+
+	if isYAxis then
+		if value > gamepadThreshold then
+			handleInput('down')
+		elseif value < -gamepadThreshold then
+			handleInput('up')
+		end
+	end
+end
+
 -- generic function to handle input (from keyboard, mouse, touch, gamepad)
 -- takes in the following keys: 'left', 'up', 'down', 'right', 'select', 'repeat'
 function handleInput(key)
 	local navKey = getNavKey()
 
 	-- repeat text if r was pressed
-	if key == "r" then
+	if key == "repeat" then
 		async(routines, function()
 			repeatText()
 		end)
 	end
 
 	-- consider this an interaction to advance (unless they wanted to repeat the text)
-	if key ~= "r" then
+	if key ~= "repeat" then
 		interactionHold.hasInteracted = true
 	end
 

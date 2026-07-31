@@ -25,7 +25,33 @@ local player_remap = {}
 function keyboardRemap(key)
 	key = hardware_remap[key] or key
 	key = keyboard_remap[key] or key
-	key = player_remap[key] or key
+
+	return key
+end
+
+local controller_remap = {
+	a = "select",
+	b = "select",
+	x = "select",
+	y = "select",
+
+	leftshoulder = "repeat",
+	rightshoulder = "repeat",
+
+	back = "escape",
+	start = "select",
+
+	dpup = "up",
+	dpdown = "down",
+	dpleft = "left",
+	dpright = "right",
+
+	space = "select",
+	["return"] = "select",
+}
+
+function controllerRemap(key)
+	key = controller_remap[key] or key
 
 	return key
 end
