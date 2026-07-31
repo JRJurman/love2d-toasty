@@ -1110,7 +1110,7 @@ function startNextRoundModal()
 	startModal()
 
 	-- once the player has selected a card to add, we'll shuffle then
-	-- (see love.keypressed)
+	-- (see handleInput)
 end
 
 function completePlate()
@@ -1490,17 +1490,20 @@ function repeatText()
 	animationText = previousAnimationText
 end
 
-function love.keypressed(rawKey, scancode)
+function love.keypressed(rawKey)
 	-- DebuggingScreen.keypressed(rawKey)
 	print('rawKey: '..rawKey)
 
-	-- if there is a scancode, this is a real keyboard press (not a redirect)
 	-- mark that a keyboard was detected
-	if scancode then
-		keyboardDetected = true
-	end
+	keyboardDetected = true
 
-	key = remap(rawKey)
+	key = keyboardRemap(rawKey)
+	handleInput(key)
+end
+
+-- generic function to handle input (from keyboard, mouse, touch, gamepad)
+-- takes in the following keys: 'left', 'up', 'down', 'right', 'select', 'repeat'
+function handleInput(key)
 	local navKey = getNavKey()
 
 	-- repeat text if r was pressed
@@ -2074,7 +2077,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 	if not istouch then
 		clickedElement = getElementAt(x, y)
 		if clickedElement then
-			love.keypressed('select')
+			handleInput('select')
 		end
 	end
 
@@ -2107,15 +2110,15 @@ function love.mousereleased(x, y, button, istouch, presses)
 
 		if abs_dx > abs_dy then
 			if dx > 0 then
-				love.keypressed('right')
+				handleInput('right')
 			else
-				love.keypressed('left')
+				handleInput('left')
 			end
 		else
 			if dy > 0 then
-				love.keypressed('down')
+				handleInput('down')
 			else
-				love.keypressed('up')
+				handleInput('up')
 			end
 		end
 	end
@@ -2123,7 +2126,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 	-- if we get a double tap, select whatever element has focus
 	if istouch and isTap and presses > 1 then
 		touchTime = 0
-		love.keypressed('select')
+		handleInput('select')
 	end
 
 	-- if this is a single tap, and they are selecting an element
@@ -2136,10 +2139,17 @@ function love.mousereleased(x, y, button, istouch, presses)
 			async(tapRoutines, function()
 				selectElementAt(x, y)
 				wait(0.05)
-				love.keypressed('select')
+				handleInput('select')
 			end)
 		end
 	end
 
 	-- DebuggingScreen.mousereleased(x, y)
+end
+
+function love.touchpressed()
+	local touches = love.touch.getTouches()
+	-- if touches > 1 then
+	-- 	handleInput('repeat')
+	-- end
 end

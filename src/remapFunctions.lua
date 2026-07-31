@@ -8,11 +8,12 @@ local hardware_remap = {
   kp6 = "right",
 }
 
-local game_remap = {
+local keyboard_remap = {
 	w = "up",
 	a = "left",
 	s = "down",
 	d = "right",
+	r = "repeat",
 
 	x = "select",
 	space = "select",
@@ -21,9 +22,9 @@ local game_remap = {
 
 local player_remap = {}
 
-function remap(key)
+function keyboardRemap(key)
 	key = hardware_remap[key] or key
-	key = game_remap[key] or key
+	key = keyboard_remap[key] or key
 	key = player_remap[key] or key
 
 	return key
