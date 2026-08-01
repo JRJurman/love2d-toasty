@@ -1,7 +1,7 @@
 # ========= web git-ignore ============
 
 node_modules
-WebExport.zip
+Toasty-Web.zip
 
 # ========= android git-ignore ========
 
@@ -131,3 +131,9 @@ ios/**/*.pbxuser
 ios/**/DerivedData/
 ios/**/build/
 ios/**/.DS_Store
+
+# Windows build
+Toasty-Windows.zip
+
+# Android build
+Toasty-Android.apk

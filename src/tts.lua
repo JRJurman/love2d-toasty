@@ -26,30 +26,44 @@ if not isWeb then
 	local base = love.filesystem.getSourceBaseDirectory()
 
 	-- How SRAL is linked differs per platform:
-	--   * Desktop ships it as a shared library next to the executable.
+	--   * Desktop ships it as a shared library, either in a sral/ folder next to
+	--     the executable (matching the layout used when running the .love) or
+	--     directly beside it — both are tried so the packaging layout can't
+	--     silently break TTS. The bare name goes last so a system-wide copy never
+	--     shadows the one we shipped.
 	--   * Android loads libSRAL.so by name (already loaded via System.loadLibrary).
 	--   * iOS statically links it into the app binary, so symbols resolve from the
 	--     main program (ffi.C) rather than a separate library.
-	local libname = ({
-		["OS X"]  = base .. "/sral/libSRAL.dylib",
-		Windows   = base .. "\\sral\\SRAL.dll",
-		Linux     = base .. "/sral/libSRAL.so",
-		Android   = "SRAL",
+	local candidates = ({
+		["OS X"]  = { base .. "/sral/libSRAL.dylib", base .. "/libSRAL.dylib" },
+		Windows   = { base .. "\\sral\\SRAL.dll", base .. "\\SRAL.dll", "SRAL" },
+		Linux     = { base .. "/sral/libSRAL.so", base .. "/libSRAL.so" },
+		Android   = { "SRAL" },
 	})[os_name]
 
-	local ok, lib_or_err = pcall(function()
-		if libname then
-			return ffi.load(libname)
-		end
-		-- iOS: confirm the statically-linked symbol resolves, then use ffi.C.
-		local _ = ffi.C.SRAL_Initialize
-		return ffi.C
-	end)
+	local errors = {}
 
-	if ok then
-		sral_lib = lib_or_err
+	if candidates then
+		for _, libname in ipairs(candidates) do
+			local ok, lib_or_err = pcall(ffi.load, libname)
+			if ok then
+				sral_lib = lib_or_err
+				break
+			end
+			errors[#errors + 1] = tostring(lib_or_err)
+		end
 	else
-		print("SRAL load failed: " .. tostring(lib_or_err))
+		-- iOS: confirm the statically-linked symbol resolves, then use ffi.C.
+		local ok, err = pcall(function() local _ = ffi.C.SRAL_Initialize end)
+		if ok then
+			sral_lib = ffi.C
+		else
+			errors[#errors + 1] = tostring(err)
+		end
+	end
+
+	if not sral_lib then
+		print("SRAL load failed: " .. table.concat(errors, "; "))
 	end
 
 	if sral_lib then
