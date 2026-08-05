@@ -133,12 +133,14 @@ ios/**/build/
 ios/**/.DS_Store
 
 # Windows build
+windows/Toasty.exe
 Toasty-Windows.zip
 
 # Android build
 Toasty-Android.apk
 
 # Linux build
+linux/bin/Toasty
 Toasty-Linux.tar.gz
 
 # macOS build
