@@ -6,7 +6,8 @@ export PATH="/opt/homebrew/bin:$PATH"
 
 # Build the .love package (a .zip)
 echo 'building toasty.love'
-cd src; zip "../toasty.love" -r *; cd ..
+rm -f toasty.love
+cd src; zip "../toasty.love" -r * -x "*.DS_Store"; cd ..
 echo 'completed toasty.love'
 
 ## =========== Web Build =====================
@@ -21,10 +22,10 @@ cp template.html "docs/index.html"
 echo 'completed web build'
 
 ## =========== Android Build =====================
-echo 'completed android build'
+echo 'starting android build'
 
+rm -rf android/app/src/embed/assets
 cp -r src/ android/app/src/embed/assets
+touch android/app/src/embed/assets/.gitkeep
 
 echo 'completed android build'
-
-## =========== iOS Build =====================
