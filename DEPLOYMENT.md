@@ -8,3 +8,4 @@ Here are the steps for deploying the latest version of the project
 4. In Xcode, select the love project, change the target to "Any iOS device", and then select Product > Archive. (Note, change the version or build number before deployment)
 5. Run `./build-windows.sh` to create the Windows build
 6. Run `./build-linux.sh` to create the linux build
+7. Run `./build-macos.sh` to create the macOS build
