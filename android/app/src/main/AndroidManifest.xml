@@ -26,6 +26,7 @@
 
     <application
         android:allowBackup="true"
+        android:appCategory="game"
         android:icon="@drawable/love"
         android:label="${NAME}">
         <!-- You don't have to change the activity class unless you have special needs! !-->
