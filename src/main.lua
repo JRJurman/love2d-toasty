@@ -2153,8 +2153,8 @@ function love.mousereleased(x, y, button, istouch, presses)
 		end
 		touchTime = 0
 
-		-- if dx and dy are 0, this was just a tap
-		isTap = dx == 0 and dy == 0
+		-- if dx and dy are below 50, this was most likely a tap
+		isTap = math.abs(dx) <= 50 and math.abs(dy) <= 50
 	end
 
 	if istouch and not isTap then
