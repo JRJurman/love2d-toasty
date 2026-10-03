@@ -114,10 +114,8 @@ public class GameActivity extends SDLActivity {
             return;
         }
 
-        org.sral.SralBootstrap.init(this);
-
         // The game handles its own accessibility (announcements, hover,
-        // activation) via SRAL. When TalkBack is on, the system rewrites
+        // activation) via eclair. When TalkBack is on, the system rewrites
         // touches into hover events; translate those back to touch events so
         // the game still sees them (explore-by-drag). TalkBack's double-tap
         // performs ACTION_CLICK on the accessibility-focused node, so the
