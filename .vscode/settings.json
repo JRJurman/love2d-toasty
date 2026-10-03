@@ -6,5 +6,6 @@
 				"cmd": "./build.sh"
 			}
 		]
-	}
+	},
+	"cmake.sourceDirectory": "/Users/jrjurman/Programs/love2d-toasty/ios"
 }
