@@ -39,6 +39,7 @@ import android.util.Log;
 import android.view.DisplayCutout;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.Keep;
 import androidx.core.app.ActivityCompat;
@@ -125,13 +126,18 @@ public class GameActivity extends SDLActivity {
             mSurface.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
             mSurface.setContentDescription(getApplicationInfo().loadLabel(getPackageManager()));
             mSurface.setOnClickListener(v -> {
+                Log.d(TAG, "surface performClick -> Enter");
                 onNativeKeyDown(KeyEvent.KEYCODE_ENTER);
                 onNativeKeyUp(KeyEvent.KEYCODE_ENTER);
             });
             mSurface.setOnHoverListener((v, event) -> {
                 int action;
                 switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_HOVER_ENTER: action = MotionEvent.ACTION_DOWN; break;
+                    case MotionEvent.ACTION_HOVER_ENTER:
+                        // if we are hovering, force focus onto the game frame
+                        v.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+                        action = MotionEvent.ACTION_DOWN;
+                        break;
                     case MotionEvent.ACTION_HOVER_MOVE:  action = MotionEvent.ACTION_MOVE; break;
                     case MotionEvent.ACTION_HOVER_EXIT:  action = MotionEvent.ACTION_UP;   break;
                     default: return false;
