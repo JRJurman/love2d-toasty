@@ -54,6 +54,8 @@
 		217DFC101D9F6D490055D849 /* url.lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 217DFBD41D9F6D490055D849 /* url.lua.h */; };
 		217DFC111D9F6D490055D849 /* usocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 217DFBD51D9F6D490055D849 /* usocket.c */; };
 		217DFC121D9F6D490055D849 /* usocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 217DFBD61D9F6D490055D849 /* usocket.h */; };
+		646CAB723072C11500F3A88B /* eclair_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 646CAB6E3072C11500F3A88B /* eclair_apple.m */; };
+		646CAB733072C11500F3A88B /* eclair.c in Sources */ = {isa = PBXBuildFile; fileRef = 646CAB6D3072C11500F3A88B /* eclair.c */; };
 		D943E58E2A24D56000D80361 /* PhysfsIo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D943E58C2A24D56000D80361 /* PhysfsIo.cpp */; };
 		D943E58F2A24D56000D80361 /* PhysfsIo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D943E58C2A24D56000D80361 /* PhysfsIo.cpp */; };
 		D943E5902A24D56000D80361 /* PhysfsIo.h in Headers */ = {isa = PBXBuildFile; fileRef = D943E58D2A24D56000D80361 /* PhysfsIo.h */; };
@@ -1270,6 +1272,11 @@
 		217DFBD41D9F6D490055D849 /* url.lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url.lua.h; sourceTree = "<group>"; };
 		217DFBD51D9F6D490055D849 /* usocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usocket.c; sourceTree = "<group>"; };
 		217DFBD61D9F6D490055D849 /* usocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = usocket.h; sourceTree = "<group>"; };
+		646CAB6C3072C11500F3A88B /* eclair.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eclair.h; sourceTree = "<group>"; };
+		646CAB6D3072C11500F3A88B /* eclair.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = eclair.c; sourceTree = "<group>"; };
+		646CAB6E3072C11500F3A88B /* eclair_apple.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = eclair_apple.m; sourceTree = "<group>"; };
+		646CAB6F3072C11500F3A88B /* eclair_backend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eclair_backend.h; sourceTree = "<group>"; };
+		646CAB703072C11500F3A88B /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		D943E58C2A24D56000D80361 /* PhysfsIo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysfsIo.cpp; sourceTree = "<group>"; };
 		D943E58D2A24D56000D80361 /* PhysfsIo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhysfsIo.h; sourceTree = "<group>"; };
 		FA08F5AE16C7525600F007B5 /* liblove-macosx.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "liblove-macosx.plist"; path = "macosx/liblove-macosx.plist"; sourceTree = "<group>"; };
@@ -2131,6 +2138,18 @@
 			sourceTree = "<group>";
 			usesTabs = 1;
 		};
+		646CAB713072C11500F3A88B /* eclair */ = {
+			isa = PBXGroup;
+			children = (
+				646CAB6C3072C11500F3A88B /* eclair.h */,
+				646CAB6D3072C11500F3A88B /* eclair.c */,
+				646CAB6E3072C11500F3A88B /* eclair_apple.m */,
+				646CAB6F3072C11500F3A88B /* eclair_backend.h */,
+				646CAB703072C11500F3A88B /* LICENSE.md */,
+			);
+			path = eclair;
+			sourceTree = "<group>";
+		};
 		FA08F5AC16C751BA00F007B5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -2201,6 +2220,7 @@
 		FA0B794D1A958EA3000E1D17 /* libraries */ = {
 			isa = PBXGroup;
 			children = (
+				646CAB713072C11500F3A88B /* eclair */,
 				FA0B794E1A958EA3000E1D17 /* Box2D */,
 				FA0B79B41A958EA3000E1D17 /* ddsparse */,
 				FA4C22CF22C2E11000BFBB7C /* dr_flac */,
@@ -4477,6 +4497,8 @@
 				FA0B7ECF1A95902C000E1D17 /* wrap_LuaThread.cpp in Sources */,
 				FA1BA0A81E16F20600AA2803 /* Canvas.cpp in Sources */,
 				FA0B7AA51A958EA3000E1D17 /* b2RevoluteJoint.cpp in Sources */,
+				646CAB723072C11500F3A88B /* eclair_apple.m in Sources */,
+				646CAB733072C11500F3A88B /* eclair.c in Sources */,
 				FA0B7EA11A95902C000E1D17 /* Sound.cpp in Sources */,
 				FA0B7DE61A95902C000E1D17 /* Cursor.cpp in Sources */,
 				FA6A2B711F5F845F0074C308 /* wrap_DataView.cpp in Sources */,
@@ -5048,10 +5070,12 @@
 					"$(inherited)",
 					LOVE_SUPPORT_COREAUDIO,
 					LOVE_NOMPG123,
+					ECLAIR_BUILD_SHARED,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -5075,9 +5099,11 @@
 					"$(inherited)",
 					LOVE_SUPPORT_COREAUDIO,
 					LOVE_NOMPG123,
+					ECLAIR_BUILD_SHARED,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
@@ -5102,9 +5128,11 @@
 					"$(inherited)",
 					LOVE_SUPPORT_COREAUDIO,
 					LOVE_NOMPG123,
+					ECLAIR_BUILD_SHARED,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				HEADER_SEARCH_PATHS = "$(inherited)";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";

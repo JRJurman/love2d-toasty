@@ -714,8 +714,7 @@
 				MARKETING_VERSION = 1.3.001;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
-					"-force_load",
-					"$(PROJECT_DIR)/ios/libraries/SRAL/libSRAL_static.a",
+					"-Wl,-u,_eclair_init",
 					"-Wl,-export_dynamic",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jrjurman.toasty;
@@ -775,8 +774,7 @@
 				MARKETING_VERSION = 1.3.001;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
-					"-force_load",
-					"$(PROJECT_DIR)/ios/libraries/SRAL/libSRAL_static.a",
+					"-Wl,-u,_eclair_init",
 					"-Wl,-export_dynamic",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jrjurman.toasty;
@@ -837,8 +835,7 @@
 				MARKETING_VERSION = 1.3.001;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
-					"-force_load",
-					"$(PROJECT_DIR)/ios/libraries/SRAL/libSRAL_static.a",
+					"-Wl,-u,_eclair_init",
 					"-Wl,-export_dynamic",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.jrjurman.toasty;
