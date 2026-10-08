@@ -37,9 +37,25 @@
 #include <SDL_syswm.h>
 
 #import <objc/runtime.h>
+#import <QuartzCore/QuartzCore.h>
+#import <OpenGLES/EAGL.h>
 
 static NSArray *getLovesInDocuments();
 static bool deleteFileInDocuments(NSString *filename);
+
+// Counts display refreshes, for love::ios::waitForDisplayRefresh().
+@interface LOVEDisplayRefreshObserver : NSObject
+@property (nonatomic) unsigned long long refreshCount;
+- (void)displayRefreshed:(CADisplayLink *)link;
+@end
+
+@implementation LOVEDisplayRefreshObserver
+- (void)displayRefreshed:(CADisplayLink *)link
+{
+	#pragma unused(link)
+	self.refreshCount = self.refreshCount + 1;
+}
+@end
 
 @interface LOVETableViewController : UITableViewController
 
@@ -547,13 +563,54 @@ void setDirectTouchInteraction(SDL_Window *window)
 	}
 }
 
-void pumpRunLoop()
+void waitForDisplayRefresh()
 {
 	@autoreleasepool
 	{
-		while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, TRUE) == kCFRunLoopRunHandledSource)
+		static LOVEDisplayRefreshObserver *observer = nil;
+		static CADisplayLink *displayLink = nil;
+
+		if (displayLink == nil)
+		{
+			observer = [LOVEDisplayRefreshObserver new];
+			displayLink = [CADisplayLink displayLinkWithTarget:observer selector:@selector(displayRefreshed:)];
+			[displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+		}
+
+		// Running the run loop can leave another GL context current; put ours back after.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+		EAGLContext *context = [EAGLContext currentContext];
+#pragma clang diagnostic pop
+
+		// Service whatever is already pending, including a refresh that passed
+		// while this frame was drawn, so the wait below is always for the next
+		// refresh after now. Presenting at most one frame per refresh keeps the
+		// drawable queue from filling up; once it's full, every frame blocks in
+		// its first GL call until a buffer frees, and that block lands just past
+		// each refresh, which would make a "pending refresh" check return
+		// immediately and leave the app stuck in that state.
+		while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true) == kCFRunLoopRunHandledSource)
 		{
 		}
+
+		// Sleep in the run loop until the next refresh. The timeout covers a
+		// paused display link.
+		unsigned long long start = observer.refreshCount;
+		CFTimeInterval deadline = CACurrentMediaTime() + 0.1;
+		while (observer.refreshCount == start)
+		{
+			CFTimeInterval remaining = deadline - CACurrentMediaTime();
+			if (remaining <= 0)
+				break;
+			CFRunLoopRunInMode(kCFRunLoopDefaultMode, remaining, true);
+		}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+		if ([EAGLContext currentContext] != context)
+			[EAGLContext setCurrentContext:context];
+#pragma clang diagnostic pop
 	}
 }
 

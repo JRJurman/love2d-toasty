@@ -1067,19 +1067,13 @@ void Window::swapBuffers()
 	}
 #endif
 
-#ifdef LOVE_IOS
-	// Assistive technologies (VoiceOver etc.) query the app over XPC that is
-	// only serviced while the main run loop is pumped, which SDL does once per
-	// frame. Servicing it again around the swap keeps those round-trips from
-	// stalling a full frame, which otherwise causes touch latency and dropped
-	// announcements while VoiceOver is running.
-	love::ios::pumpRunLoop();
-#endif
-
 	SDL_GL_SwapWindow(window);
 
 #ifdef LOVE_IOS
-	love::ios::pumpRunLoop();
+	// Wait for the next refresh in the run loop rather than blocking in the
+	// next frame's GL calls, so VoiceOver touch forwarding and other run-loop
+	// work are serviced while the frame waits (see ios.h).
+	love::ios::waitForDisplayRefresh();
 #endif
 
 #ifdef LOVE_WINDOWS
