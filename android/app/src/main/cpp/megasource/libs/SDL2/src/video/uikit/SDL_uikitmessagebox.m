@@ -100,6 +100,8 @@ static BOOL UIKit_ShowMessageBoxAlertController(const SDL_MessageBoxData *messag
 
     if (window == nil || window.rootViewController == nil) {
         alertwindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        /* Xcode 27: with the UIScene life cycle, windows outside a scene aren't shown */
+        alertwindow.windowScene = (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.anyObject;
         alertwindow.rootViewController = [UIViewController new];
         alertwindow.windowLevel = UIWindowLevelAlert;
 

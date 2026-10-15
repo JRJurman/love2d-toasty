@@ -217,6 +217,9 @@ int UIKit_CreateWindow(_THIS, SDL_Window *window)
         /* put the window on an external display if appropriate. */
         if (data.uiscreen != [UIScreen mainScreen]) {
             [uiwindow setScreen:data.uiscreen];
+        } else {
+            /* Xcode 27: with the UIScene life cycle, windows outside a scene aren't shown */
+            uiwindow.windowScene = (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.anyObject;
         }
 
         if (SetupWindowData(_this, window, uiwindow, SDL_TRUE) < 0) {

@@ -29,7 +29,9 @@
 
 @end
 
-@interface SDLUIKitDelegate : NSObject<UIApplicationDelegate>
+/* Xcode 27: apps built with the iOS 27 SDK only launch with the UIScene life
+ * cycle, so this class is also the scene delegate */
+@interface SDLUIKitDelegate : NSObject<UIApplicationDelegate, UIWindowSceneDelegate>
 
 + (id)sharedAppDelegate;
 + (NSString *)getAppDelegateClassName;

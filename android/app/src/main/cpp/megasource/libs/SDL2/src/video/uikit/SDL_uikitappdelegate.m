@@ -464,9 +464,28 @@ static UIImage *SDL_LoadLaunchImageNamed(NSString *name, int screenh)
                         SDL_IdleTimerDisabledChanged, NULL);
 
     SDL_SetMainReady();
-    [self performSelector:@selector(postFinishLaunch) withObject:nil afterDelay:0.0];
+    /* Xcode 27: SDL_main is started from scene:willConnectToSession:options: instead */
 
     return YES;
+}
+
+/* Xcode 27: implementing this makes UIKit use the UIScene life cycle, with
+ * another instance of this class as the scene delegate */
+- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
+{
+    UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:nil sessionRole:connectingSceneSession.role];
+    config.delegateClass = [self class];
+    return config;
+}
+
+/* Xcode 27: windows can only be shown once the scene connects, so the launch
+ * screen moves into it and SDL_main starts here */
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
+{
+    /* this is the scene delegate, so use the app delegate's launch screen */
+    SDLUIKitDelegate *delegate = [SDLUIKitDelegate sharedAppDelegate];
+    delegate->launchWindow.windowScene = (UIWindowScene *)scene;
+    [delegate performSelector:@selector(postFinishLaunch) withObject:nil afterDelay:0.0];
 }
 
 - (UIWindow *)window
