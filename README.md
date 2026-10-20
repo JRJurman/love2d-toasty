@@ -27,7 +27,7 @@ This project contains the source for the desktop, web, android, and iOS builds o
 
 The web build is based off of [love2d-a11y-template](https://github.com/JRJurman/love2d-a11y-template), which updates a dynamic text element to interact with screen readers.
 
-The Desktop, Android, and iOS projects rely on [SRAL](https://github.com/m1maker/SRAL), a C++ library which interfaces with assistive devices and technologies.
+The Desktop, Android, and iOS projects rely on [eclair](https://github.com/jrjurman/eclair), a dedicated C/C++ library which interfaces with assistive devices and technologies.
 
 ### Web Build
 
