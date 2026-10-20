@@ -8,9 +8,9 @@ cp -R macos/love.app "$APP"
 
 cp toasty.love "$APP/Contents/Resources/"
 
-# embed SRAL dependency
-mkdir -p "$APP/Contents/Resources/sral"
-cp sral/libSRAL.dylib "$APP/Contents/Resources/sral/"
+# embed eclair dependency
+mkdir -p "$APP/Contents/Resources/eclair"
+cp eclair/libeclair.dylib "$APP/Contents/Resources/eclair/"
 
 # copy our template Info.plist
 cp macos/Info.plist "$APP/Contents/"
@@ -23,7 +23,7 @@ if security find-identity -v -p codesigning | grep -q "$IDENTITY"; then
       # arrive in three different states (some unsigned, some with broken seals),
       # so --force on each is what makes the top-level signature possible.
       codesign --force --timestamp --options runtime --sign "$IDENTITY" \
-              "$APP/Contents/Resources/sral/libSRAL.dylib"
+              "$APP/Contents/Resources/eclair/libeclair.dylib"
 
       for fw in "$APP"/Contents/Frameworks/*.framework; do
               codesign --force --timestamp --options runtime --sign "$IDENTITY" "$fw"
